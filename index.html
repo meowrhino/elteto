@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>elteto</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #0a0a14;
+      overflow: hidden;
+      font-family: ui-monospace, Menlo, monospace;
+      color: #eee;
+    }
+    #game { display: grid; place-items: center; height: 100%; }
+    canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
+    #ui {
+      position: fixed;
+      top: 8px;
+      left: 8px;
+      display: flex;
+      gap: 6px;
+      z-index: 10;
+    }
+    button {
+      padding: 6px 10px;
+      background: #1a1a2a;
+      color: #eee;
+      border: 1px solid #444;
+      cursor: pointer;
+      font: inherit;
+      font-size: 12px;
+    }
+    button:hover { background: #2a2a3a; }
+  </style>
+</head>
+<body>
+  <div id="ui">
+    <button id="btn-save">Guardar partida</button>
+    <button id="btn-load">Cargar partida</button>
+    <input type="file" id="file-input" accept="application/json" hidden>
+  </div>
+  <div id="game"></div>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
