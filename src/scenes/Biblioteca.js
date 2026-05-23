@@ -33,7 +33,7 @@ export class Biblioteca extends RoomScene {
 
     // ===== NPCs =====
     this.addNpc(176, 136, {
-      id: 'bibliotecaria', name: 'Bibliotecaria',
+      id: 'martina', name: 'Martina',
       sprite: { hair: 0x4a2a4a, skin: 0xffd8b8, shirt: 0xaa66cc, pants: 0x333344, hairStyle: 'long' },
       lifespan: 220,
       dialogue: [

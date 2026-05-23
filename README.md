@@ -53,8 +53,8 @@ src/
 - **Jorge** — miembro del Club. Tiene tourette, sus aportaciones tienden al absurdo. Capucha de dinosaurio verde.
 - **Bárbara** — miembro del Club. El cerebro. Pelo bob blanco arriba / morado abajo, hoodie negro.
 - **Pablo** — el bully. Lleva días repitiendo la misma frase. Pelo morado corto, mostacho, chupa de cuero (próximamente).
-- **Profesora** — está rallada con Pablo. Pelirroja con gafas, jersey verde.
-- **Bibliotecaria, niño lector, Lucas, Marta, Dani, Sofía, Iván, Clara** — secundarios.
+- **Nivea (profesora)** — está rallada con Pablo. Pelirroja con gafas, jersey verde.
+- **Martina (bibliotecaria), niño lector, Lucas, Marta, Dani, Sofía, Iván, Clara** — secundarios.
 
 ## Capítulo 1: "El bully está roto"
 
@@ -77,11 +77,13 @@ La primera vez que lo activas dispara un evento global: en el aula descubrirás 
 
 Los botones **Guardar partida** y **Cargar partida** descargan/leen un JSON con todo el estado: posición, stats, inventario, capítulo, enemigos derrotados, etc.
 
-## Sprites
+## Sprites y retratos
 
-Los retratos de los personajes están hechos con [Picrew — Image Maker by Nuggts](https://picrew.me/ja/image_maker/1868017). Los sprites in-game son pixel art generado programáticamente que intenta evocar esos retratos. Cuando los sprites finales estén hechos, se sustituirán y se dará crédito apropiado en este README y en los créditos del juego.
+Los **retratos** de los personajes (las imágenes detalladas que se ven en el menú y en los diálogos) están hechos con [Picrew — Image Maker by Nuggts](https://picrew.me/ja/image_maker/1868017). Viven en `perosnajes/`.
 
-Por ahora estamos en pruebas: los sprites pixel son una aproximación cariñosa.
+Los **sprites in-world** (los muñequitos 16×24 que ves moverse en las salas) son pixel art generado programáticamente desde [`src/characters.js`](src/characters.js) intentando evocar esos retratos.
+
+Cuando los sprites pixel definitivos estén hechos, se sustituirán y se dará crédito apropiado en este README y en los créditos del juego. Por ahora estamos en pruebas.
 
 ## Stack
 

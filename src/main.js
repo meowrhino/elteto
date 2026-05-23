@@ -1,3 +1,4 @@
+import { BootScene } from './scenes/BootScene.js';
 import { Aula } from './scenes/Aula.js';
 import { Biblioteca } from './scenes/Biblioteca.js';
 import { Patio } from './scenes/Patio.js';
@@ -25,18 +26,19 @@ const game = new Phaser.Game({
     default: 'arcade',
     arcade: { gravity: { y: 600 }, debug: false },
   },
-  scene: [Aula, Biblioteca, Patio, DialogueScene, ForumScene, MenuScene, CombatScene],
+  // BootScene precarga los retratos antes de entrar al juego
+  scene: [BootScene, Aula, Biblioteca, Patio, DialogueScene, ForumScene, MenuScene, CombatScene],
 });
 
 // Estado inicial
 applyState(game.registry, defaultState());
 
-// Bus de eventos compartido entre escenas
+// Bus de eventos compartido
 const events = new EventBus();
 game.registry.set('events', events);
 
-// Side-effect global del primer toggle de visión:
-// Lucas muere aunque no estés en el aula al activarla.
+// Side-effect global del primer toggle de visión: Lucas muere aunque no
+// estés en el aula al activarla.
 events.on('first-vision', () => {
   const defeated = game.registry.get('defeated') || {};
   defeated.lucas = true;

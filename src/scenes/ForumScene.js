@@ -6,7 +6,8 @@ const SPEAKER_COLORS = {
   'Tú': '#ffd166',
   'Bárbara': '#cc88ff',
   'Jorge': '#88dd66',
-  'Profesora': '#88ddee',
+  'Nivea': '#88ddee',
+  'Martina': '#aa66cc',
   'Pablo': '#ff7766',
   'Anillo': '#eeeecc',
 };

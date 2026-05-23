@@ -32,10 +32,10 @@ export class Aula extends RoomScene {
     // ===== Profesora =====
     // Su diálogo cambia según el capítulo; usamos onTalk para evitar dialogue cacheado.
     this.addNpc(160, 136, {
-      id: 'profesora', name: 'Profesora',
+      id: 'nivea', name: 'Nivea',
       sprite: { hair: 0xc4582a, skin: 0xf8d8b8, shirt: 0x556633, pants: 0x554422, hairStyle: 'ginger_glasses' },
       lifespan: 220,
-      onTalk: (scene) => scene.talkToProfesora(),
+      onTalk: (scene) => scene.talkToNivea(),
     });
 
     // ===== Alumnos secundarios =====
@@ -71,10 +71,10 @@ export class Aula extends RoomScene {
   }
 
   // ============================================================ Profesora
-  talkToProfesora() {
+  talkToNivea() {
     const chap = getChapter(this.registry);
     if (chap === CHAPTERS.INTRO) {
-      this.openDialogue('Profesora', [
+      this.openDialogue('Nivea', [
         'Hola. Necesito hablar contigo un momento.',
         'Es sobre Pablo. Lleva días repitiendo... ya sabes lo que dice.',
         'Yo no puedo más. Estoy rallada.',
@@ -84,18 +84,18 @@ export class Aula extends RoomScene {
       return;
     }
     if (chap === CHAPTERS.INVESTIGATING || chap === CHAPTERS.FIGHTING) {
-      this.openDialogue('Profesora', [
+      this.openDialogue('Nivea', [
         'Por favor, ve al patio. Pablo está allí.',
       ]);
       return;
     }
     if (chap === CHAPTERS.PABLO_DONE) {
-      this.openDialogue('Profesora', [
+      this.openDialogue('Nivea', [
         '¿Y bien? ¿Has hablado con él?',
       ], () => this.openDialogue('Tú', ['lo he conseguido.'], () => this.finishChapter()));
       return;
     }
-    this.openDialogue('Profesora', [
+    this.openDialogue('Nivea', [
       'Gracias por todo, de verdad.',
       'No sé qué haría sin el Club de lo Oculto.',
     ]);
@@ -117,7 +117,7 @@ export class Aula extends RoomScene {
 
   finishChapter() {
     setChapter(this.registry, CHAPTERS.DONE);
-    this.openDialogue('Profesora', [
+    this.openDialogue('Nivea', [
       'Gracias. Eres una salvaje.',
       'A ver si mañana vuelve siendo él mismo.',
     ]);

@@ -1,4 +1,5 @@
 import { ensureSprite } from '../characters.js';
+import { portraitForCharId } from '../portraits.js';
 
 export class MenuScene extends Phaser.Scene {
   constructor() {
@@ -108,8 +109,21 @@ export class MenuScene extends Phaser.Scene {
     const party = this.registry.get('party');
     if (this.charCursor >= party.length) this.charCursor = party.length - 1;
     const c = party[this.charCursor];
-    const key = ensureSprite(this, c.sprite);
-    this.charAvatar.setTexture(key);
+
+    // Si tenemos retrato Picrew para este personaje lo usamos; si no,
+    // mostramos el sprite generado escalado.
+    const portraitKey = portraitForCharId(c.id);
+    if (portraitKey && this.textures.exists(portraitKey)) {
+      const tex = this.textures.get(portraitKey).getSourceImage();
+      const targetSize = 54;
+      const scale = targetSize / Math.max(tex.width, tex.height);
+      this.charAvatar.setTexture(portraitKey);
+      this.charAvatar.setScale(scale);
+    } else {
+      const key = ensureSprite(this, c.sprite);
+      this.charAvatar.setTexture(key);
+      this.charAvatar.setScale(3);
+    }
 
     const isHero = this.charCursor === 0;
     const stats = isHero ? this.registry.get('stats') : null;
