@@ -1,15 +1,26 @@
 import { RoomScene } from './RoomScene.js';
-import { getChapter, CHAPTERS } from '../story.js';
+import { getChapter, setChapter, CHAPTERS } from '../story.js';
 
 // El patio. Aquí está Pablo.
-// Antes de hablar con la Profesora es un NPC inofensivo (suelta su frase).
-// Tras el foro del Club pasa a ser ENEMIGO: tocarlo dispara combate.
+//
+// Estados de Pablo según capítulo:
+//   - INTRO          → NPC normal (suelta su frase, no pasa nada)
+//   - INVESTIGATING  → NPC con cutscene previa: al hablarle se desencadena
+//                      un diálogo del Club y, al cerrarlo, empieza el combate.
+//                      (No queremos que tocarle lance combate sin aviso.)
+//   - FIGHTING       → Enemigo directo: si has perdido y vuelves, contacto = combate.
+//   - PABLO_DONE/DONE→ no aparece (ya está resuelto)
 export class Patio extends RoomScene {
   constructor() {
     super('Patio');
     this.worldWidth = 640;
     this.worldHeight = 180;
     this.bgColor = '#5588cc';
+  }
+
+  // Spec única del sprite de Pablo para reutilizar (NPC y enemigo)
+  get pabloSprite() {
+    return { hair: 0x4a2a78, skin: 0xc89878, shirt: 0xeeeae0, pants: 0x222244, hairStyle: 'beanie_mask' };
   }
 
   buildRoom() {
@@ -26,12 +37,12 @@ export class Patio extends RoomScene {
     // Puerta de vuelta al aula
     this.addDoor(8, 136, 'Aula', 432, 140, 'aula');
 
-    // ===== Pablo según capítulo =====
+    // Pablo (NPC o enemigo según capítulo)
     this.addPablo();
 
-    // ===== Niños jugando =====
+    // Niños jugando
     this.addNpc(256, 136, {
-      id: 'iván_jugando', name: 'Iván',
+      id: 'ivan', name: 'Iván',
       sprite: { hair: 0x222222, skin: 0xeec8aa, shirt: 0x44aaee, pants: 0x222222 },
       lifespan: 110,
       dialogue: [
@@ -63,29 +74,67 @@ export class Patio extends RoomScene {
 
   addPablo() {
     const chap = getChapter(this.registry);
-    // Pablo: gorro blanco, flequillo púrpura, mechones teal, máscara negra, camiseta cream
-    const pabloSprite = { hair: 0x4a2a78, skin: 0xc89878, shirt: 0xeeeae0, pants: 0x222244, hairStyle: 'beanie_mask' };
 
-    // Tras el foro pasa a ser combate
-    const isCombatTime = chap === CHAPTERS.INVESTIGATING || chap === CHAPTERS.FIGHTING;
-
-    if (isCombatTime) {
+    if (chap === CHAPTERS.INVESTIGATING) {
+      // NPC con cutscene previa al combate
+      this.addNpc(120, 136, {
+        id: 'pablo_intro', name: 'Pablo',
+        sprite: this.pabloSprite,
+        lifespan: 80,
+        onTalk: (scene) => scene.startPabloCutscene(),
+      });
+    } else if (chap === CHAPTERS.FIGHTING) {
+      // Tras la cutscene (o tras perder), contacto = combate
       this.addEnemy(120, 136, {
         id: 'pablo', name: 'Pablo',
         hp: 16, atk: 3,
-        charSprite: pabloSprite,
-        special: 'pablo', // CombatScene sabe que tiene mecánica propia
+        charSprite: this.pabloSprite,
+        special: 'pablo',
         dialogue: ['me voy a follar a tu madre'],
       });
     } else if (chap === CHAPTERS.INTRO) {
-      // Pre-foro: aún es un NPC con el que se puede hablar
+      // Antes de hablar con Nivea, Pablo es un NPC inofensivo
       this.addNpc(120, 136, {
         id: 'pablo_npc', name: 'Pablo',
-        sprite: pabloSprite,
+        sprite: this.pabloSprite,
         lifespan: 100,
         dialogue: ['me voy a follar a tu madre'],
       });
     }
-    // En PABLO_DONE / DONE no aparece — ya está resuelto
+    // En PABLO_DONE / DONE no aparece
+  }
+
+  // Cutscene cuando le hablas por primera vez en INVESTIGATING.
+  // Tras el diálogo, avanza el capítulo y arranca el combate.
+  startPabloCutscene() {
+    this.openDialogue('Pablo', [
+      { speaker: 'Tú', text: 'Pablo. Para ya.' },
+      { speaker: 'Pablo', text: 'me voy a follar a tu madre' },
+      { speaker: 'Bárbara', text: 'Cuidado. Algo lo posee.' },
+      { speaker: 'Bárbara', text: 'No es él hablando.' },
+      { speaker: 'Jorge', text: '¡cárgatelo! ¡cárgatelo!' },
+      { speaker: 'Tú', text: 'Vale. Vamos allá.' },
+    ], () => this.transitionToCombat());
+  }
+
+  transitionToCombat() {
+    setChapter(this.registry, CHAPTERS.FIGHTING);
+    // Guardar la posición actual del player para volver a este punto al salir del combate
+    const state = this.registry.get('player');
+    state.x = Math.max(8, this.player.x - 24);
+    state.y = this.player.y;
+    state.scene = this.scene.key;
+    this.registry.set('player', state);
+
+    this.scene.start('CombatScene', {
+      enemy: {
+        id: 'pablo', name: 'Pablo',
+        hp: 16, atk: 3,
+        charSprite: this.pabloSprite,
+        special: 'pablo',
+        dialogue: ['me voy a follar a tu madre'],
+      },
+      returnTo: 'Patio',
+    });
   }
 }

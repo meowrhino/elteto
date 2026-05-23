@@ -1,12 +1,24 @@
 import { portraitForSpeaker } from '../portraits.js';
 
-// Overlay modal de diálogo. Datos esperados:
+// Overlay de diálogo. Modal: pausa la escena padre mientras está abierto.
+// Datos esperados:
 //   { speaker, lines, onClose?, pauseKey? }
 // `lines` puede ser:
 //   - string[]                  → todas son del speaker por defecto
-//   - { speaker, text }[]       → cada línea con su propio speaker
+//   - { speaker, text }[]       → cada línea con su propio speaker (multi-voz)
 //
-// Si el speaker tiene un retrato Picrew cargado, se muestra a la izquierda.
+// Layout (coords del juego a 320×180):
+//
+//   ┌──────────────────────────────────────────────────────┐
+//   │ Nombre del speaker (con color por persona)           │
+//   ├──────────┬───────────────────────────────────────────┤
+//   │ retrato  │ texto del diálogo wrap aquí...            │
+//   │ 50×50    │                                           │
+//   │          │                              [E] ▶        │
+//   └──────────┴───────────────────────────────────────────┘
+//
+// Si el speaker no tiene retrato, el bloque de la izquierda no se dibuja
+// y el texto ocupa todo el ancho.
 
 const SPEAKER_COLORS = {
   'Tú': '#ffd166',
@@ -19,12 +31,15 @@ const SPEAKER_COLORS = {
   '—': '#aaaaaa',
 };
 
-const PORTRAIT_SIZE = 44; // px en el espacio del juego
+// --- Constantes de layout (game space) ---
+const BOX_H = 68;
+const BOX_PAD_X = 6;
+const BOX_PAD_Y = 5;
+const NAME_BAR_H = 12;
+const PORTRAIT_SIZE = 50;
 
 export class DialogueScene extends Phaser.Scene {
-  constructor() {
-    super('DialogueScene');
-  }
+  constructor() { super('DialogueScene'); }
 
   init(data) {
     this.defaultSpeaker = data.speaker || '';
@@ -39,35 +54,56 @@ export class DialogueScene extends Phaser.Scene {
 
     const W = this.scale.width;
     const H = this.scale.height;
-    const boxH = 60;
-    this.boxY = H - boxH - 4;
 
-    // Caja de diálogo
-    this.add.rectangle(W / 2, this.boxY + boxH / 2, W - 8, boxH, 0x000000, 0.88)
+    // Coordenadas absolutas para evitar líos con orígenes
+    this.boxX = 4;
+    this.boxY = H - BOX_H - 4;
+    this.boxW = W - 8;
+    this.boxH = BOX_H;
+
+    // === Marco del cuadro (origin 0,0 para evitar ambigüedades) ===
+    this.add.rectangle(this.boxX, this.boxY, this.boxW, this.boxH, 0x0e0e1a, 0.95)
+      .setOrigin(0, 0)
       .setStrokeStyle(1, 0xffffff);
 
-    // Tag con el nombre del speaker (encima de la caja)
-    this.nameTag = this.add.rectangle(20, this.boxY - 2, 60, 10, 0x222244)
-      .setOrigin(0, 1).setStrokeStyle(1, 0xffffff);
-    this.nameText = this.add.text(22, this.boxY - 11, '', {
+    // Separador entre barra de nombre y contenido
+    this.add.rectangle(
+      this.boxX, this.boxY + NAME_BAR_H,
+      this.boxW, 1,
+      0x666688
+    ).setOrigin(0, 0);
+
+    // === Texto del nombre (dentro del propio cuadro, arriba) ===
+    this.nameText = this.add.text(
+      this.boxX + BOX_PAD_X,
+      this.boxY + 2,
+      '',
+      { fontFamily: 'monospace', fontSize: '8px', color: '#fff' }
+    ).setOrigin(0, 0);
+
+    // === Retrato (oculto si el speaker no tiene) ===
+    const portraitX = this.boxX + BOX_PAD_X;
+    const portraitY = this.boxY + NAME_BAR_H + BOX_PAD_Y;
+    this.portrait = this.add.image(portraitX, portraitY, '__DEFAULT')
+      .setOrigin(0, 0)
+      .setVisible(false);
+    this.portraitFrame = this.add.rectangle(
+      portraitX, portraitY, PORTRAIT_SIZE, PORTRAIT_SIZE
+    ).setOrigin(0, 0).setStrokeStyle(1, 0x666688).setVisible(false);
+
+    // === Texto del diálogo (su posición/anchura se recalcula en showCurrent) ===
+    this.lineText = this.add.text(0, 0, '', {
       fontFamily: 'monospace', fontSize: '8px', color: '#fff',
+      lineSpacing: 2,
     }).setOrigin(0, 0);
 
-    // Retrato (oculto si el speaker no tiene)
-    this.portrait = this.add.image(0, 0, '__DEFAULT')
-      .setOrigin(0, 0).setVisible(false);
-    this.portraitFrame = this.add.rectangle(0, 0, PORTRAIT_SIZE, PORTRAIT_SIZE)
-      .setOrigin(0, 0).setStrokeStyle(1, 0x666688).setVisible(false);
-
-    // Texto del diálogo (se reposiciona según haya o no retrato)
-    this.lineText = this.add.text(12, this.boxY + 6, '', {
-      fontFamily: 'monospace', fontSize: '8px', color: '#fff',
-      wordWrap: { width: W - 24 },
-    });
-
-    this.hint = this.add.text(W - 12, this.boxY + boxH - 10, '[E] ▶', {
-      fontFamily: 'monospace', fontSize: '8px', color: '#aaa',
-    }).setOrigin(1, 0);
+    // === Hint inferior derecha ===
+    this.hint = this.add.text(
+      this.boxX + this.boxW - BOX_PAD_X,
+      this.boxY + this.boxH - 10,
+      '[E] ▶',
+      { fontFamily: 'monospace', fontSize: '8px', color: '#aaa' }
+    ).setOrigin(1, 0);
 
     this.showCurrent();
 
@@ -77,6 +113,7 @@ export class DialogueScene extends Phaser.Scene {
     this.justOpened = true;
   }
 
+  // Refresca el contenido del cuadro con la línea actual
   showCurrent() {
     const item = this.lines[this.idx];
     let speaker = this.defaultSpeaker;
@@ -90,29 +127,32 @@ export class DialogueScene extends Phaser.Scene {
     // Nombre + color
     this.nameText.setText(speaker);
     this.nameText.setColor(SPEAKER_COLORS[speaker] || '#ffffff');
-    this.nameTag.width = Math.max(40, this.nameText.width + 8);
 
-    // Retrato
-    const W = this.scale.width;
+    // ¿Hay retrato?
     const portraitKey = portraitForSpeaker(speaker);
-    if (portraitKey && this.textures.exists(portraitKey)) {
+    const hasPortrait = !!(portraitKey && this.textures.exists(portraitKey));
+    if (hasPortrait) {
       const tex = this.textures.get(portraitKey).getSourceImage();
       const scale = PORTRAIT_SIZE / Math.max(tex.width, tex.height);
       this.portrait.setTexture(portraitKey);
       this.portrait.setScale(scale);
-      this.portrait.setPosition(8, this.boxY + 8);
-      this.portraitFrame.setPosition(8, this.boxY + 8);
       this.portrait.setVisible(true);
       this.portraitFrame.setVisible(true);
-      // Texto desplazado a la derecha del retrato
-      this.lineText.setPosition(8 + PORTRAIT_SIZE + 6, this.boxY + 8);
-      this.lineText.setWordWrapWidth(W - (8 + PORTRAIT_SIZE + 18));
     } else {
       this.portrait.setVisible(false);
       this.portraitFrame.setVisible(false);
-      this.lineText.setPosition(12, this.boxY + 8);
-      this.lineText.setWordWrapWidth(W - 24);
     }
+
+    // Posición y ancho del texto según haya o no retrato
+    const textY = this.boxY + NAME_BAR_H + BOX_PAD_Y;
+    let textX = this.boxX + BOX_PAD_X;
+    let textWrap = this.boxW - BOX_PAD_X * 2;
+    if (hasPortrait) {
+      textX = this.boxX + BOX_PAD_X + PORTRAIT_SIZE + 6;
+      textWrap = (this.boxX + this.boxW - BOX_PAD_X) - textX;
+    }
+    this.lineText.setPosition(textX, textY);
+    this.lineText.setWordWrapWidth(textWrap);
     this.lineText.setText(text);
 
     const isLast = this.idx >= this.lines.length - 1;
