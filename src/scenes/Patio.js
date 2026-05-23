@@ -63,7 +63,8 @@ export class Patio extends RoomScene {
 
   addPablo() {
     const chap = getChapter(this.registry);
-    const pabloSprite = { hair: 0x553388, skin: 0xf0c8a8, shirt: 0x1a1a1a, pants: 0x222222, hairStyle: 'punk_mustache' };
+    // Pablo: gorro blanco, flequillo púrpura, mechones teal, máscara negra, camiseta cream
+    const pabloSprite = { hair: 0x4a2a78, skin: 0xc89878, shirt: 0xeeeae0, pants: 0x222244, hairStyle: 'beanie_mask' };
 
     // Tras el foro pasa a ser combate
     const isCombatTime = chap === CHAPTERS.INVESTIGATING || chap === CHAPTERS.FIGHTING;

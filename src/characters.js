@@ -128,7 +128,65 @@ function drawWhitePurpleBob(g, opts) {
   g.fillRect(13, 8, 1, 1);
 }
 
-// Pablo: pelo morado corto + mostacho
+// Pablo: gorro blanco + flequillo púrpura + mechones teal a los lados +
+// máscara negra cubriendo medio cara + pendientes de aro
+function drawBeanieMask(g, opts) {
+  const beanie = 0xeeeae0;       // gorro crema
+  const beanieFold = 0xc8c4ba;   // doblez del gorro un poco más oscuro
+  const purple = 0x4a2a78;       // pelo púrpura asomando bajo el gorro
+  const teal = 0x3a8a8a;         // mechones teal a los lados
+  const mask = 0x222222;         // máscara negra
+  const earring = 0x555555;
+
+  // ----- gorro -----
+  g.fillStyle(beanie);
+  g.fillRect(4, 0, 8, 1);
+  g.fillRect(3, 1, 10, 1);
+  g.fillRect(2, 2, 12, 2);
+  g.fillRect(1, 3, 14, 1);
+  g.fillStyle(beanieFold).fillRect(1, 4, 14, 1);
+
+  // ----- flequillo púrpura visible bajo el gorro -----
+  g.fillStyle(purple);
+  g.fillRect(3, 5, 10, 1);
+  g.fillRect(5, 6, 6, 1);
+  // Mechón despeinado
+  g.fillRect(2, 5, 1, 1);
+  g.fillRect(13, 5, 1, 1);
+
+  // ----- pelo teal cayendo por los lados, pasa la cara -----
+  g.fillStyle(teal);
+  g.fillRect(1, 6, 2, 6);
+  g.fillRect(13, 6, 2, 6);
+  // Puntas teal asomando bajo la línea de la mandíbula
+  g.fillRect(2, 12, 1, 1);
+  g.fillRect(13, 12, 1, 1);
+
+  // ----- cubrir ojos por defecto y dibujar los suyos (slim) -----
+  g.fillStyle(opts.skin);
+  g.fillRect(6, 6, 1, 1);
+  g.fillRect(9, 6, 1, 1);
+  g.fillStyle(0x222222);
+  g.fillRect(5, 7, 2, 1);  // ojo izq
+  g.fillRect(9, 7, 2, 1);  // ojo der
+
+  // ----- máscara negra (tapa nariz y boca) -----
+  g.fillStyle(mask);
+  g.fillRect(4, 8, 8, 3);
+  g.fillRect(5, 11, 6, 1); // remate inferior
+  // Pliegue de la máscara (línea diagonal sutil)
+  g.fillStyle(0x111111).fillRect(7, 10, 2, 1);
+
+  // ----- pendientes de aro -----
+  g.fillStyle(earring);
+  g.fillRect(0, 9, 1, 1);
+  g.fillRect(15, 9, 1, 1);
+
+  // ----- detalle "logo" en la camiseta (puntito verde) -----
+  g.fillStyle(0x6a8a3a).fillRect(7, 14, 2, 1);
+}
+
+// Pablo viejo: pelo morado corto + mostacho (lo dejamos por si alguien lo usa)
 function drawPunkMustache(g, opts) {
   const h = opts.hair;
 
@@ -238,6 +296,7 @@ const DRAWERS = {
   curly: drawCurly,
   dino_hood: drawDinoHood,
   white_purple_bob: drawWhitePurpleBob,
+  beanie_mask: drawBeanieMask,
   punk_mustache: drawPunkMustache,
   ginger_glasses: drawGingerGlasses,
   normal: drawNormal,
