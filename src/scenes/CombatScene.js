@@ -186,7 +186,11 @@ export class CombatScene extends Phaser.Scene {
       const items = (this.registry.get('inventory') || []).filter(i => i.type !== 'key');
       this.handleListNav(Math.min(items.length, 4));
       if (back) return this.enterState('ROOT');
-      if (confirm) this.useItem(items[this.cursor]);
+      if (confirm) {
+        const it = items[this.cursor];
+        if (it && it.type === 'special') this.useSpecialItem(it);
+        else this.useItem(it);
+      }
     } else if (this.state === 'MSG') {
       if (confirm) {
         if (this.enemyHp <= 0) return this.victory();
@@ -306,11 +310,18 @@ export class CombatScene extends Phaser.Scene {
   doAttack() {
     const s = this.registry.get('stats');
     // Variación leve para que no sea siempre el mismo daño
-    const dmg = Math.max(1, s.atk + Math.floor(Math.random() * 3) - 1);
+    let dmg = Math.max(1, s.atk + Math.floor(Math.random() * 3) - 1);
+    // Aplicar buff de "Concentrar" si está activo (consume al usarse)
+    let buffMsg = '';
+    if (this._atkBuff && this._atkBuff > 1) {
+      dmg = Math.floor(dmg * this._atkBuff);
+      buffMsg = ' ¡Concentración!';
+      this._atkBuff = null;
+    }
     this.enemyHp -= dmg;
     this.flashEnemy();
     this.spawnDamagePopup(dmg, this.enemySprite);
-    this.enterState('MSG', `Golpeas a ${this.enemyCfg.name}. ${dmg} de daño.`);
+    this.enterState('MSG', `Golpeas a ${this.enemyCfg.name}. ${dmg} de daño.${buffMsg}`);
   }
 
   useSkill(skill) {
@@ -321,22 +332,41 @@ export class CombatScene extends Phaser.Scene {
       return this.enterState('ROOT', '¡No tienes PM suficientes!');
     }
     s.mp -= skill.mpCost;
+
+    // Habilidades de utilidad (heal / buff / status) no aplican dmg al enemigo
+    if (skill.id === 'curar') {
+      const heal = Math.min(skill.heal ?? 10, s.hpMax - s.hp);
+      s.hp += heal;
+      this.registry.set('stats', s);
+      this.spawnDamagePopup(`+${heal}`, { x: 30, y: 30 }, '#88ff88');
+      return this.enterState('MSG', `Curas ${heal} PV.`);
+    }
+    if (skill.id === 'concentrar') {
+      this._atkBuff = 2; // próximo ataque x2
+      this.registry.set('stats', s);
+      return this.enterState('MSG', '¡Te concentras! Tu próximo ataque hará el doble.');
+    }
+    if (skill.id === 'chillar') {
+      this.registry.set('stats', s);
+      if (Math.random() < 0.5) {
+        this.applyEnemyStatus('confundido', 2);
+        return this.enterState('MSG', `¡Chillas! ${this.enemyCfg.name} se confunde.`);
+      }
+      return this.enterState('MSG', `¡Chillas! Pero ${this.enemyCfg.name} ni se inmuta.`);
+    }
+
+    // Ofensivas
     this.enemyHp -= skill.dmg;
     this.registry.set('stats', s);
-    if (skill.dmg > 0) {
-      this.flashEnemy();
-      this.spawnDamagePopup(skill.dmg, this.enemySprite, '#ff6644');
-    }
-    // Status effects en habilidades específicas
+    this.flashEnemy();
+    this.spawnDamagePopup(skill.dmg, this.enemySprite, '#ff6644');
     let extra = '';
     if (skill.id === 'silbar') {
-      // 60% prob de dormir al enemigo
       if (Math.random() < 0.6) {
         this.applyEnemyStatus('dormido', 2);
         extra = ' ¡Se ha dormido!';
       }
     } else if (skill.id === 'bola_fuego') {
-      // 25% prob de confundir
       if (Math.random() < 0.25) {
         this.applyEnemyStatus('confundido', 3);
         extra = ' ¡Confuso por el fuego!';
@@ -353,16 +383,40 @@ export class CombatScene extends Phaser.Scene {
       const heal = Math.min(it.amount, s.hpMax - s.hp);
       s.hp += heal;
       msg = `${it.name}: +${heal} PV.`;
+      this.spawnDamagePopup(`+${heal}`, { x: 30, y: 30 }, '#88ff88');
     } else if (it.type === 'mana') {
       const mp = Math.min(it.amount, s.mpMax - s.mp);
       s.mp += mp;
       msg = `${it.name}: +${mp} PM.`;
+      this.spawnDamagePopup(`+${mp}`, { x: 30, y: 30 }, '#88ccff');
     }
     it.count--;
     const inv = this.registry.get('inventory').filter(i => i.count > 0);
     this.registry.set('inventory', inv);
     this.registry.set('stats', s);
     this.enterState('MSG', msg);
+  }
+
+  // El Anillo del Club: item especial que no se consume. Limpia status del
+  // jugador y confunde al enemigo (más fuerte si es 'poseído' como Pablo).
+  useSpecialItem(it) {
+    if (it.id === 'anillo_club') {
+      const s = this.registry.get('stats');
+      const hadStatus = !!s.status;
+      s.status = null;
+      this.registry.set('stats', s);
+      // Confundir al enemigo
+      const confuseChance = this.enemyCfg.special === 'pablo' ? 1.0 : 0.7;
+      let extra = '';
+      if (Math.random() < confuseChance) {
+        this.applyEnemyStatus('confundido', 3);
+        extra = ` ${this.enemyCfg.name} se confunde.`;
+      }
+      const cleanedMsg = hadStatus ? ' Limpias tu estado.' : '';
+      this.enterState('MSG', `*El Anillo brilla.*${cleanedMsg}${extra}`);
+      return;
+    }
+    this.enterState('MSG', `${it.name} no parece tener efecto.`);
   }
 
   doTalk() {

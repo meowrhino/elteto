@@ -63,6 +63,21 @@ export class RoomScene extends Phaser.Scene {
 
     // Aplicar sepia si venimos de otra sala con visión activada
     this.applySepia(!!(this.registry.get('flags') || {}).sepia);
+
+    // Tinte nocturno si es de noche (azul oscuro, sutil)
+    this.applyNightTint();
+  }
+
+  applyNightTint() {
+    const flags = this.registry.get('flags') || {};
+    if (flags.timeOfDay !== 'night') return;
+    // Overlay azul oscuro semi-transparente que cubre toda la sala
+    const W = this.worldWidth;
+    const H = this.worldHeight;
+    this.add.rectangle(0, 0, W, H, 0x000033, 0.45)
+      .setOrigin(0, 0)
+      .setDepth(50)
+      .setScrollFactor(1);
   }
 
   spawnPartyAndFollowers() {
@@ -313,6 +328,17 @@ export class RoomScene extends Phaser.Scene {
     // Sombra elíptica bajo los pies del NPC (suaviza la sensación flotante)
     this.add.ellipse(x + SPRITE_W / 2, y + SPRITE_H - 1, SPRITE_W - 4, 4, 0x000000, 0.35)
       .setDepth(-1);
+    // Idle bounce: oscilación vertical sutil. Desfase aleatorio para que no
+    // se muevan todos los NPCs sincronizados.
+    this.tweens.add({
+      targets: npc,
+      y: y - 0.6,
+      duration: 1400 + Math.random() * 600,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+      delay: Math.random() * 1000,
+    });
     return npc;
   }
 

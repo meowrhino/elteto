@@ -82,6 +82,11 @@ export class Patio extends RoomScene {
     this.addDoor(8, 136, 'Aula', 432, 144, 'aula');
     // Puerta al pasillo (acceso al resto del cole)
     this.addDoor(624, 136, 'Pasillo', 24, 144, 'pasillo');
+    // Tras derrotar a Pablo, aparece una "grieta" que da acceso a su sueño.
+    const chap = getChapter(this.registry);
+    if (chap === CHAPTERS.PABLO_DONE || chap === CHAPTERS.DONE) {
+      this.addDoor(200, 136, 'SuenoPablo', 40, 144, 'la mente de Pablo');
+    }
 
     // Pablo (NPC o enemigo según capítulo)
     this.addPablo();

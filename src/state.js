@@ -27,14 +27,19 @@ export function defaultState() {
       { id: 'pocion', name: 'Poción', desc: 'Cura 10 PV', count: 2, type: 'heal', amount: 10 },
       { id: 'merienda', name: 'Merienda', desc: 'Cura 5 PV', count: 1, type: 'heal', amount: 5 },
       { id: 'tinta', name: 'Tinta mágica', desc: 'Restaura 5 PM', count: 1, type: 'mana', amount: 5 },
-      // El anillo del Club: clave para resolver pacíficamente combates poseídos
-      { id: 'anillo_club', name: 'Anillo del Club', desc: 'Absorbe malestar ajeno', count: 1, type: 'key' },
+      // El anillo del Club: limpia tus status, confunde al enemigo poseído.
+      // Tiene count infinito (no se consume) y type 'special' para que aparezca
+      // en el menú pero no se filtre como objeto consumible.
+      { id: 'anillo_club', name: 'Anillo del Club', desc: 'Limpia tus status y confunde al poseído', count: 99, type: 'special' },
     ],
 
     skills: [
       { id: 'regla', name: 'Reglazo', mpCost: 0, dmg: 4, desc: 'Golpe con la regla' },
       { id: 'bola_fuego', name: 'Bola de fuego', mpCost: 3, dmg: 8, desc: 'Quema · puede confundir' },
       { id: 'silbar', name: 'Silbar', mpCost: 1, dmg: 0, desc: 'Puede dormir al enemigo' },
+      { id: 'curar', name: 'Curar', mpCost: 4, dmg: 0, heal: 12, desc: 'Recupera 12 PV propios' },
+      { id: 'concentrar', name: 'Concentrar', mpCost: 2, dmg: 0, desc: 'x2 ATK próximo turno' },
+      { id: 'chillar', name: 'Chillar', mpCost: 2, dmg: 0, desc: 'Puede confundir al enemigo' },
     ],
 
     equipment: { arma: 'Regla escolar', armadura: 'Bata', accesorio: 'Anillo del Club' },
@@ -42,9 +47,11 @@ export function defaultState() {
     // Enemigos derrotados (id -> true)
     defeated: {},
 
-    // Flags varios: storyId (ID del nodo del story-graph), sepia (vista activa), etc.
-    // El formato legacy `chapter: 'intro'` sigue soportado vía LEGACY_MAP en story.js.
-    flags: { storyId: 'act1.ch1.intro' },
+    // Flags varios:
+    //   - storyId: ID del nodo de progresión (story-graph)
+    //   - timeOfDay: 'day' | 'night' — cambia tinte y NPCs visibles
+    //   - sepia: vista activa (modo visión)
+    flags: { storyId: 'act1.ch1.intro', timeOfDay: 'day' },
   };
 }
 

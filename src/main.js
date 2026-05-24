@@ -15,9 +15,9 @@ import { ROOM_AULA_MUSICA } from './data/rooms/aula_musica.js';
 import { ROOM_SALON_ACTOS } from './data/rooms/salon_actos.js';
 import { ROOM_AZOTEA } from './data/rooms/azotea.js';
 import { ROOM_SOTANO } from './data/rooms/sotano.js';
-import { ROOM_CUARTO_PROTA } from './data/rooms/cuarto_prota.js';
 import { ROOM_SUENO_PABLO } from './data/rooms/sueno_pablo.js';
 import { ROOM_ASTRAL } from './data/rooms/astral.js';
+import { CuartoProta } from './scenes/CuartoProta.js';
 import { setupSaveUI } from './save.js';
 import { defaultState, applyState } from './state.js';
 import { EventBus } from './events.js';
@@ -31,7 +31,6 @@ const AulaMusica  = makeRoomClass('AulaMusica',  ROOM_AULA_MUSICA);
 const SalonActos  = makeRoomClass('SalonActos',  ROOM_SALON_ACTOS);
 const Azotea      = makeRoomClass('Azotea',      ROOM_AZOTEA);
 const Sotano      = makeRoomClass('Sotano',      ROOM_SOTANO);
-const CuartoProta = makeRoomClass('CuartoProta', ROOM_CUARTO_PROTA);
 const SuenoPablo  = makeRoomClass('SuenoPablo',  ROOM_SUENO_PABLO);
 const Astral      = makeRoomClass('Astral',      ROOM_ASTRAL);
 // La pixel font (Press Start 2P) se carga vía <link> en index.html.
