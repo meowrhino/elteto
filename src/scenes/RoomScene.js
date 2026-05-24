@@ -2,6 +2,7 @@ import { ensureSprite, SPRITE_W, SPRITE_H } from '../characters.js';
 import { bus } from '../events.js';
 import { linesFor } from '../data/dialogues.js';
 import { getChapter } from '../story.js';
+import { toSpec, lifespanOf } from '../data/characters.js';
 
 // Acepta número (0xRRGGBB) o string ('#rrggbb' / 'rrggbb') y devuelve int.
 function toInt(c) {
@@ -745,5 +746,70 @@ export class RoomScene extends Phaser.Scene {
   openMenu() {
     this.scene.launch('MenuScene', { parentKey: this.scene.key });
     this.scene.pause();
+  }
+
+  // ============================================================ data-driven build
+  // Construye los campos planos de una sala desde un objeto de datos.
+  // Lo que necesita lógica (cutscenes, NPCs dinámicos según capítulo, salas
+  // con plataformas elevadas) se sigue añadiendo en la clase concreta.
+  //
+  // Acepta los siguientes campos opcionales en `data`:
+  //   - interior      → opts para buildInterior()
+  //   - lambrin       → { y, h, color, railY, railH, railColor }
+  //   - windows[]     → opts para addWindow()
+  //   - floorY        → y del suelo (default 160)
+  //   - floorTex      → textura del suelo (default 'tile')
+  //   - decor[]       → { x, y, tex }
+  //   - doors[]       → { x, y, target, spawnX, spawnY, label }
+  //   - signs[]       → { x, y, text }
+  //   - npcs[]        → { x, y, id, name, sprite }
+  //                     sprite es un id de characters.js (string)
+  buildFromData(data) {
+    if (data.interior) this.buildInterior(data.interior);
+
+    if (data.lambrin) {
+      const l = data.lambrin;
+      this.add.rectangle(0, l.y, this.worldWidth, l.h, l.color)
+        .setOrigin(0, 0).setDepth(-85).setScrollFactor(1);
+      if (l.railColor != null) {
+        this.add.rectangle(0, l.railY, this.worldWidth, l.railH, l.railColor)
+          .setOrigin(0, 0).setDepth(-84).setScrollFactor(1);
+      }
+    }
+
+    if (data.windows) {
+      for (const w of data.windows) this.addWindow(w);
+    }
+
+    const floorY = data.floorY ?? 160;
+    const floorTex = data.floorTex ?? 'tile';
+    for (let x = 0; x < this.worldWidth; x += 16) {
+      this.addPlatform(x, floorY, 1, 1, floorTex);
+    }
+
+    if (data.decor) {
+      for (const d of data.decor) this.addDecor(d.x, d.y, d.tex);
+    }
+
+    if (data.doors) {
+      for (const d of data.doors) {
+        this.addDoor(d.x, d.y, d.target, d.spawnX, d.spawnY, d.label);
+      }
+    }
+
+    if (data.signs) {
+      for (const s of data.signs) this.addSign(s.x, s.y, s.text);
+    }
+
+    if (data.npcs) {
+      for (const n of data.npcs) {
+        this.addNpc(n.x, n.y, {
+          id: n.id,
+          name: n.name,
+          sprite: typeof n.sprite === 'string' ? toSpec(n.sprite) : n.sprite,
+          lifespan: lifespanOf(n.sprite || n.id),
+        });
+      }
+    }
   }
 }

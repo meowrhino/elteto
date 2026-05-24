@@ -1,67 +1,22 @@
 import { RoomScene } from './RoomScene.js';
 import { getChapter, setChapter, CHAPTERS } from '../story.js';
 import { toSpec, lifespanOf } from '../data/characters.js';
+import { ROOM_AULA } from '../data/rooms/aula.js';
 
 // El aula. Punto de partida del juego.
-// La Profesora dispara la progresión del capítulo "el bully está roto".
+// La parte estática (decor, puertas, alumnos sin cutscene) vive en
+// src/data/rooms/aula.js. Aquí solo registramos lo que necesita lógica:
+// la Profesora con onTalk, el hook de modo visión que mata a Lucas.
 export class Aula extends RoomScene {
   constructor() {
     super('Aula');
-    this.worldWidth = 480;
-    this.worldHeight = 180;
-    this.bgColor = '#2a2440';
+    this.worldWidth = ROOM_AULA.worldWidth;
+    this.worldHeight = ROOM_AULA.worldHeight;
+    this.bgColor = ROOM_AULA.bgColor;
   }
 
   buildRoom() {
-    // Interior: pared trasera + zócalo + techo. Hace que la clase deje de "flotar".
-    this.buildInterior({
-      wallColor: 0x5e567a,
-      baseboardColor: 0x2a2440,
-      baseboardH: 4,
-      floorTop: 160,
-      ceilingHeight: 14,
-      ceilingColor: 0x3a3548,
-    });
-
-    // Lambrín: banda más oscura en la mitad inferior de la pared.
-    // Tono entre la pared y el zócalo, para romper el plano de pared sin estridencias.
-    this.add.rectangle(0, 116, this.worldWidth, 40, 0x4a4566)
-      .setOrigin(0, 0).setDepth(-85).setScrollFactor(1);
-    // Riel de madera que separa lambrín de pared
-    this.add.rectangle(0, 114, this.worldWidth, 2, 0x6b4226)
-      .setOrigin(0, 0).setDepth(-84).setScrollFactor(1);
-
-    // Ventana con vista al exterior (parallax suave)
-    this.addWindow({ x: 24, y: 48, w: 56, h: 40, scrollFactor: 0.55 });
-
-    // Suelo continuo
-    for (let x = 0; x < this.worldWidth; x += 16) this.addPlatform(x, 160);
-
-    // Decoración: pizarra grande contra la pared
-    this.addDecor(180, 44, 'chalkboard_big');
-
-    // Reloj y póster en la pared
-    this.addDecor(296, 50, 'clock');
-    this.addDecor(412, 56, 'poster');
-
-    // Mesa de profe delante de la pizarra (a la izquierda, sin alumnos)
-    this.addDecor(112, 142, 'teacher_desk');
-
-    // Sillas (van antes que los pupitres para quedar detrás visualmente)
-    this.addDecor(123, 151, 'chair');
-    this.addDecor(203, 151, 'chair');
-    this.addDecor(283, 151, 'chair');
-    this.addDecor(363, 151, 'chair');
-
-    // Pupitres
-    this.addDecor(120, 150, 'desk');
-    this.addDecor(200, 150, 'desk');
-    this.addDecor(280, 150, 'desk');
-    this.addDecor(360, 150, 'desk');
-
-    // Puertas
-    this.addDoor(8, 136, 'Biblioteca', 440, 144, 'biblioteca');
-    this.addDoor(456, 136, 'Patio', 40, 144, 'patio');
+    this.buildFromData(ROOM_AULA);
 
     // ===== Profesora =====
     // Su diálogo cambia según el capítulo; usamos onTalk para evitar dialogue cacheado.
@@ -70,26 +25,6 @@ export class Aula extends RoomScene {
       sprite: toSpec('nivea'),
       lifespan: lifespanOf('nivea'),
       onTalk: (scene) => scene.talkToNivea(),
-    });
-
-    // ===== Alumnos secundarios =====
-    // Sus líneas viven en src/data/dialogues.js (catálogo indexado por id).
-    this.addNpc(208, 128, {
-      id: 'marta', name: 'Marta',
-      sprite: toSpec('marta'),
-      lifespan: lifespanOf('marta'),
-    });
-
-    this.addNpc(288, 128, {
-      id: 'dani', name: 'Dani',
-      sprite: toSpec('dani'),
-      lifespan: lifespanOf('dani'),
-    });
-
-    this.addNpc(368, 128, {
-      id: 'lucas', name: 'Lucas',
-      sprite: toSpec('lucas'),
-      lifespan: lifespanOf('lucas'), // muy bajo: la pista de que algo no va bien
     });
   }
 
