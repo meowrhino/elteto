@@ -27,17 +27,19 @@ export const ROOM_AULA_MUSICA = {
   floorTex: 'tile',
 
   decor: [
-    { x: 180, y: 44, tex: 'chalkboard_big' },
+    { x: 180, y: 44, tex: 'chalkboard_big' },     // pizarra con partituras escritas
     { x: 296, y: 50, tex: 'clock' },
     { x: 412, y: 56, tex: 'poster' },
-    // El instrumental: usamos teacher_desk como piano de pie
-    { x: 120, y: 142, tex: 'teacher_desk' },
-    { x: 200, y: 142, tex: 'teacher_desk' },
-    // Sillas
-    { x: 263, y: 151, tex: 'chair' },
-    { x: 343, y: 151, tex: 'chair' },
-    { x: 260, y: 150, tex: 'desk' },
-    { x: 340, y: 150, tex: 'desk' },
+    // Piano vertical en el centro
+    { x: 116, y: 140, tex: 'piano' },
+    // Atriles para alumnos
+    { x: 220, y: 142, tex: 'music_stand' },
+    { x: 290, y: 142, tex: 'music_stand' },
+    { x: 360, y: 142, tex: 'music_stand' },
+    // Sillas para los músicos
+    { x: 222, y: 151, tex: 'chair' },
+    { x: 292, y: 151, tex: 'chair' },
+    { x: 362, y: 151, tex: 'chair' },
   ],
 
   doors: [

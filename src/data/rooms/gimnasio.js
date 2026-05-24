@@ -22,9 +22,15 @@ export const ROOM_GIMNASIO = {
     { x: 240, y: 22, tex: 'lamp' },
     { x: 400, y: 22, tex: 'lamp' },
     { x: 560, y: 22, tex: 'lamp' },
-    // Marcador (un poster grande)
-    { x: 296, y: 50, tex: 'chalkboard_big' },
-    // Pelota y otro elemento
+    // Marcador electrónico en el centro
+    { x: 296, y: 44, tex: 'scoreboard' },
+    // Dos canastas a los lados
+    { x: 80,  y: 60, tex: 'basket' },
+    { x: 540, y: 60, tex: 'basket' },
+    // Colchonetas apiladas
+    { x: 120, y: 154, tex: 'mat' },
+    { x: 460, y: 154, tex: 'mat' },
+    // Pelotas en el suelo
     { x: 200, y: 154, tex: 'ball' },
     { x: 440, y: 154, tex: 'ball' },
   ],

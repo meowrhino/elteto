@@ -21,10 +21,16 @@ export const ROOM_COMEDOR = {
     { x: 80,  y: 22, tex: 'lamp' },
     { x: 240, y: 22, tex: 'lamp' },
     { x: 400, y: 22, tex: 'lamp' },
-    // Mesas largas
+    // Máquina de refrescos a la derecha
+    { x: 432, y: 128, tex: 'soda_machine' },
+    // Mesas largas con bandejas encima
     { x: 60,  y: 144, tex: 'reading_table' },
     { x: 200, y: 144, tex: 'reading_table' },
     { x: 340, y: 144, tex: 'reading_table' },
+    { x: 68,  y: 140, tex: 'tray' },
+    { x: 80,  y: 140, tex: 'tray' },
+    { x: 208, y: 140, tex: 'tray' },
+    { x: 348, y: 140, tex: 'tray' },
     // Sillas
     { x: 60,  y: 151, tex: 'chair' },
     { x: 80,  y: 151, tex: 'chair' },

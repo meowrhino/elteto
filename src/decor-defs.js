@@ -546,6 +546,224 @@ export function paintBin(g) {
   g.fillStyle(0x222222).fillRect(0, 9, 8, 1);
 }
 
+// ============================================================ decor único por sala
+
+// Gimnasio
+export function paintScoreboard(g) {
+  // Carcasa metálica
+  g.fillStyle(0x222222).fillRect(0, 0, 32, 16);
+  g.fillStyle(0x444444).fillRect(0, 0, 32, 1);
+  g.fillStyle(0x000000).fillRect(0, 15, 32, 1);
+  // Pantalla negra
+  g.fillStyle(0x080808).fillRect(2, 2, 28, 12);
+  // Dígitos LED rojos: "07  12"
+  g.fillStyle(0xff2222);
+  // "07"
+  g.fillRect(4, 4, 3, 1); g.fillRect(4, 4, 1, 4); g.fillRect(6, 4, 1, 8);
+  g.fillRect(9, 4, 1, 8); g.fillRect(10, 4, 2, 1); g.fillRect(10, 7, 2, 1);
+  g.fillRect(12, 4, 1, 8); g.fillRect(10, 11, 2, 1);
+  // ":" separador
+  g.fillRect(15, 6, 1, 1); g.fillRect(15, 10, 1, 1);
+  // "12"
+  g.fillRect(18, 4, 1, 8);
+  g.fillRect(21, 4, 1, 1); g.fillRect(20, 4, 1, 1); g.fillRect(22, 4, 1, 1);
+  g.fillRect(22, 5, 1, 3); g.fillRect(20, 8, 3, 1); g.fillRect(20, 8, 1, 4);
+  g.fillRect(20, 11, 3, 1);
+}
+
+export function paintBasket(g) {
+  // Tablero blanco
+  g.fillStyle(0xeeeeee).fillRect(2, 0, 8, 8);
+  g.fillStyle(0xff2222).fillRect(4, 2, 4, 4);     // cuadrado interior
+  // Aro naranja
+  g.fillStyle(0xff8822).fillRect(3, 8, 6, 1);
+  g.fillStyle(0xcc5500).fillRect(3, 9, 6, 1);
+  // Red blanca
+  g.fillStyle(0xeeeeee);
+  for (let i = 0; i < 6; i++) {
+    if (i % 2 === 0) g.fillRect(3 + i, 10, 1, 5);
+    else g.fillRect(3 + i, 10, 1, 3);
+  }
+  // Poste
+  g.fillStyle(0x666666).fillRect(0, 14, 12, 1);
+  g.fillStyle(0x444444).fillRect(0, 15, 12, 1);
+  g.fillStyle(0x666666).fillRect(5, 15, 2, 5);
+}
+
+export function paintMat(g) {
+  // Colchoneta apilada (2 capas)
+  g.fillStyle(0x3a6a8a).fillRect(0, 0, 16, 3);
+  g.fillStyle(0x5a8aaa).fillRect(0, 0, 16, 1);    // brillo
+  g.fillStyle(0x2a4a6a).fillRect(0, 2, 16, 1);
+  g.fillStyle(0xcc4444).fillRect(0, 3, 16, 3);
+  g.fillStyle(0xee6666).fillRect(0, 3, 16, 1);    // brillo
+  g.fillStyle(0x882222).fillRect(0, 5, 16, 1);
+}
+
+// Comedor
+export function paintTray(g) {
+  // Bandeja con comida
+  g.fillStyle(0x888888).fillRect(0, 1, 8, 3);     // bandeja
+  g.fillStyle(0xaaaaaa).fillRect(0, 1, 8, 1);     // brillo
+  g.fillStyle(0x666666).fillRect(0, 3, 8, 1);     // sombra
+  // Comida (puré + pieza)
+  g.fillStyle(0xddaa66).fillRect(1, 0, 3, 1);     // puré amarillo
+  g.fillStyle(0x886622).fillRect(5, 0, 2, 1);     // carne marrón
+}
+
+export function paintSodaMachine(g) {
+  // Marco
+  g.fillStyle(0xcc2222).fillRect(0, 0, 16, 32);
+  g.fillStyle(0xee4444).fillRect(0, 0, 16, 1);
+  g.fillStyle(0x882222).fillRect(0, 31, 16, 1);
+  g.fillStyle(0x882222).fillRect(15, 0, 1, 32);
+  // Pantalla / logo
+  g.fillStyle(0xffffff).fillRect(2, 2, 12, 4);
+  g.fillStyle(0xcc2222).fillRect(4, 3, 8, 2);     // "logo" rojo
+  // Cristal mostrando latas
+  g.fillStyle(0x88ccee).fillRect(2, 7, 12, 14);
+  g.fillStyle(0xaaddff).fillRect(2, 7, 12, 1);    // reflejo
+  // Latas (3 columnas x 3 filas)
+  const cans = [0xcc2222, 0x22aa44, 0x2266cc];
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+      g.fillStyle(cans[col]).fillRect(3 + col * 4, 8 + row * 4, 3, 3);
+      g.fillStyle(0xffffff).fillRect(3 + col * 4, 8 + row * 4, 3, 1);
+    }
+  }
+  // Botonera
+  g.fillStyle(0x222222).fillRect(2, 22, 12, 6);
+  for (let i = 0; i < 6; i++) {
+    g.fillStyle(0xffe066).fillRect(3 + (i % 3) * 4, 23 + Math.floor(i / 3) * 3, 2, 2);
+  }
+  // Salida de latas
+  g.fillStyle(0x222222).fillRect(2, 29, 12, 2);
+}
+
+// Aula música
+export function paintPiano(g) {
+  // Mueble negro/marrón oscuro
+  g.fillStyle(0x222222).fillRect(0, 0, 24, 16);
+  g.fillStyle(0x444444).fillRect(0, 0, 24, 1);    // brillo
+  g.fillStyle(0x000000).fillRect(0, 15, 24, 1);
+  // Atril plegable (parte superior)
+  g.fillStyle(0x331111).fillRect(2, 0, 20, 2);
+  g.fillStyle(0xeeeeee).fillRect(4, 1, 16, 1);    // hoja blanca
+  // Teclas blancas
+  g.fillStyle(0xffffff).fillRect(2, 12, 20, 4);
+  // Líneas entre teclas blancas
+  g.fillStyle(0x444444);
+  for (let i = 1; i < 8; i++) {
+    g.fillRect(2 + i * 2.5, 12, 1, 4);
+  }
+  // Teclas negras
+  g.fillStyle(0x000000);
+  g.fillRect(4, 12, 1, 2); g.fillRect(7, 12, 1, 2);
+  g.fillRect(12, 12, 1, 2); g.fillRect(15, 12, 1, 2); g.fillRect(18, 12, 1, 2);
+  // Patas
+  g.fillStyle(0x222222).fillRect(2, 16, 2, 4);
+  g.fillStyle(0x222222).fillRect(20, 16, 2, 4);
+}
+
+export function paintMusicStand(g) {
+  // Atril metálico negro
+  // Soporte de partituras (rectángulo inclinado)
+  g.fillStyle(0x222222).fillRect(0, 0, 10, 6);
+  g.fillStyle(0xeeeeee).fillRect(1, 1, 8, 4);     // partitura
+  g.fillStyle(0x222222);
+  g.fillRect(2, 2, 6, 1); g.fillRect(2, 4, 5, 1); // pentagrama
+  // Notas musicales (puntos negros)
+  g.fillStyle(0x000000);
+  g.fillRect(3, 2, 1, 1); g.fillRect(5, 3, 1, 1); g.fillRect(7, 2, 1, 1);
+  // Vara central
+  g.fillStyle(0x222222).fillRect(4, 6, 2, 10);
+  // Base trípode
+  g.fillStyle(0x222222).fillRect(1, 16, 8, 1);
+  g.fillStyle(0x222222).fillRect(0, 17, 2, 1);
+  g.fillStyle(0x222222).fillRect(8, 17, 2, 1);
+}
+
+// Sótano
+export function paintBoiler(g) {
+  // Cuerpo cilíndrico (rectángulo con bordes redondeados visualmente)
+  g.fillStyle(0x666666).fillRect(0, 2, 20, 22);
+  g.fillStyle(0x888888).fillRect(0, 2, 20, 1);    // brillo arriba
+  g.fillStyle(0xaaaaaa).fillRect(2, 4, 16, 1);
+  g.fillStyle(0x444444).fillRect(0, 23, 20, 1);   // sombra abajo
+  g.fillStyle(0x222222).fillRect(0, 24, 20, 0);
+  // Tapa superior
+  g.fillStyle(0x444444).fillRect(2, 0, 16, 3);
+  g.fillStyle(0x666666).fillRect(2, 0, 16, 1);
+  // Manómetros (2 círculos amarillos)
+  g.fillStyle(0xffe066).fillCircle(6, 12, 3);
+  g.fillStyle(0xffe066).fillCircle(14, 12, 3);
+  g.fillStyle(0x222222).fillRect(6, 12, 1, -2);
+  g.fillStyle(0x222222).fillRect(14, 12, 2, 1);
+  // Llama bajo (sugerencia de fuego)
+  g.fillStyle(0xff6622).fillRect(6, 19, 8, 4);
+  g.fillStyle(0xffaa22).fillRect(8, 20, 4, 3);
+  g.fillStyle(0xffe066).fillRect(9, 21, 2, 2);
+  // Tubos a los lados
+  g.fillStyle(0x666666).fillRect(0, 8, 2, 4);
+  g.fillStyle(0x666666).fillRect(18, 8, 2, 4);
+}
+
+export function paintPipe(g) {
+  // Tubería metálica horizontal con uniones
+  g.fillStyle(0x666666).fillRect(0, 1, 32, 4);
+  g.fillStyle(0x888888).fillRect(0, 1, 32, 1);    // brillo
+  g.fillStyle(0x444444).fillRect(0, 4, 32, 1);    // sombra
+  // Uniones cada 8 px
+  g.fillStyle(0x444444);
+  for (let i = 0; i < 4; i++) {
+    g.fillRect(i * 8 + 3, 0, 2, 6);
+    g.fillStyle(0x222222).fillRect(i * 8 + 4, 0, 1, 6); g.fillStyle(0x444444);
+  }
+}
+
+// Cuarto del protagonista
+export function paintBed(g) {
+  // Estructura de la cama (marco)
+  g.fillStyle(0x6b4226).fillRect(0, 6, 32, 6);
+  g.fillStyle(0x8b5a36).fillRect(0, 6, 32, 1);
+  g.fillStyle(0x4a2818).fillRect(0, 11, 32, 1);
+  // Cabecero
+  g.fillStyle(0x6b4226).fillRect(0, 0, 4, 12);
+  g.fillStyle(0x8b5a36).fillRect(0, 0, 4, 1);
+  g.fillStyle(0x4a2818).fillRect(3, 0, 1, 12);
+  // Pies de cama
+  g.fillStyle(0x6b4226).fillRect(28, 4, 4, 8);
+  // Sábanas y manta
+  g.fillStyle(0xddccaa).fillRect(4, 4, 24, 4);    // sábana
+  g.fillStyle(0xeeddbb).fillRect(4, 4, 24, 1);    // brillo
+  g.fillStyle(0x4488aa).fillRect(4, 8, 24, 3);    // manta azul
+  g.fillStyle(0x66aacc).fillRect(4, 8, 24, 1);    // brillo manta
+  // Almohada
+  g.fillStyle(0xffffff).fillRect(5, 2, 7, 4);
+  g.fillStyle(0xddccaa).fillRect(5, 5, 7, 1);     // sombra
+}
+
+export function paintBandPoster(g) {
+  // Póster oscuro con texto/símbolo
+  g.fillStyle(0x111111).fillRect(0, 0, 16, 16);
+  g.fillStyle(0x333333).fillRect(0, 0, 16, 1);
+  g.fillStyle(0x000000).fillRect(0, 15, 16, 1);
+  // "Logo" central (estilo metal): un rayo amarillo
+  g.fillStyle(0xffe066);
+  g.fillRect(7, 2, 2, 4);
+  g.fillRect(5, 6, 6, 1);
+  g.fillRect(7, 7, 2, 6);
+  g.fillRect(9, 7, 3, 1);
+  // Texto debajo (letras blancas estilizadas)
+  g.fillStyle(0xffffff);
+  g.fillRect(3, 13, 2, 1); g.fillRect(6, 13, 2, 1);
+  g.fillRect(9, 13, 2, 1); g.fillRect(12, 13, 2, 1);
+  // Chinchetas
+  g.fillStyle(0xcc4444);
+  g.fillRect(1, 1, 1, 1); g.fillRect(14, 1, 1, 1);
+  g.fillRect(1, 14, 1, 1); g.fillRect(14, 14, 1, 1);
+}
+
 // Catálogo completo: { id, w, h, paint }
 export const DECOR_CATALOG = [
   { id: 'tile',           w: 16, h: 16, paint: paintTile },
@@ -574,4 +792,16 @@ export const DECOR_CATALOG = [
   { id: 'tree',           w: 16, h: 20, paint: paintTree },
   { id: 'fence',          w: 32, h: 10, paint: paintFence },
   { id: 'bin',            w: 8,  h: 10, paint: paintBin },
+  // Decor único por sala
+  { id: 'scoreboard',     w: 32, h: 16, paint: paintScoreboard },
+  { id: 'basket',         w: 12, h: 20, paint: paintBasket },
+  { id: 'mat',            w: 16, h: 6,  paint: paintMat },
+  { id: 'tray',           w: 8,  h: 4,  paint: paintTray },
+  { id: 'soda_machine',   w: 16, h: 32, paint: paintSodaMachine },
+  { id: 'piano',          w: 24, h: 20, paint: paintPiano },
+  { id: 'music_stand',    w: 10, h: 18, paint: paintMusicStand },
+  { id: 'boiler',         w: 20, h: 24, paint: paintBoiler },
+  { id: 'pipe',           w: 32, h: 6,  paint: paintPipe },
+  { id: 'bed',            w: 32, h: 12, paint: paintBed },
+  { id: 'band_poster',    w: 16, h: 16, paint: paintBandPoster },
 ];

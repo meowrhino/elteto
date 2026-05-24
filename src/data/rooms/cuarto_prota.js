@@ -31,13 +31,17 @@ export const ROOM_CUARTO_PROTA = {
   decor: [
     { x: 60,  y: 22, tex: 'lamp' },
     { x: 200, y: 22, tex: 'lamp' },
-    // Cama: usamos una banda y "almohada"
-    { x: 220, y: 144, tex: 'reading_table' },
-    // Mesa de escritorio
-    { x: 160, y: 142, tex: 'teacher_desk' },
-    { x: 163, y: 151, tex: 'chair' },
-    // Póster en la pared (banda)
-    { x: 124, y: 60, tex: 'poster' },
+    // Cama del protagonista
+    { x: 220, y: 148, tex: 'bed' },
+    // Escritorio con silla
+    { x: 100, y: 142, tex: 'teacher_desk' },
+    { x: 103, y: 151, tex: 'chair' },
+    // Estantería con sus cosas
+    { x: 150, y: 128, tex: 'shelf' },
+    // Pósters en la pared
+    { x: 88,  y: 56, tex: 'band_poster' },
+    { x: 140, y: 60, tex: 'poster' },
+    { x: 184, y: 56, tex: 'band_poster' },
   ],
 
   doors: [

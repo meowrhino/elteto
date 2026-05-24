@@ -26,14 +26,20 @@ export const ROOM_SOTANO = {
     { x: 80,  y: 22, tex: 'lamp' },
     { x: 240, y: 22, tex: 'lamp' },
     { x: 400, y: 22, tex: 'lamp' },
-    // Cajas / papeleras a modo de bultos
-    { x: 64,  y: 150, tex: 'bin' },
-    { x: 120, y: 150, tex: 'bin' },
-    { x: 320, y: 150, tex: 'bin' },
-    { x: 380, y: 150, tex: 'bin' },
-    // Tubo grueso simulado con dos rectángulos
-    { x: 200, y: 80, tex: 'shelf' },
-    { x: 280, y: 80, tex: 'shelf' },
+    // Calderas a los lados
+    { x: 80,  y: 136, tex: 'boiler' },
+    { x: 380, y: 136, tex: 'boiler' },
+    // Tuberías cruzando arriba
+    { x: 32,  y: 60, tex: 'pipe' },
+    { x: 192, y: 60, tex: 'pipe' },
+    { x: 352, y: 60, tex: 'pipe' },
+    // Más tuberías en otra altura
+    { x: 112, y: 90, tex: 'pipe' },
+    { x: 272, y: 90, tex: 'pipe' },
+    // Papeleras como cajas/bultos
+    { x: 180, y: 150, tex: 'bin' },
+    { x: 220, y: 150, tex: 'bin' },
+    { x: 260, y: 150, tex: 'bin' },
   ],
 
   doors: [
