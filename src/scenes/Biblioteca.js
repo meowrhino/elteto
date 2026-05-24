@@ -64,27 +64,17 @@ export class Biblioteca extends RoomScene {
     this.addDoor(8, 136, 'Aula', 24, 144, 'aula');
 
     // ===== NPCs =====
+    // Líneas en src/data/dialogues.js.
     this.addNpc(176, 128, {
       id: 'martina', name: 'Martina',
       sprite: toSpec('martina'),
       lifespan: lifespanOf('martina'),
-      dialogue: [
-        '¡SHHHHHH! Aquí no se grita.',
-        'Si quieres un libro, devuélvelo a tiempo.',
-        'Últimamente uno de los libros... se mueve solo.',
-        'No te acerques al estante del fondo.',
-      ],
     });
 
     this.addNpc(144, 80, {
       id: 'lector', name: 'Niño lector',
       sprite: toSpec('lector'),
       lifespan: lifespanOf('lector'),
-      dialogue: [
-        'Estoy leyendo, no molestes.',
-        '...vale, ¿qué quieres?',
-        'Si vas al fondo, ten cuidado.',
-      ],
     });
 
     // Pedestal + libro poseído al final

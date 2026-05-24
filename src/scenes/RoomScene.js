@@ -1,5 +1,7 @@
 import { ensureSprite, SPRITE_W, SPRITE_H } from '../characters.js';
 import { bus } from '../events.js';
+import { linesFor } from '../data/dialogues.js';
+import { getChapter } from '../story.js';
 
 // Acepta número (0xRRGGBB) o string ('#rrggbb' / 'rrggbb') y devuelve int.
 function toInt(c) {
@@ -664,10 +666,20 @@ export class RoomScene extends Phaser.Scene {
   }
 
   // ============================================================ helpers de update
+  // Resolución de diálogo:
+  //   1. onTalk (cutscene con lógica) → mando control a la sala
+  //   2. dialogue inline (override en addNpc) → uso esas líneas
+  //   3. catálogo data/dialogues.js indexado por (id, storyId) → líneas planas
+  //   4. fallback ('(no responde)')
   interactWithNpc(npc) {
     const onTalk = npc.getData('onTalk');
     if (typeof onTalk === 'function') { onTalk(this, npc); return; }
-    const lines = npc.getData('dialogue') || ['(no responde)'];
+    let lines = npc.getData('dialogue');
+    if (!lines) {
+      const id = npc.getData('id');
+      if (id) lines = linesFor(id, getChapter(this.registry));
+    }
+    if (!lines) lines = ['(no responde)'];
     this.openDialogue(npc.getData('name'), lines);
   }
 

@@ -84,35 +84,23 @@ export class Patio extends RoomScene {
     // Pablo (NPC o enemigo según capítulo)
     this.addPablo();
 
-    // Niños jugando
+    // Niños jugando (líneas en src/data/dialogues.js)
     this.addNpc(256, 128, {
       id: 'ivan', name: 'Iván',
       sprite: toSpec('ivan'),
       lifespan: lifespanOf('ivan'),
-      dialogue: [
-        'Yo soy el portero.',
-        'Bueno, nadie me lo ha dicho pero...',
-      ],
     });
 
     this.addNpc(360, 128, {
       id: 'sofia', name: 'Sofía',
       sprite: toSpec('sofia'),
       lifespan: lifespanOf('sofia'),
-      dialogue: [
-        '¡Gol! Otro gol mío.',
-        'Te juego un 1v1. Perderás.',
-      ],
     });
 
     this.addNpc(560, 96, {
       id: 'clara', name: 'Clara',
       sprite: toSpec('clara'),
       lifespan: lifespanOf('clara'),
-      dialogue: [
-        'Desde aquí arriba se ve todo el patio.',
-        'Pablo está raro, ¿no?',
-      ],
     });
   }
 
@@ -131,12 +119,11 @@ export class Patio extends RoomScene {
       // Tras la cutscene (o tras perder), contacto = combate
       this.addEnemy(120, 128, ENEMIES.pablo);
     } else if (chap === CHAPTERS.INTRO) {
-      // Antes de hablar con Nivea, Pablo es un NPC inofensivo
+      // Antes de hablar con Nivea, Pablo es un NPC inofensivo (líneas en catálogo)
       this.addNpc(120, 128, {
         id: 'pablo_npc', name: 'Pablo',
         sprite: this.pabloSprite,
         lifespan: 100,
-        dialogue: ['me voy a follar a tu madre'],
       });
     }
     // En PABLO_DONE / DONE no aparece

@@ -73,34 +73,23 @@ export class Aula extends RoomScene {
     });
 
     // ===== Alumnos secundarios =====
+    // Sus líneas viven en src/data/dialogues.js (catálogo indexado por id).
     this.addNpc(208, 128, {
       id: 'marta', name: 'Marta',
       sprite: toSpec('marta'),
       lifespan: lifespanOf('marta'),
-      dialogue: [
-        'Psst... ¿qué le ha dado a Pablo?',
-        'Lleva días así. La profe está rallada.',
-      ],
     });
 
     this.addNpc(288, 128, {
       id: 'dani', name: 'Dani',
       sprite: toSpec('dani'),
       lifespan: lifespanOf('dani'),
-      dialogue: [
-        'Yo de mayor quiero ser astronauta.',
-        'O futbolista. O las dos cosas a la vez.',
-      ],
     });
 
     this.addNpc(368, 128, {
       id: 'lucas', name: 'Lucas',
       sprite: toSpec('lucas'),
       lifespan: lifespanOf('lucas'), // muy bajo: la pista de que algo no va bien
-      dialogue: [
-        'Zzzz... ¿eh? ¿Ya es el recreo?',
-        'Despiértame cuando suene el timbre.',
-      ],
     });
   }
 
