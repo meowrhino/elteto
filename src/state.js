@@ -2,6 +2,8 @@
 // Todo lo persistente vive en game.registry. snapshotState lo serializa
 // y applyState lo restaura tras cargar.
 
+import { toSpec, nameOf, lifespanOf } from './data/characters.js';
+
 export function defaultState() {
   return {
     // Posición en el mundo (escena y coordenadas del player).
@@ -12,31 +14,14 @@ export function defaultState() {
     // Stats del protagonista (los followers no combaten todavía)
     stats: { hp: 24, hpMax: 24, mp: 12, mpMax: 12, atk: 4, def: 1 },
 
-    // Party del Club de lo Oculto.
-    // Las apariencias se basan en los retratos Picrew (perosnajes/*.png):
-    //   - Protag: capucha de dinosaurio verde, pelo castaño, jersey blanco-verde rayas
-    //   - Jorge:  pelo morado corto, mostacho, chupa de cuero negra
-    //   - Bárbara: bob blanco arriba, morado abajo, top de rayas, chaqueta negra
-    party: [
-      {
-        id: 'protag',
-        name: 'Tú',
-        sprite: { hair: 0x6a4a2a, skin: 0xf8d0aa, shirt: 0xe8e0d0, pants: 0x335533, hairStyle: 'dino_hood_prota' },
-        lifespan: 180,
-      },
-      {
-        id: 'jorge',
-        name: 'Jorge',
-        sprite: { hair: 0x4a2a78, skin: 0xf0c8a8, shirt: 0x1a1a1a, pants: 0x222222, hairStyle: 'punk_mustache' },
-        lifespan: 140,
-      },
-      {
-        id: 'barbara',
-        name: 'Bárbara',
-        sprite: { hair: 0xe8e8ec, skin: 0xf0c8b0, shirt: 0x1a1a1a, pants: 0x111122, hairStyle: 'white_purple_bob' },
-        lifespan: 160,
-      },
-    ],
+    // Party del Club de lo Oculto. Aparienca y nombre vienen de
+    // src/data/characters.js — aquí solo guardamos el id y el lifespan actual.
+    party: ['protag', 'jorge', 'barbara'].map(id => ({
+      id,
+      name: nameOf(id),
+      sprite: toSpec(id),
+      lifespan: lifespanOf(id),
+    })),
 
     inventory: [
       { id: 'pocion', name: 'Poción', desc: 'Cura 10 PV', count: 2, type: 'heal', amount: 10 },

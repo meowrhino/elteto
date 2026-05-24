@@ -1,6 +1,7 @@
 import { RoomScene } from './RoomScene.js';
 import { getChapter, setChapter, CHAPTERS } from '../story.js';
 import { ENEMIES, PABLO_SPRITE } from '../enemies.js';
+import { toSpec, lifespanOf } from '../data/characters.js';
 
 // El patio. Aquí está Pablo.
 //
@@ -42,8 +43,8 @@ export class Patio extends RoomScene {
     // Niños jugando
     this.addNpc(256, 128, {
       id: 'ivan', name: 'Iván',
-      sprite: { hair: 0x222222, skin: 0xeec8aa, shirt: 0x44aaee, pants: 0x222222 },
-      lifespan: 110,
+      sprite: toSpec('ivan'),
+      lifespan: lifespanOf('ivan'),
       dialogue: [
         'Yo soy el portero.',
         'Bueno, nadie me lo ha dicho pero...',
@@ -52,8 +53,8 @@ export class Patio extends RoomScene {
 
     this.addNpc(360, 128, {
       id: 'sofia', name: 'Sofía',
-      sprite: { hair: 0xccaa22, skin: 0xeec8aa, shirt: 0xddee44, pants: 0x884422, hairStyle: 'long' },
-      lifespan: 150,
+      sprite: toSpec('sofia'),
+      lifespan: lifespanOf('sofia'),
       dialogue: [
         '¡Gol! Otro gol mío.',
         'Te juego un 1v1. Perderás.',
@@ -62,8 +63,8 @@ export class Patio extends RoomScene {
 
     this.addNpc(560, 96, {
       id: 'clara', name: 'Clara',
-      sprite: { hair: 0x882244, skin: 0xffd8b8, shirt: 0xff44aa, pants: 0x442266, hairStyle: 'long' },
-      lifespan: 90,
+      sprite: toSpec('clara'),
+      lifespan: lifespanOf('clara'),
       dialogue: [
         'Desde aquí arriba se ve todo el patio.',
         'Pablo está raro, ¿no?',

@@ -7,7 +7,14 @@
 //   - el script de exportación (Node + PixelCanvas -> tools/export-sprites.mjs)
 //   - el editor del navegador (HTMLCanvas2D adapter -> tools/editor.html)
 //
+// Dos formatos coexisten:
+//   - LEGACY: { hair, skin, shirt, pants, hairStyle: 'beanie_mask' } → DRAWERS[hairStyle]
+//   - ITEMS:  { items: { headwear, hair_top, ... }, colors: { hair, skin, ... } } → sprite-items.js
+// `paintSprite()` detecta el formato y dispatcha al sistema correcto.
+//
 // El color es un entero 0xRRGGBB.
+
+import { paintSpriteFromItems } from './sprite-items.js';
 
 export const SPRITE_W = 24;
 export const SPRITE_H = 32;
@@ -416,10 +423,13 @@ export const DRAWERS = {
 
 export const HAIR_STYLES = Object.keys(DRAWERS);
 
-// Pinta el sprite completo (cuerpo + cara + drawer del estilo) sobre cualquier
-// adaptador con `g.fillStyle/fillRect`. Devuelve nada — sólo se garantiza que
-// el buffer del adaptador queda con el sprite pintado al terminar.
+// Pinta el sprite completo. Soporta ambos formatos:
+//   - LEGACY: opts = { hair, skin, shirt, pants, hairStyle } → drawBody + drawFace + DRAWER
+//   - ITEMS:  opts = { items, colors } → drawBody + iterar slots de sprite-items.js
 export function paintSprite(g, opts) {
+  if (opts && opts.items && opts.colors) {
+    return paintSpriteFromItems(g, opts);
+  }
   drawBody(g, opts);
   drawFace(g);
   const drawer = DRAWERS[opts.hairStyle] || drawNormal;
@@ -427,6 +437,16 @@ export function paintSprite(g, opts) {
 }
 
 export function spriteKey(opts) {
+  if (opts && opts.items && opts.colors) {
+    // Clave determinista para el sistema items (sin importar order de claves)
+    const items = opts.items;
+    const itemPart = Object.keys(items).sort().map(k => `${k}=${items[k]}`).join(',');
+    const c = opts.colors;
+    const colorPart = ['hair', 'skin', 'shirt', 'pants']
+      .map(k => (c[k] >>> 0).toString(16))
+      .join('_');
+    return `chr_${colorPart}_${itemPart}`;
+  }
   const s = opts.hairStyle || 'normal';
   return `char_${s}_${(opts.hair >>> 0).toString(16)}_${(opts.skin >>> 0).toString(16)}_${(opts.shirt >>> 0).toString(16)}_${(opts.pants >>> 0).toString(16)}`;
 }

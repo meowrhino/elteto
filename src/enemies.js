@@ -8,16 +8,12 @@
 //   hp, atk   — stats
 //   special   — opcional. 'pablo' habilita la mecánica de Hablar/Anillo.
 //   texture   — opcional. Textura estática (ej. 'book_enemy').
-//   charSprite — opcional. Spec de sprite para la factory de characters.js.
+//   charSprite — opcional. Spec de sprite (resuelto desde data/characters.js).
 //   dialogue  — opcional. Líneas si tiene Hablar genérico.
 
-export const PABLO_SPRITE = {
-  hair: 0x4a2a78,
-  skin: 0xc89878,
-  shirt: 0xeeeae0,
-  pants: 0x222244,
-  hairStyle: 'beanie_mask',
-};
+import { toSpec } from './data/characters.js';
+
+export const PABLO_SPRITE = toSpec('pablo');
 
 export const ENEMIES = {
   pablo: {

@@ -1,5 +1,6 @@
 import { RoomScene } from './RoomScene.js';
 import { getChapter, setChapter, CHAPTERS } from '../story.js';
+import { toSpec, lifespanOf } from '../data/characters.js';
 
 // El aula. Punto de partida del juego.
 // La Profesora dispara la progresión del capítulo "el bully está roto".
@@ -33,16 +34,16 @@ export class Aula extends RoomScene {
     // Su diálogo cambia según el capítulo; usamos onTalk para evitar dialogue cacheado.
     this.addNpc(160, 128, {
       id: 'nivea', name: 'Nivea',
-      sprite: { hair: 0xc4582a, skin: 0xf8d8b8, shirt: 0xeed8b8, pants: 0x554422, hairStyle: 'ginger_glasses' },
-      lifespan: 220,
+      sprite: toSpec('nivea'),
+      lifespan: lifespanOf('nivea'),
       onTalk: (scene) => scene.talkToNivea(),
     });
 
     // ===== Alumnos secundarios =====
     this.addNpc(208, 128, {
       id: 'marta', name: 'Marta',
-      sprite: { hair: 0xc26a1f, skin: 0xffd8b8, shirt: 0xee88aa, pants: 0x442266, hairStyle: 'long' },
-      lifespan: 110,
+      sprite: toSpec('marta'),
+      lifespan: lifespanOf('marta'),
       dialogue: [
         'Psst... ¿qué le ha dado a Pablo?',
         'Lleva días así. La profe está rallada.',
@@ -51,8 +52,8 @@ export class Aula extends RoomScene {
 
     this.addNpc(288, 128, {
       id: 'dani', name: 'Dani',
-      sprite: { hair: 0x553322, skin: 0xeec8aa, shirt: 0x88cc66, pants: 0x442200, hairStyle: 'spiky' },
-      lifespan: 140,
+      sprite: toSpec('dani'),
+      lifespan: lifespanOf('dani'),
       dialogue: [
         'Yo de mayor quiero ser astronauta.',
         'O futbolista. O las dos cosas a la vez.',
@@ -61,8 +62,8 @@ export class Aula extends RoomScene {
 
     this.addNpc(368, 128, {
       id: 'lucas', name: 'Lucas',
-      sprite: { hair: 0xaa8844, skin: 0xeec8aa, shirt: 0xddaa44, pants: 0x223344 },
-      lifespan: 4, // muy bajo: la pista de que algo no va bien
+      sprite: toSpec('lucas'),
+      lifespan: lifespanOf('lucas'), // muy bajo: la pista de que algo no va bien
       dialogue: [
         'Zzzz... ¿eh? ¿Ya es el recreo?',
         'Despiértame cuando suene el timbre.',

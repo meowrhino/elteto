@@ -1,5 +1,6 @@
 import { RoomScene } from './RoomScene.js';
 import { ENEMIES } from '../enemies.js';
+import { toSpec, lifespanOf } from '../data/characters.js';
 
 // Biblioteca: dos pisos, bibliotecaria, niño lector y un libro poseído.
 // Side-quest opcional respecto al hilo principal de Pablo.
@@ -35,9 +36,8 @@ export class Biblioteca extends RoomScene {
     // ===== NPCs =====
     this.addNpc(176, 128, {
       id: 'martina', name: 'Martina',
-      // Pelo súper rizado rubio + jersey negro (estilo afro)
-      sprite: { hair: 0xc8a878, skin: 0xffd8b8, shirt: 0x1a1a1a, pants: 0x222222, hairStyle: 'curly_afro' },
-      lifespan: 220,
+      sprite: toSpec('martina'),
+      lifespan: lifespanOf('martina'),
       dialogue: [
         '¡SHHHHHH! Aquí no se grita.',
         'Si quieres un libro, devuélvelo a tiempo.',
@@ -48,8 +48,8 @@ export class Biblioteca extends RoomScene {
 
     this.addNpc(144, 80, {
       id: 'lector', name: 'Niño lector',
-      sprite: { hair: 0x222244, skin: 0xeec8aa, shirt: 0x66aacc, pants: 0x224422 },
-      lifespan: 130,
+      sprite: toSpec('lector'),
+      lifespan: lifespanOf('lector'),
       dialogue: [
         'Estoy leyendo, no molestes.',
         '...vale, ¿qué quieres?',
