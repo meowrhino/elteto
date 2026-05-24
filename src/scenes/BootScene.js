@@ -1,6 +1,8 @@
 import { PORTRAIT_FILES } from '../portraits.js';
+import { DECOR_CATALOG } from '../decor-defs.js';
 
-// Escena de arranque: precarga los retratos PNG y salta a la sala inicial.
+// Escena de arranque: precarga los retratos PNG, los decor PNG y salta a
+// la sala inicial.
 //
 // Sin BootScene los `load.image` tendrían que ocurrir dentro de cada sala
 // (cosa que en Phaser no funciona en `create`, solo en `preload`).
@@ -16,6 +18,12 @@ export class BootScene extends Phaser.Scene {
   preload() {
     for (const [key, file] of Object.entries(PORTRAIT_FILES)) {
       this.load.image(key, file);
+    }
+    // Decor / props pre-rendereados a PNG.
+    // El runtime no los redibuja: si quieres meter arte hecho a mano,
+    // sustituye el PNG en assets/sprites/decor/<id>.png.
+    for (const { id } of DECOR_CATALOG) {
+      this.load.image(id, `assets/sprites/decor/${id}.png`);
     }
   }
 

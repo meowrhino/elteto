@@ -4,6 +4,7 @@ import { linesFor } from '../data/dialogues.js';
 import { getChapter } from '../story.js';
 import { toSpec, lifespanOf } from '../data/characters.js';
 import { audio } from '../audio.js';
+import { DECOR_CATALOG } from '../decor-defs.js';
 
 // Acepta número (0xRRGGBB) o string ('#rrggbb' / 'rrggbb') y devuelve int.
 function toInt(c) {
@@ -139,237 +140,20 @@ export class RoomScene extends Phaser.Scene {
   onFirstVision() {}
 
   // ============================================================ texturas estáticas
+  // Fallback runtime: si algún PNG no se cargó (red caída, repo sin
+  // assets), se regenera procedurally. En el flujo normal todas las
+  // texturas vienen de BootScene.preload + assets/sprites/decor/*.png.
   makeStaticTextures() {
     if (this.textures.exists('tile')) return;
     const g = this.add.graphics();
 
-    // Tiles de suelo
-    g.fillStyle(0x6b4226).fillRect(0, 0, 16, 16);
-    g.fillStyle(0x8b5a36).fillRect(0, 0, 16, 3);
-    g.generateTexture('tile', 16, 16); g.clear();
-
-    g.fillStyle(0x4a3018).fillRect(0, 0, 16, 16);
-    g.fillStyle(0x4caf50).fillRect(0, 0, 16, 4);
-    g.fillStyle(0x66bb6a).fillRect(2, 0, 2, 2);
-    g.fillStyle(0x66bb6a).fillRect(10, 1, 2, 2);
-    g.generateTexture('grass', 16, 16); g.clear();
-
-    // Climbables
-    g.fillStyle(0xc88a3a);
-    g.fillRect(3, 0, 2, 16); g.fillRect(11, 0, 2, 16);
-    g.fillRect(2, 2, 12, 2); g.fillRect(2, 8, 12, 2); g.fillRect(2, 14, 12, 2);
-    g.generateTexture('ladder', 16, 16); g.clear();
-
-    g.fillStyle(0xb88a3a).fillRect(7, 0, 2, 16);
-    g.fillStyle(0xa07020).fillRect(7, 4, 2, 1);
-    g.fillStyle(0xa07020).fillRect(7, 11, 2, 1);
-    g.generateTexture('rope', 16, 16); g.clear();
-
-    g.lineStyle(1, 0x888888);
-    for (let i = 0; i <= 16; i += 4) {
-      g.beginPath(); g.moveTo(0, i); g.lineTo(16, i); g.strokePath();
-      g.beginPath(); g.moveTo(i, 0); g.lineTo(i, 16); g.strokePath();
-    }
-    g.generateTexture('lattice', 16, 16); g.clear();
-
-    // Puerta y cartel
-    g.fillStyle(0x4a2511).fillRect(0, 0, 16, 24);
-    g.fillStyle(0x2a1408).fillRect(2, 2, 12, 20);
-    g.fillStyle(0xffd166).fillRect(11, 12, 2, 2);
-    g.generateTexture('door', 16, 24); g.clear();
-
-    g.fillStyle(0xeeeeee).fillRect(0, 0, 8, 6);
-    g.fillStyle(0x4a2511).fillRect(3, 6, 2, 4);
-    g.generateTexture('sign', 8, 10); g.clear();
-
-    // Decoración / props
-    g.fillStyle(0x7a1f1f).fillRect(0, 0, 14, 12);
-    g.fillStyle(0xeeeeee).fillRect(2, 2, 10, 8);
-    g.fillStyle(0x7a1f1f).fillRect(6, 0, 2, 12);
-    g.fillStyle(0xff0000).fillRect(4, 5, 2, 2);
-    g.fillStyle(0xff0000).fillRect(8, 5, 2, 2);
-    g.generateTexture('book_enemy', 14, 12); g.clear();
-
-    g.fillStyle(0x3a1f0a).fillRect(0, 0, 16, 32);
-    g.fillStyle(0xb88a3a).fillRect(1, 1, 14, 6);
-    g.fillStyle(0x4a8aaa).fillRect(2, 2, 2, 5); g.fillStyle(0xaa4a4a).fillRect(5, 2, 2, 5);
-    g.fillStyle(0x4aaa4a).fillRect(8, 2, 2, 5); g.fillStyle(0xaaaa4a).fillRect(11, 2, 2, 5);
-    g.fillStyle(0xb88a3a).fillRect(1, 9, 14, 6);
-    g.fillStyle(0xaa4a4a).fillRect(2, 10, 2, 5); g.fillStyle(0x4aaa4a).fillRect(5, 10, 2, 5);
-    g.fillStyle(0x4a8aaa).fillRect(8, 10, 2, 5); g.fillStyle(0xaa4aaa).fillRect(11, 10, 2, 5);
-    g.fillStyle(0xb88a3a).fillRect(1, 17, 14, 6);
-    g.fillStyle(0x4aaa4a).fillRect(2, 18, 2, 5); g.fillStyle(0xaa4aaa).fillRect(5, 18, 2, 5);
-    g.fillStyle(0xaaaa4a).fillRect(8, 18, 2, 5); g.fillStyle(0xaa4a4a).fillRect(11, 18, 2, 5);
-    g.generateTexture('shelf', 16, 32); g.clear();
-
-    g.fillStyle(0xffffff).fillCircle(3, 3, 3);
-    g.fillStyle(0x222222).fillRect(2, 0, 2, 1); g.fillStyle(0x222222).fillRect(2, 5, 2, 1);
-    g.fillStyle(0x222222).fillRect(0, 2, 1, 2); g.fillStyle(0x222222).fillRect(5, 2, 1, 2);
-    g.generateTexture('ball', 6, 6); g.clear();
-
-    g.fillStyle(0x6a4a2a).fillRect(0, 0, 32, 20);
-    g.fillStyle(0x1a3a2a).fillRect(2, 2, 28, 16);
-    g.fillStyle(0xffffff).fillRect(5, 6, 1, 1);
-    g.fillStyle(0xffffff).fillRect(5, 8, 6, 1);
-    g.fillStyle(0xffffff).fillRect(5, 12, 4, 1);
-    g.generateTexture('chalkboard', 32, 20); g.clear();
-
-    // Pizarra grande (para aula amueblada)
-    g.fillStyle(0x6a4a2a).fillRect(0, 0, 80, 40);
-    g.fillStyle(0x1a3a2a).fillRect(2, 2, 76, 36);
-    g.fillStyle(0xffffff).fillRect(6, 8, 12, 1);
-    g.fillStyle(0xffffff).fillRect(6, 11, 8, 1);
-    g.fillStyle(0xffffff).fillRect(20, 9, 1, 4);
-    g.fillStyle(0xffffff).fillRect(22, 8, 4, 1);
-    g.fillStyle(0xffffff).fillRect(22, 12, 4, 1);
-    g.fillStyle(0xffffff).fillRect(6, 20, 24, 1);
-    g.fillStyle(0xffffff).fillRect(6, 23, 16, 1);
-    g.fillStyle(0xffffff).fillRect(6, 26, 20, 1);
-    g.fillStyle(0xeeeeee).fillRect(40, 16, 1, 12); // tiza vertical
-    g.fillStyle(0xeeeeee).fillRect(48, 16, 1, 4);
-    g.fillStyle(0xeeeeee).fillRect(48, 24, 1, 4);
-    g.fillStyle(0xeeeeee).fillRect(48, 16, 6, 1);
-    g.fillStyle(0xeeeeee).fillRect(48, 24, 6, 1);
-    g.fillStyle(0xeeeeee).fillRect(53, 16, 1, 12);
-    // bandeja de tizas
-    g.fillStyle(0x4a3018).fillRect(0, 37, 80, 3);
-    g.fillStyle(0xffffff).fillRect(8, 38, 4, 1);
-    g.fillStyle(0xffaa44).fillRect(20, 38, 3, 1);
-    g.generateTexture('chalkboard_big', 80, 40); g.clear();
-
-    g.fillStyle(0x8b5a36).fillRect(0, 0, 14, 4);
-    g.fillStyle(0x6b4226).fillRect(2, 4, 2, 6);
-    g.fillStyle(0x6b4226).fillRect(10, 4, 2, 6);
-    g.generateTexture('desk', 14, 10); g.clear();
-
-    // Silla
-    g.fillStyle(0x6b4226).fillRect(0, 0, 8, 1);     // asiento
-    g.fillStyle(0x6b4226).fillRect(0, 1, 1, 4);     // respaldo
-    g.fillStyle(0x6b4226).fillRect(0, 5, 1, 4);     // pata trasera
-    g.fillStyle(0x6b4226).fillRect(7, 1, 1, 8);     // pata delantera
-    g.generateTexture('chair', 8, 9); g.clear();
-
-    // Mesa profesora (con libros y manzana encima)
-    g.fillStyle(0xaa3333).fillRect(4, 0, 4, 3);     // libro rojo
-    g.fillStyle(0x2266aa).fillRect(10, 1, 5, 2);    // libro azul
-    g.fillStyle(0x33aa33).fillRect(18, 0, 1, 1);    // hojita de la manzana
-    g.fillStyle(0xcc4444).fillRect(18, 1, 2, 2);    // manzana
-    g.fillStyle(0x8b5a36).fillRect(0, 3, 24, 5);    // tablero
-    g.fillStyle(0x6b4226).fillRect(2, 8, 2, 10);    // pata izq
-    g.fillStyle(0x6b4226).fillRect(20, 8, 2, 10);   // pata der
-    g.generateTexture('teacher_desk', 24, 18); g.clear();
-
-    // Reloj de pared
-    g.fillStyle(0x111111).fillCircle(7, 7, 7);
-    g.fillStyle(0xeeeeee).fillCircle(7, 7, 6);
-    g.fillStyle(0x111111).fillRect(7, 7, 1, -4);    // aguja minutera
-    g.fillStyle(0x111111).fillRect(7, 7, 3, 1);     // aguja horaria
-    g.fillStyle(0x111111).fillRect(7, 1, 1, 1);     // 12
-    g.fillStyle(0x111111).fillRect(13, 7, 1, 1);    // 3
-    g.fillStyle(0x111111).fillRect(7, 13, 1, 1);    // 6
-    g.fillStyle(0x111111).fillRect(1, 7, 1, 1);     // 9
-    g.generateTexture('clock', 14, 14); g.clear();
-
-    // Póster (alfabeto/mapa estilizado)
-    g.fillStyle(0xeeddaa).fillRect(0, 0, 24, 18);
-    g.fillStyle(0x884422).fillRect(0, 0, 24, 1);
-    g.fillStyle(0x884422).fillRect(0, 17, 24, 1);
-    g.fillStyle(0x884422).fillRect(0, 0, 1, 18);
-    g.fillStyle(0x884422).fillRect(23, 0, 1, 18);
-    // Letras simuladas
-    g.fillStyle(0x222222).fillRect(3, 3, 2, 2);
-    g.fillStyle(0x222222).fillRect(7, 3, 2, 2);
-    g.fillStyle(0x222222).fillRect(11, 3, 2, 2);
-    g.fillStyle(0x222222).fillRect(15, 3, 2, 2);
-    g.fillStyle(0x222222).fillRect(19, 3, 2, 2);
-    g.fillStyle(0x222222).fillRect(3, 8, 2, 2);
-    g.fillStyle(0x222222).fillRect(7, 8, 2, 2);
-    g.fillStyle(0x222222).fillRect(11, 8, 2, 2);
-    g.fillStyle(0x222222).fillRect(15, 8, 2, 2);
-    g.fillStyle(0x222222).fillRect(19, 8, 2, 2);
-    g.fillStyle(0x222222).fillRect(3, 13, 2, 2);
-    g.fillStyle(0x222222).fillRect(7, 13, 2, 2);
-    g.fillStyle(0x222222).fillRect(11, 13, 2, 2);
-    g.fillStyle(0x222222).fillRect(15, 13, 2, 2);
-    g.fillStyle(0x222222).fillRect(19, 13, 2, 2);
-    g.generateTexture('poster', 24, 18); g.clear();
-
-    // Lámpara colgante (biblioteca)
-    g.fillStyle(0x222222).fillRect(5, 0, 2, 6);       // cable
-    g.fillStyle(0xaa8844).fillRect(2, 6, 8, 2);       // soporte
-    g.fillStyle(0xffe066).fillRect(1, 8, 10, 5);      // pantalla amarilla
-    g.fillStyle(0xddaa33).fillRect(2, 13, 8, 1);      // borde inferior
-    g.generateTexture('lamp', 12, 14); g.clear();
-
-    // Mapa (de pared, para biblio)
-    g.fillStyle(0x6b4226).fillRect(0, 0, 28, 1);       // listón superior
-    g.fillStyle(0x6b4226).fillRect(0, 19, 28, 1);      // listón inferior
-    g.fillStyle(0xeed8a0).fillRect(0, 1, 28, 18);      // papel
-    g.fillStyle(0x5588cc).fillRect(0, 1, 28, 18);      // mar azul (sobrescribe)
-    g.fillStyle(0xeed8a0).fillRect(2, 3, 8, 5);        // tierra 1
-    g.fillStyle(0xeed8a0).fillRect(12, 4, 5, 6);
-    g.fillStyle(0xeed8a0).fillRect(18, 6, 8, 8);
-    g.fillStyle(0xeed8a0).fillRect(3, 11, 6, 5);
-    g.fillStyle(0xcc4444).fillRect(15, 8, 1, 1);       // pin rojo
-    g.generateTexture('map', 28, 20); g.clear();
-
-    // Mesa de lectura (biblio, larga, con libro)
-    g.fillStyle(0xaa3333).fillRect(8, 0, 5, 2);        // libro encima
-    g.fillStyle(0xeeeeee).fillRect(9, 1, 3, 1);        // páginas
-    g.fillStyle(0x8b5a36).fillRect(0, 2, 28, 4);       // tablero
-    g.fillStyle(0x6b4226).fillRect(2, 6, 2, 8);        // pata izq
-    g.fillStyle(0x6b4226).fillRect(24, 6, 2, 8);       // pata der
-    g.generateTexture('reading_table', 28, 14); g.clear();
-
-    // Estantería alta (variante grande, sin perder la 'shelf' existente)
-    g.fillStyle(0x3a1f0a).fillRect(0, 0, 20, 48);
-    for (let row = 0; row < 4; row++) {
-      const yy = 2 + row * 12;
-      g.fillStyle(0xb88a3a).fillRect(1, yy, 18, 8);
-      // libros con tonos variados
-      const cols = [0x4a8aaa, 0xaa4a4a, 0x4aaa4a, 0xaaaa4a, 0xaa4aaa, 0x88cc44];
-      for (let i = 0; i < 6; i++) {
-        const cx = 2 + i * 3;
-        g.fillStyle(cols[(i + row) % cols.length]).fillRect(cx, yy + 1, 2, 6);
+    for (const { id, w, h, paint } of DECOR_CATALOG) {
+      if (!this.textures.exists(id)) {
+        paint(g);
+        g.generateTexture(id, w, h);
+        g.clear();
       }
     }
-    g.generateTexture('shelf_tall', 20, 48); g.clear();
-
-    // Nube
-    g.fillStyle(0xffffff).fillRect(2, 1, 12, 4);
-    g.fillStyle(0xffffff).fillRect(0, 2, 16, 2);
-    g.fillStyle(0xffffff).fillRect(3, 0, 8, 1);
-    g.generateTexture('cloud', 16, 5); g.clear();
-
-    // Silueta de montaña (para parallax lejano del patio)
-    g.fillStyle(0x3a3a5a).fillRect(0, 8, 32, 6);
-    g.fillStyle(0x3a3a5a).fillRect(4, 5, 8, 8);
-    g.fillStyle(0x3a3a5a).fillRect(14, 2, 10, 11);
-    g.fillStyle(0x3a3a5a).fillRect(22, 6, 8, 8);
-    g.generateTexture('mountain', 32, 14); g.clear();
-
-    // Árbol (patio)
-    g.fillStyle(0x4a2511).fillRect(7, 12, 2, 8);       // tronco
-    g.fillStyle(0x2a6a2a).fillRect(2, 4, 12, 8);       // copa
-    g.fillStyle(0x2a6a2a).fillRect(4, 2, 8, 4);
-    g.fillStyle(0x3aaa3a).fillRect(3, 5, 2, 2);        // toques de luz
-    g.fillStyle(0x3aaa3a).fillRect(10, 6, 2, 2);
-    g.generateTexture('tree', 16, 20); g.clear();
-
-    // Vallado bajo (patio, atrás del juego)
-    g.fillStyle(0x8b6a36).fillRect(0, 0, 32, 1);       // listón superior
-    g.fillStyle(0x8b6a36).fillRect(0, 5, 32, 1);       // listón inferior
-    for (let i = 0; i < 4; i++) {
-      g.fillStyle(0x8b6a36).fillRect(2 + i * 8, 0, 2, 10);
-    }
-    g.generateTexture('fence', 32, 10); g.clear();
-
-    // Papelera (patio)
-    g.fillStyle(0x555555).fillRect(0, 1, 8, 9);
-    g.fillStyle(0x333333).fillRect(0, 0, 8, 2);        // borde superior
-    g.fillStyle(0x777777).fillRect(1, 3, 1, 6);        // brillo
-    g.generateTexture('bin', 8, 10); g.clear();
-
     g.destroy();
   }
 
