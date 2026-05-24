@@ -87,6 +87,19 @@ export const DIALOGUES = {
   pablo_npc: {
     default: ['me voy a follar a tu madre'],
   },
+
+  // Pablo libre, después del combate. Lo encontrarías de vuelta en el aula
+  // o en el patio, con esta única frase que cierra su arco con humor negro.
+  pablo: {
+    'act1.ch1.pablo_done': [
+      'Una gran experiencia.',
+      'Una pena que no me haya podido follar más a tu madre.',
+    ],
+    'act1.ch1.done': [
+      'Una gran experiencia.',
+      'Una pena que no me haya podido follar más a tu madre.',
+    ],
+  },
 };
 
 // Resuelve líneas. Busca específico por storyId, luego default. Si no hay

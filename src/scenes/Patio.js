@@ -127,8 +127,14 @@ export class Patio extends RoomScene {
         sprite: this.pabloSprite,
         lifespan: 100,
       });
+    } else if (chap === CHAPTERS.PABLO_DONE || chap === CHAPTERS.DONE) {
+      // Pablo liberado del malestar: humor negro de despedida (líneas en catálogo).
+      this.addNpc(120, 128, {
+        id: 'pablo', name: 'Pablo',
+        sprite: this.pabloSprite,
+        lifespan: 200,
+      });
     }
-    // En PABLO_DONE / DONE no aparece
   }
 
   // Cutscene cuando le hablas por primera vez en INVESTIGATING.

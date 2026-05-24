@@ -7,60 +7,138 @@
 // Para añadir un decor nuevo: define la función paintX(g) y añádela a DECOR.
 
 export function paintTile(g) {
+  // Tablones de madera con veta y juntas
   g.fillStyle(0x6b4226).fillRect(0, 0, 16, 16);
-  g.fillStyle(0x8b5a36).fillRect(0, 0, 16, 3);
+  g.fillStyle(0x8b5a36).fillRect(0, 0, 16, 3);    // canto superior claro
+  g.fillStyle(0xaa6f4a).fillRect(0, 0, 16, 1);    // brillo
+  g.fillStyle(0x4a2818).fillRect(0, 3, 16, 1);    // sombra bajo canto
+  g.fillStyle(0x7a4a26).fillRect(2, 6, 12, 1);    // veta
+  g.fillStyle(0x7a4a26).fillRect(4, 11, 10, 1);   // veta
+  g.fillStyle(0x4a2818).fillRect(0, 15, 16, 1);   // junta inferior
+  // Nudos
+  g.fillStyle(0x4a2818).fillRect(5, 9, 1, 1);
+  g.fillStyle(0x4a2818).fillRect(11, 5, 1, 1);
 }
 
 export function paintGrass(g) {
+  // Tierra
   g.fillStyle(0x4a3018).fillRect(0, 0, 16, 16);
-  g.fillStyle(0x4caf50).fillRect(0, 0, 16, 4);
-  g.fillStyle(0x66bb6a).fillRect(2, 0, 2, 2);
-  g.fillStyle(0x66bb6a).fillRect(10, 1, 2, 2);
+  g.fillStyle(0x6a4828).fillRect(0, 4, 16, 1);    // veta tierra
+  g.fillStyle(0x3a2410).fillRect(0, 10, 16, 1);   // veta más oscura
+  // Hierba (capa superior)
+  g.fillStyle(0x3a8f40).fillRect(0, 0, 16, 4);    // base hierba
+  g.fillStyle(0x4caf50).fillRect(0, 0, 16, 3);    // hierba media
+  g.fillStyle(0x66bb6a).fillRect(0, 0, 16, 1);    // brillo arriba
+  // Briznas que sobresalen
+  g.fillStyle(0x88dd80);
+  g.fillRect(2, 0, 1, 2); g.fillRect(6, 0, 1, 2);
+  g.fillRect(10, 0, 1, 2); g.fillRect(14, 0, 1, 2);
+  // Florecitas / piedras
+  g.fillStyle(0xffe066).fillRect(4, 1, 1, 1);
+  g.fillStyle(0xee8888).fillRect(12, 2, 1, 1);
 }
 
 export function paintLadder(g) {
-  g.fillStyle(0xc88a3a);
-  g.fillRect(3, 0, 2, 16); g.fillRect(11, 0, 2, 16);
-  g.fillRect(2, 2, 12, 2); g.fillRect(2, 8, 12, 2); g.fillRect(2, 14, 12, 2);
-}
-
-export function paintRope(g) {
-  g.fillStyle(0xb88a3a).fillRect(7, 0, 2, 16);
-  g.fillStyle(0xa07020).fillRect(7, 4, 2, 1);
-  g.fillStyle(0xa07020).fillRect(7, 11, 2, 1);
-}
-
-export function paintLattice(g) {
-  // Rejilla con fillRect (líneas de 1px). Reescrito sin lineStyle para
-  // mantener la API uniforme entre Phaser y PixelCanvas.
-  g.fillStyle(0x888888);
-  for (let i = 0; i <= 16; i += 4) {
-    g.fillRect(0, i, 16, 1);  // línea horizontal
-    g.fillRect(i, 0, 1, 16);  // línea vertical
+  // Largueros con sombra a la derecha
+  g.fillStyle(0xc88a3a).fillRect(3, 0, 2, 16);
+  g.fillStyle(0xa07020).fillRect(4, 0, 1, 16);    // sombra larguero izq
+  g.fillStyle(0xc88a3a).fillRect(11, 0, 2, 16);
+  g.fillStyle(0xa07020).fillRect(12, 0, 1, 16);   // sombra larguero der
+  // Brillos
+  g.fillStyle(0xeeaa66).fillRect(3, 0, 1, 16);
+  g.fillStyle(0xeeaa66).fillRect(11, 0, 1, 16);
+  // Peldaños con sombra inferior
+  for (const y of [2, 8, 14]) {
+    g.fillStyle(0xc88a3a).fillRect(2, y, 12, 2);
+    g.fillStyle(0xa07020).fillRect(2, y + 1, 12, 1);
   }
 }
 
+export function paintRope(g) {
+  // Cuerda trenzada: alternancia de tonos para sugerir trenzado
+  g.fillStyle(0xb88a3a).fillRect(7, 0, 2, 16);
+  g.fillStyle(0xddaa66).fillRect(7, 0, 1, 16);    // brillo izq
+  // Nudos de trenza (anillos cada 4 px)
+  for (let y = 1; y < 16; y += 3) {
+    g.fillStyle(0x8a6020).fillRect(7, y, 2, 1);
+  }
+  // Pequeño nudo más visible al inicio
+  g.fillStyle(0x5a3a10).fillRect(6, 0, 4, 1);
+}
+
+export function paintLattice(g) {
+  // Rejilla cruzada con marco doble (sugerir alambre)
+  g.fillStyle(0xaaaaaa);
+  for (let i = 0; i <= 16; i += 4) {
+    g.fillRect(0, i, 16, 1);
+    g.fillRect(i, 0, 1, 16);
+  }
+  // Sombras de las intersecciones
+  g.fillStyle(0x666666);
+  for (let i = 0; i <= 16; i += 4) {
+    g.fillRect(i, i, 1, 1);
+  }
+  // Tornillos de fijación en las esquinas
+  g.fillStyle(0x333333);
+  g.fillRect(0, 0, 1, 1); g.fillRect(15, 0, 1, 1);
+  g.fillRect(0, 15, 1, 1); g.fillRect(15, 15, 1, 1);
+}
+
 export function paintDoor(g) {
+  // Marco exterior con brillo y sombra
   g.fillStyle(0x4a2511).fillRect(0, 0, 16, 24);
-  g.fillStyle(0x2a1408).fillRect(2, 2, 12, 20);
-  g.fillStyle(0xffd166).fillRect(11, 12, 2, 2);
+  g.fillStyle(0x6a3a18).fillRect(0, 0, 16, 1);    // brillo arriba
+  g.fillStyle(0x6a3a18).fillRect(0, 0, 1, 24);    // brillo izq
+  g.fillStyle(0x2a1408).fillRect(15, 0, 1, 24);   // sombra der
+  // Hoja interior
+  g.fillStyle(0x6a3a18).fillRect(2, 2, 12, 20);
+  // Dos paneles (típica puerta con marquetería)
+  g.fillStyle(0x4a2511).fillRect(3, 3, 10, 8);
+  g.fillStyle(0x4a2511).fillRect(3, 13, 10, 8);
+  g.fillStyle(0x8a5a2a).fillRect(3, 3, 10, 1);    // borde claro panel 1
+  g.fillStyle(0x8a5a2a).fillRect(3, 13, 10, 1);   // borde claro panel 2
+  // Pomo dorado con brillo
+  g.fillStyle(0xddaa44).fillRect(11, 12, 2, 2);
+  g.fillStyle(0xffe066).fillRect(11, 12, 1, 1);   // brillo
+  g.fillStyle(0x886622).fillRect(12, 13, 1, 1);   // sombra
 }
 
 export function paintSign(g) {
-  g.fillStyle(0xeeeeee).fillRect(0, 0, 8, 6);
+  // Tabla con borde
+  g.fillStyle(0x4a2511).fillRect(0, 0, 8, 6);     // marco
+  g.fillStyle(0xeeddaa).fillRect(1, 1, 6, 4);     // papel
+  g.fillStyle(0x222222).fillRect(2, 2, 4, 1);     // texto línea 1
+  g.fillStyle(0x222222).fillRect(2, 4, 3, 1);     // texto línea 2
+  // Mástil
   g.fillStyle(0x4a2511).fillRect(3, 6, 2, 4);
+  g.fillStyle(0x6a3a18).fillRect(3, 6, 1, 4);     // brillo
 }
 
 export function paintBookEnemy(g) {
+  // Libro abierto con tapa roja
   g.fillStyle(0x7a1f1f).fillRect(0, 0, 14, 12);
+  g.fillStyle(0xaa3333).fillRect(0, 0, 14, 1);    // brillo arriba
+  g.fillStyle(0x4a0808).fillRect(0, 11, 14, 1);   // sombra
+  // Páginas blancas (un poco encogidas, como abultadas)
   g.fillStyle(0xeeeeee).fillRect(2, 2, 10, 8);
+  g.fillStyle(0xccccaa).fillRect(2, 9, 10, 1);    // sombra páginas
+  // Lomo central
   g.fillStyle(0x7a1f1f).fillRect(6, 0, 2, 12);
-  g.fillStyle(0xff0000).fillRect(4, 5, 2, 2);
-  g.fillStyle(0xff0000).fillRect(8, 5, 2, 2);
+  g.fillStyle(0x4a0808).fillRect(7, 0, 1, 12);
+  // Ojos rojos brillantes (poseído)
+  g.fillStyle(0x440000).fillRect(3, 4, 3, 3);
+  g.fillStyle(0xff2222).fillRect(4, 5, 2, 2);
+  g.fillStyle(0xffaa88).fillRect(4, 5, 1, 1);     // brillo
+  g.fillStyle(0x440000).fillRect(8, 4, 3, 3);
+  g.fillStyle(0xff2222).fillRect(8, 5, 2, 2);
+  g.fillStyle(0xffaa88).fillRect(8, 5, 1, 1);
 }
 
 export function paintShelf(g) {
+  // Cuerpo de madera oscura con brillo izquierdo
   g.fillStyle(0x3a1f0a).fillRect(0, 0, 16, 32);
+  g.fillStyle(0x5a3018).fillRect(0, 0, 1, 32);
+  g.fillStyle(0x1a0a00).fillRect(15, 0, 1, 32);   // sombra der
   const rows = [
     [0x4a8aaa, 0xaa4a4a, 0x4aaa4a, 0xaaaa4a],
     [0xaa4a4a, 0x4aaa4a, 0x4a8aaa, 0xaa4aaa],
@@ -68,25 +146,52 @@ export function paintShelf(g) {
   ];
   for (let r = 0; r < 3; r++) {
     const yy = 1 + r * 8;
+    // Estante (madera más clara con sombra debajo)
     g.fillStyle(0xb88a3a).fillRect(1, yy, 14, 6);
+    g.fillStyle(0xd0aa55).fillRect(1, yy, 14, 1); // brillo superior
+    g.fillStyle(0x886020).fillRect(1, yy + 5, 14, 1); // sombra
+    // Libros con cubierta y "páginas" abajo
     for (let i = 0; i < 4; i++) {
-      g.fillStyle(rows[r][i]).fillRect(2 + i * 3, yy + 1, 2, 5);
+      const xx = 2 + i * 3;
+      g.fillStyle(rows[r][i]).fillRect(xx, yy + 1, 2, 4);
+      g.fillStyle(0xffffff).fillRect(xx, yy + 5, 2, 1); // páginas
     }
   }
 }
 
 export function paintBall(g) {
-  g.fillStyle(0xffffff).fillCircle(3, 3, 3);
-  g.fillStyle(0x222222).fillRect(2, 0, 2, 1); g.fillStyle(0x222222).fillRect(2, 5, 2, 1);
-  g.fillStyle(0x222222).fillRect(0, 2, 1, 2); g.fillStyle(0x222222).fillRect(5, 2, 1, 2);
+  // Pelota tipo fútbol clásica (blanca con pentágonos)
+  g.fillStyle(0xeeeeee).fillCircle(3, 3, 3);
+  g.fillStyle(0xffffff).fillCircle(3, 2, 2);      // brillo superior
+  // Pentágonos negros
+  g.fillStyle(0x222222);
+  g.fillRect(2, 0, 2, 1); g.fillRect(2, 5, 2, 1);
+  g.fillRect(0, 2, 1, 2); g.fillRect(5, 2, 1, 2);
+  g.fillRect(2, 2, 2, 2);                          // centro
 }
 
 export function paintChalkboard(g) {
+  // Versión pequeña (32x20). Mismo estilo que la grande pero compacta.
   g.fillStyle(0x6a4a2a).fillRect(0, 0, 32, 20);
+  g.fillStyle(0x8a6a3a).fillRect(0, 0, 32, 1);    // brillo superior
+  g.fillStyle(0x3a2010).fillRect(0, 19, 32, 1);   // sombra inferior
+  // Esquinas con tornillos
+  g.fillStyle(0x222222).fillRect(1, 1, 1, 1);
+  g.fillStyle(0x222222).fillRect(30, 1, 1, 1);
+  // Pizarra
   g.fillStyle(0x1a3a2a).fillRect(2, 2, 28, 16);
+  // Polvo de tiza
+  g.fillStyle(0x556a5a);
+  g.fillRect(8, 4, 1, 1); g.fillRect(22, 6, 1, 1);
+  g.fillRect(15, 12, 1, 1); g.fillRect(25, 14, 1, 1);
+  // Texto
   g.fillStyle(0xffffff).fillRect(5, 6, 1, 1);
   g.fillStyle(0xffffff).fillRect(5, 8, 6, 1);
   g.fillStyle(0xffffff).fillRect(5, 12, 4, 1);
+  g.fillStyle(0xffffff).fillRect(12, 14, 8, 1);
+  // Bandeja
+  g.fillStyle(0x4a3018).fillRect(0, 17, 32, 2);
+  g.fillStyle(0xffffff).fillRect(3, 18, 3, 1);    // tiza
 }
 
 export function paintChalkboardBig(g) {
@@ -141,16 +246,29 @@ export function paintChalkboardBig(g) {
 }
 
 export function paintDesk(g) {
+  // Tablero con brillo y sombra
   g.fillStyle(0x8b5a36).fillRect(0, 0, 14, 4);
+  g.fillStyle(0xaa7040).fillRect(0, 0, 14, 1);    // brillo
+  g.fillStyle(0x6b4226).fillRect(0, 3, 14, 1);    // sombra
+  // Patas
   g.fillStyle(0x6b4226).fillRect(2, 4, 2, 6);
   g.fillStyle(0x6b4226).fillRect(10, 4, 2, 6);
+  g.fillStyle(0x4a2818).fillRect(3, 4, 1, 6);     // sombra pata izq
+  g.fillStyle(0x4a2818).fillRect(11, 4, 1, 6);    // sombra pata der
 }
 
 export function paintChair(g) {
+  // Asiento con brillo
   g.fillStyle(0x6b4226).fillRect(0, 0, 8, 1);
+  g.fillStyle(0x8b5a36).fillRect(0, 0, 8, 1);
+  // Respaldo (barras verticales)
   g.fillStyle(0x6b4226).fillRect(0, 1, 1, 4);
+  g.fillStyle(0x6b4226).fillRect(3, 1, 1, 4);     // barra media
+  // Patas con sombra
   g.fillStyle(0x6b4226).fillRect(0, 5, 1, 4);
+  g.fillStyle(0x4a2818).fillRect(1, 5, 1, 4);
   g.fillStyle(0x6b4226).fillRect(7, 1, 1, 8);
+  g.fillStyle(0x4a2818).fillRect(7, 8, 1, 1);
 }
 
 export function paintTeacherDesk(g) {
@@ -260,47 +378,113 @@ export function paintLamp(g) {
 }
 
 export function paintMap(g) {
+  // Listones de madera arriba y abajo (con brillo y sombra)
   g.fillStyle(0x6b4226).fillRect(0, 0, 28, 1);
+  g.fillStyle(0x8b5a36).fillRect(0, 0, 28, 1);
   g.fillStyle(0x6b4226).fillRect(0, 19, 28, 1);
+  g.fillStyle(0x4a2818).fillRect(0, 19, 28, 1);
+  // Pomos en los extremos de los listones (para enrollar)
+  g.fillStyle(0xddaa44).fillRect(0, 0, 1, 1);
+  g.fillStyle(0xddaa44).fillRect(27, 0, 1, 1);
+  g.fillStyle(0xddaa44).fillRect(0, 19, 1, 1);
+  g.fillStyle(0xddaa44).fillRect(27, 19, 1, 1);
+  // Mar azul de fondo (gradiente)
   g.fillStyle(0x5588cc).fillRect(0, 1, 28, 18);
+  g.fillStyle(0x6699dd).fillRect(0, 1, 28, 6);     // mar más claro arriba
+  // Continentes con sombra
   g.fillStyle(0xeed8a0).fillRect(2, 3, 8, 5);
+  g.fillStyle(0xcca878).fillRect(2, 7, 8, 1);       // costa sombreada
   g.fillStyle(0xeed8a0).fillRect(12, 4, 5, 6);
+  g.fillStyle(0xcca878).fillRect(12, 9, 5, 1);
   g.fillStyle(0xeed8a0).fillRect(18, 6, 8, 8);
+  g.fillStyle(0xcca878).fillRect(18, 13, 8, 1);
   g.fillStyle(0xeed8a0).fillRect(3, 11, 6, 5);
-  g.fillStyle(0xcc4444).fillRect(15, 8, 1, 1);
+  g.fillStyle(0xcca878).fillRect(3, 15, 6, 1);
+  // Detalles: pin rojo + cordillera + río
+  g.fillStyle(0x882200).fillRect(15, 8, 1, 1);     // pin sombra
+  g.fillStyle(0xff4444).fillRect(14, 7, 1, 1);     // pin cabeza
+  g.fillStyle(0x886622).fillRect(20, 9, 4, 1);     // cordillera
+  g.fillStyle(0x4488aa).fillRect(5, 4, 1, 4);      // río
 }
 
 export function paintReadingTable(g) {
-  g.fillStyle(0xaa3333).fillRect(8, 0, 5, 2);
-  g.fillStyle(0xeeeeee).fillRect(9, 1, 3, 1);
+  // Libro abierto encima (con páginas blancas y texto)
+  g.fillStyle(0xaa3333).fillRect(7, 0, 7, 2);
+  g.fillStyle(0xee9999).fillRect(7, 0, 7, 1);
+  g.fillStyle(0xfff8e0).fillRect(8, 1, 5, 1);     // páginas
+  g.fillStyle(0x222222).fillRect(9, 1, 1, 1);
+  g.fillStyle(0x222222).fillRect(11, 1, 1, 1);
+  // Lápiz al lado
+  g.fillStyle(0xffe066).fillRect(18, 1, 3, 1);
+  g.fillStyle(0x553311).fillRect(21, 1, 1, 1);    // punta
+  // Tablero con veta
   g.fillStyle(0x8b5a36).fillRect(0, 2, 28, 4);
+  g.fillStyle(0xaa7040).fillRect(0, 2, 28, 1);    // brillo
+  g.fillStyle(0x6b4226).fillRect(0, 5, 28, 1);    // sombra
+  g.fillStyle(0x7a4a26).fillRect(4, 3, 20, 1);    // veta
+  // Patas con sombra
   g.fillStyle(0x6b4226).fillRect(2, 6, 2, 8);
+  g.fillStyle(0x4a2818).fillRect(3, 6, 1, 8);
   g.fillStyle(0x6b4226).fillRect(24, 6, 2, 8);
+  g.fillStyle(0x4a2818).fillRect(25, 6, 1, 8);
 }
 
 export function paintShelfTall(g) {
+  // Estructura
   g.fillStyle(0x3a1f0a).fillRect(0, 0, 20, 48);
+  g.fillStyle(0x5a3018).fillRect(0, 0, 1, 48);
+  g.fillStyle(0x1a0a00).fillRect(19, 0, 1, 48);
+  // Coronación
+  g.fillStyle(0x5a3018).fillRect(0, 0, 20, 1);
   for (let row = 0; row < 4; row++) {
     const yy = 2 + row * 12;
+    // Estante
     g.fillStyle(0xb88a3a).fillRect(1, yy, 18, 8);
+    g.fillStyle(0xd0aa55).fillRect(1, yy, 18, 1);
+    g.fillStyle(0x886020).fillRect(1, yy + 7, 18, 1);
     const cols = [0x4a8aaa, 0xaa4a4a, 0x4aaa4a, 0xaaaa4a, 0xaa4aaa, 0x88cc44];
+    // Libros con detalle
     for (let i = 0; i < 6; i++) {
-      g.fillStyle(cols[(i + row) % cols.length]).fillRect(2 + i * 3, yy + 1, 2, 6);
+      const xx = 2 + i * 3;
+      const col = cols[(i + row) % cols.length];
+      g.fillStyle(col).fillRect(xx, yy + 1, 2, 5);
+      // Banda decorativa dorada en algunos libros
+      if ((i + row) % 3 === 0) {
+        g.fillStyle(0xddaa44).fillRect(xx, yy + 3, 2, 1);
+      }
+      g.fillStyle(0xffffff).fillRect(xx, yy + 6, 2, 1); // páginas
     }
   }
 }
 
 export function paintCloud(g) {
-  g.fillStyle(0xffffff).fillRect(2, 1, 12, 4);
+  // Sombra inferior (gris claro)
+  g.fillStyle(0xccccdd).fillRect(2, 4, 12, 1);
+  g.fillStyle(0xccccdd).fillRect(0, 3, 16, 1);
+  // Cuerpo blanco
+  g.fillStyle(0xffffff).fillRect(2, 1, 12, 3);
   g.fillStyle(0xffffff).fillRect(0, 2, 16, 2);
   g.fillStyle(0xffffff).fillRect(3, 0, 8, 1);
+  // Brillos
+  g.fillStyle(0xffffff).fillRect(4, 0, 1, 1);
 }
 
 export function paintMountain(g) {
+  // Tres montañas con nieve en las cumbres y sombra a la derecha
   g.fillStyle(0x3a3a5a).fillRect(0, 8, 32, 6);
+  // Montaña izq
   g.fillStyle(0x3a3a5a).fillRect(4, 5, 8, 8);
+  g.fillStyle(0x5a5a7a).fillRect(4, 5, 4, 8);     // cara iluminada
+  g.fillStyle(0xeeeeee).fillRect(6, 5, 4, 1);     // nieve cumbre
+  // Montaña central (la más alta)
   g.fillStyle(0x3a3a5a).fillRect(14, 2, 10, 11);
+  g.fillStyle(0x5a5a7a).fillRect(14, 2, 5, 11);   // cara iluminada
+  g.fillStyle(0xeeeeee).fillRect(16, 2, 6, 2);    // nieve cumbre
+  g.fillStyle(0xcccce0).fillRect(15, 4, 3, 1);    // brillo nieve
+  // Montaña der
   g.fillStyle(0x3a3a5a).fillRect(22, 6, 8, 8);
+  g.fillStyle(0x5a5a7a).fillRect(22, 6, 4, 8);
+  g.fillStyle(0xeeeeee).fillRect(24, 6, 4, 1);
 }
 
 export function paintTree(g) {
@@ -330,17 +514,36 @@ export function paintTree(g) {
 }
 
 export function paintFence(g) {
+  // Listones horizontales con brillo y sombra
   g.fillStyle(0x8b6a36).fillRect(0, 0, 32, 1);
+  g.fillStyle(0xaa8246).fillRect(0, 0, 32, 1);    // brillo
   g.fillStyle(0x8b6a36).fillRect(0, 5, 32, 1);
+  g.fillStyle(0x6a4a16).fillRect(0, 5, 32, 1);    // sombra
+  // Postes verticales con punta y sombra
   for (let i = 0; i < 4; i++) {
-    g.fillStyle(0x8b6a36).fillRect(2 + i * 8, 0, 2, 10);
+    const x = 2 + i * 8;
+    g.fillStyle(0x8b6a36).fillRect(x, 0, 2, 10);
+    g.fillStyle(0xaa8246).fillRect(x, 0, 1, 10);  // brillo izq
+    g.fillStyle(0x6a4a16).fillRect(x + 1, 0, 1, 10); // sombra der
+    // Punta del poste
+    g.fillStyle(0x6a4a16).fillRect(x, 0, 2, 1);
   }
 }
 
 export function paintBin(g) {
-  g.fillStyle(0x555555).fillRect(0, 1, 8, 9);
+  // Cuerpo metálico
+  g.fillStyle(0x555555).fillRect(0, 2, 8, 8);
+  g.fillStyle(0x777777).fillRect(0, 2, 1, 8);     // brillo izq
+  g.fillStyle(0x333333).fillRect(7, 2, 1, 8);     // sombra der
+  // Tapa
   g.fillStyle(0x333333).fillRect(0, 0, 8, 2);
-  g.fillStyle(0x777777).fillRect(1, 3, 1, 6);
+  g.fillStyle(0x555555).fillRect(0, 0, 8, 1);     // brillo tapa
+  // Asa de la tapa
+  g.fillStyle(0x222222).fillRect(3, 0, 2, 1);
+  // Banda decorativa
+  g.fillStyle(0x444444).fillRect(0, 6, 8, 1);
+  // Base
+  g.fillStyle(0x222222).fillRect(0, 9, 8, 1);
 }
 
 // Catálogo completo: { id, w, h, paint }
