@@ -1,4 +1,5 @@
 import { portraitForSpeaker, colorForSpeaker } from '../portraits.js';
+import { audio, voiceFor } from '../audio.js';
 
 // Overlay de diálogo. Modal: pausa la escena padre mientras está abierto.
 // Datos esperados:
@@ -144,8 +145,29 @@ export class DialogueScene extends Phaser.Scene {
     this.lineText.setWordWrapWidth(textWrap);
     this.lineText.setText(text);
 
+    // Babble: una secuencia de ticks de voz mientras el texto "se dice".
+    // Cada tick = un fonema; aproximamos con 1 tick cada 80ms hasta cubrir
+    // la longitud del texto (cap a 24 ticks por línea).
+    this.playBabble(speaker, text);
+
     const isLast = this.idx >= this.lines.length - 1;
     this.hint.setText(isLast ? '[E] cerrar' : '[E] ▶');
+  }
+
+  playBabble(speaker, text) {
+    if (this._babbleTimer) this._babbleTimer.remove(false);
+    const voice = voiceFor(speaker);
+    const ticks = Math.min(24, Math.max(2, Math.floor(text.length / 3)));
+    let i = 0;
+    audio.playVoiceTick(voice);
+    this._babbleTimer = this.time.addEvent({
+      delay: 80,
+      repeat: ticks - 1,
+      callback: () => {
+        i++;
+        audio.playVoiceTick(voice);
+      },
+    });
   }
 
   update() {
@@ -162,6 +184,7 @@ export class DialogueScene extends Phaser.Scene {
   }
 
   closeDialogue() {
+    if (this._babbleTimer) { this._babbleTimer.remove(false); this._babbleTimer = null; }
     const cb = this.onClose;
     const pk = this.pauseKey;
     this.scene.stop();

@@ -21,6 +21,7 @@ import { ROOM_ASTRAL } from './data/rooms/astral.js';
 import { setupSaveUI } from './save.js';
 import { defaultState, applyState } from './state.js';
 import { EventBus } from './events.js';
+import { audio } from './audio.js';
 
 const Pasillo     = makeRoomClass('Pasillo',     ROOM_PASILLO);
 const Banos       = makeRoomClass('Banos',       ROOM_BANOS);
@@ -102,3 +103,16 @@ window.addEventListener('resize', () => {
 });
 
 window.__game = game;
+window.__audio = audio;
+
+// Conectar mezclador HTML al AudioBus
+function bindSlider(id, channel) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.value = audio.volumes[channel];
+  el.addEventListener('input', () => audio.setVolume(channel, parseInt(el.value, 10)));
+}
+bindSlider('vol-master', 'master');
+bindSlider('vol-bgm', 'bgm');
+bindSlider('vol-sfx', 'sfx');
+bindSlider('vol-voice', 'voice');

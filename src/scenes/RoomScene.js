@@ -3,6 +3,7 @@ import { bus } from '../events.js';
 import { linesFor } from '../data/dialogues.js';
 import { getChapter } from '../story.js';
 import { toSpec, lifespanOf } from '../data/characters.js';
+import { audio } from '../audio.js';
 
 // Acepta número (0xRRGGBB) o string ('#rrggbb' / 'rrggbb') y devuelve int.
 function toInt(c) {
@@ -685,6 +686,7 @@ export class RoomScene extends Phaser.Scene {
   }
 
   enterDoor(door) {
+    audio.playSfx('door');
     this.registry.set('player', {
       x: door.getData('spawnX'),
       y: door.getData('spawnY'),
