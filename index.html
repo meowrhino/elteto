@@ -74,6 +74,19 @@
       width: 80px;
       accent-color: #ffd166;
     }
+    #slots {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 10px;
+    }
+    .slot-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .slot-label { color: #ffd166; min-width: 50px; }
+    .slot-info { color: #888; min-width: 160px; font-size: 9px; }
   </style>
 </head>
 <body>
@@ -84,6 +97,7 @@
     <button id="btn-load">Cargar partida</button>
     <input type="file" id="file-input" accept="application/json" hidden>
   </div>
+  <div id="slots"></div>
   <div id="mixer">
     <label>Master<input id="vol-master" type="range" min="0" max="10" step="1" value="0"></label>
     <label>Música<input id="vol-bgm"    type="range" min="0" max="10" step="1" value="5"></label>
