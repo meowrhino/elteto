@@ -96,14 +96,11 @@
   </div>
 
   <div class="panel">
-    <h2>parámetros</h2>
+    <h2>items (estilo Picrew)</h2>
+    <div class="controls" id="sp-items-grid"></div>
+
+    <h2 style="margin-top:18px">colores</h2>
     <div class="controls">
-      <label for="sp-id">ID</label>
-      <input type="text" id="sp-id" value="nuevo" />
-
-      <label for="sp-style">Estilo de pelo</label>
-      <select id="sp-style"></select>
-
       <label for="sp-hair">Pelo</label>
       <input type="color" id="sp-hair" value="#6a4a2a" />
 
@@ -116,9 +113,22 @@
       <label for="sp-pants">Pantalón</label>
       <input type="color" id="sp-pants" value="#335533" />
     </div>
+
+    <h2 style="margin-top:18px">metadatos</h2>
+    <div class="controls">
+      <label for="sp-id">ID</label>
+      <input type="text" id="sp-id" value="nuevo" />
+
+      <label for="sp-name">Nombre</label>
+      <input type="text" id="sp-name" value="" placeholder="(opcional)" />
+    </div>
+
     <div class="actions">
       <select id="sp-load-catalog"><option value="">— cargar del catálogo —</option></select>
+      <button id="sp-randomize">Aleatorizar</button>
+      <button id="sp-reset">Reset</button>
     </div>
+
     <h2 style="margin-top:18px">spec</h2>
     <pre id="sp-spec" class="spec-json"></pre>
   </div>
@@ -183,7 +193,9 @@
 </main>
 
 <script type="module">
-import { paintSprite, DRAWERS, HAIR_STYLES, SPRITE_W, SPRITE_H } from '../src/sprite-defs.js';
+import { paintSprite, SPRITE_W, SPRITE_H } from '../src/sprite-defs.js';
+import { ITEMS, RENDER_ORDER, paintSpriteFromItems } from '../src/sprite-items.js';
+import { CHARACTERS, ALL_CHARACTER_IDS } from '../src/data/characters.js';
 import { SPRITE_CATALOG } from './lib/sprite-catalog.mjs';
 
 // ============================================================
@@ -206,23 +218,60 @@ function canvasAdapter(ctx) {
 }
 
 // ============================================================
-// SPRITE TAB
+// SPRITE TAB · items componibles (Picrew-style)
 // ============================================================
 
-const styleSelect = document.getElementById('sp-style');
-HAIR_STYLES.forEach(s => {
-  const o = document.createElement('option'); o.value = s; o.textContent = s; styleSelect.appendChild(o);
-});
+function hexToInt(hex) { return parseInt(hex.slice(1), 16); }
+function intToHex(i) { return '#' + (i >>> 0).toString(16).padStart(6, '0'); }
 
+// Personaje por defecto al abrir el editor — "humanoide base" mínimo.
+const STARTER_CHARACTER = {
+  items: {
+    hair_top: 'short_normal',
+    eyes: 'default',
+    mouth: 'default',
+  },
+  colors: { hair: 0x6a4a2a, skin: 0xf8d0aa, shirt: 0xe8e0d0, pants: 0x335533 },
+};
+
+// Construye un picker (<select>) por cada slot definido en sprite-items.js.
+// El order en la UI sigue RENDER_ORDER (de "atrás" hacia "delante").
+const itemsGrid = document.getElementById('sp-items-grid');
+const itemSelects = {}; // slot → <select>
+
+for (const slot of RENDER_ORDER) {
+  const items = Object.keys(ITEMS[slot] || {});
+  if (items.length === 0) continue;
+
+  const label = document.createElement('label');
+  label.textContent = slot;
+  itemsGrid.appendChild(label);
+
+  const select = document.createElement('select');
+  select.dataset.slot = slot;
+  for (const itemId of items) {
+    const o = document.createElement('option');
+    o.value = itemId;
+    o.textContent = itemId;
+    select.appendChild(o);
+  }
+  select.addEventListener('input', renderSprite);
+  itemsGrid.appendChild(select);
+  itemSelects[slot] = select;
+}
+
+// Catálogo (cargar personaje existente)
 const loadCatalog = document.getElementById('sp-load-catalog');
-SPRITE_CATALOG.forEach(({ id }) => {
-  const o = document.createElement('option'); o.value = id; o.textContent = id;
+for (const id of ALL_CHARACTER_IDS) {
+  const o = document.createElement('option');
+  o.value = id;
+  o.textContent = `${id} (${CHARACTERS[id].name})`;
   loadCatalog.appendChild(o);
-});
+}
 
 const ids = {
   id: document.getElementById('sp-id'),
-  style: styleSelect,
+  name: document.getElementById('sp-name'),
   hair: document.getElementById('sp-hair'),
   skin: document.getElementById('sp-skin'),
   shirt: document.getElementById('sp-shirt'),
@@ -233,21 +282,26 @@ const ids = {
   spec: document.getElementById('sp-spec'),
 };
 
-function hexToInt(hex) { return parseInt(hex.slice(1), 16); }
-function intToHex(i) { return '#' + (i >>> 0).toString(16).padStart(6, '0'); }
-
-function currentSpec() {
+function currentCharacter() {
+  const items = {};
+  for (const [slot, select] of Object.entries(itemSelects)) {
+    items[slot] = select.value;
+  }
   return {
-    hairStyle: ids.style.value,
-    hair: hexToInt(ids.hair.value),
-    skin: hexToInt(ids.skin.value),
-    shirt: hexToInt(ids.shirt.value),
-    pants: hexToInt(ids.pants.value),
+    id: ids.id.value,
+    name: ids.name.value || null,
+    items,
+    colors: {
+      hair: hexToInt(ids.hair.value),
+      skin: hexToInt(ids.skin.value),
+      shirt: hexToInt(ids.shirt.value),
+      pants: hexToInt(ids.pants.value),
+    },
   };
 }
 
 function renderSprite() {
-  const spec = currentSpec();
+  const character = currentCharacter();
   for (const c of [ids.big, ids.mid, ids.small]) {
     const ctx = c.getContext('2d');
     ctx.imageSmoothingEnabled = false;
@@ -255,40 +309,66 @@ function renderSprite() {
     const scale = c.width / SPRITE_W;
     ctx.save();
     ctx.scale(scale, scale);
-    paintSprite(canvasAdapter(ctx), spec);
+    paintSprite(canvasAdapter(ctx), character);
     ctx.restore();
   }
-  ids.spec.textContent = JSON.stringify(spec, null, 2);
+  // Mostrar spec sin el id/name (lo que se grabaría como sprite spec)
+  const { items, colors } = character;
+  ids.spec.textContent = JSON.stringify({ items, colors }, null, 2);
 }
 
-for (const k of ['style', 'hair', 'skin', 'shirt', 'pants']) {
+for (const k of ['hair', 'skin', 'shirt', 'pants']) {
   ids[k].addEventListener('input', renderSprite);
 }
 
-function loadSpec(id, spec) {
+function loadCharacter(id, character) {
   ids.id.value = id;
-  ids.style.value = spec.hairStyle;
-  ids.hair.value = intToHex(spec.hair);
-  ids.skin.value = intToHex(spec.skin);
-  ids.shirt.value = intToHex(spec.shirt);
-  ids.pants.value = intToHex(spec.pants);
+  ids.name.value = character.name || '';
+  // Setear cada slot — si el item no existe en este slot, dejarlo como "none".
+  for (const slot of RENDER_ORDER) {
+    const select = itemSelects[slot];
+    if (!select) continue;
+    const wanted = character.items?.[slot] || 'none';
+    select.value = ITEMS[slot]?.[wanted] !== undefined ? wanted : 'none';
+  }
+  ids.hair.value = intToHex(character.colors.hair);
+  ids.skin.value = intToHex(character.colors.skin);
+  ids.shirt.value = intToHex(character.colors.shirt);
+  ids.pants.value = intToHex(character.colors.pants);
   renderSprite();
 }
 
 loadCatalog.addEventListener('change', (e) => {
   const id = e.target.value;
   if (!id) return;
-  const entry = SPRITE_CATALOG.find(x => x.id === id);
-  if (entry) loadSpec(entry.id, entry.spec);
+  const c = CHARACTERS[id];
+  if (c) loadCharacter(id, c);
   e.target.value = '';
 });
 
-// Render a 24×32 PNG dataURL del spec actual
+// Aleatorizar / reset
+document.getElementById('sp-randomize').addEventListener('click', () => {
+  for (const [slot, select] of Object.entries(itemSelects)) {
+    const opts = Array.from(select.options).map(o => o.value);
+    // "none" salta a veces para no quedarnos sin nada visible (bias hacia items)
+    const candidates = opts.length > 1 ? opts : opts;
+    select.value = candidates[Math.floor(Math.random() * candidates.length)];
+  }
+  const rnd = () => '#' + Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0');
+  ids.hair.value = rnd(); ids.skin.value = rnd();
+  ids.shirt.value = rnd(); ids.pants.value = rnd();
+  renderSprite();
+});
+document.getElementById('sp-reset').addEventListener('click', () => {
+  loadCharacter('nuevo', { name: '', ...STARTER_CHARACTER });
+});
+
+// Render PNG 24×32 del personaje actual
 function renderToPng() {
   const c = document.createElement('canvas');
   c.width = SPRITE_W; c.height = SPRITE_H;
   const ctx = c.getContext('2d');
-  paintSprite(canvasAdapter(ctx), currentSpec());
+  paintSprite(canvasAdapter(ctx), currentCharacter());
   return c.toDataURL('image/png');
 }
 
@@ -299,8 +379,9 @@ document.getElementById('sp-save-png').addEventListener('click', () => {
   a.click();
 });
 
-// Biblioteca en localStorage
-const LIB_KEY = 'elteto_sprite_library';
+// Biblioteca en localStorage. Guarda personajes con su id como clave;
+// cada valor es { name?, items, colors }.
+const LIB_KEY = 'elteto_sprite_library_v2';
 function loadLib() {
   try { return JSON.parse(localStorage.getItem(LIB_KEY) || '{}'); }
   catch { return {}; }
@@ -311,22 +392,24 @@ function renderLibrary() {
   const lib = loadLib();
   const container = document.getElementById('sp-library');
   container.innerHTML = '';
-  const ids2 = Object.keys(lib).sort();
-  if (ids2.length === 0) {
+  const lids = Object.keys(lib).sort();
+  if (lids.length === 0) {
     container.innerHTML = '<div class="hint">(vacía)</div>';
     return;
   }
-  for (const id of ids2) {
-    const spec = lib[id];
+  for (const id of lids) {
+    const c = lib[id];
+    if (!c.items || !c.colors) continue; // ignorar entradas legacy
     const slot = document.createElement('div');
     slot.className = 'slot';
     const cv = document.createElement('canvas');
     cv.width = 48; cv.height = 64;
     const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false;
     ctx.scale(2, 2);
-    paintSprite(canvasAdapter(ctx), spec);
+    paintSprite(canvasAdapter(ctx), c);
     slot.appendChild(cv);
-    const label = document.createElement('div'); label.className = 'label'; label.textContent = id;
+    const label = document.createElement('div'); label.className = 'label';
+    label.textContent = c.name ? `${id} · ${c.name}` : id;
     slot.appendChild(label);
     slot.addEventListener('click', (e) => {
       if (e.shiftKey) {
@@ -335,7 +418,7 @@ function renderLibrary() {
         }
         return;
       }
-      loadSpec(id, spec);
+      loadCharacter(id, c);
     });
     container.appendChild(slot);
   }
@@ -346,7 +429,8 @@ document.getElementById('sp-save-lib').addEventListener('click', () => {
   if (!id) { alert('Pon un ID antes.'); return; }
   const lib = loadLib();
   if (lib[id] && !confirm(`"${id}" ya existe. Sobrescribir?`)) return;
-  lib[id] = currentSpec();
+  const char = currentCharacter();
+  lib[id] = { name: char.name, items: char.items, colors: char.colors };
   saveLib(lib);
   renderLibrary();
 });
@@ -356,7 +440,7 @@ document.getElementById('sp-export-lib').addEventListener('click', () => {
   const blob = new Blob([JSON.stringify(lib, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `elteto-sprites-${Date.now()}.json`;
+  a.download = `elteto-characters-${Date.now()}.json`;
   a.click();
 });
 
@@ -376,8 +460,8 @@ document.getElementById('sp-import-input').addEventListener('change', async (e) 
   e.target.value = '';
 });
 
-// Init sprite tab
-renderSprite();
+// Init
+loadCharacter('nuevo', { name: '', ...STARTER_CHARACTER });
 renderLibrary();
 
 // ============================================================
