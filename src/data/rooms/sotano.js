@@ -46,5 +46,9 @@ export const ROOM_SOTANO = {
     { x: 8, y: 136, target: 'Pasillo', spawnX: 472, spawnY: 144, label: 'pasillo' },
   ],
 
-  npcs: [],
+  ambient: { dust: true },
+
+  npcs: [
+    { x: 220, y: 128, id: 'fantasma', name: '???', sprite: 'fantasma' },
+  ],
 };

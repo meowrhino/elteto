@@ -33,8 +33,8 @@ export function defaultState() {
 
     skills: [
       { id: 'regla', name: 'Reglazo', mpCost: 0, dmg: 4, desc: 'Golpe con la regla' },
-      { id: 'bola_fuego', name: 'Bola de fuego', mpCost: 3, dmg: 8, desc: 'Quema al enemigo' },
-      { id: 'silbar', name: 'Silbar', mpCost: 1, dmg: 2, desc: 'Distrae al enemigo' },
+      { id: 'bola_fuego', name: 'Bola de fuego', mpCost: 3, dmg: 8, desc: 'Quema · puede confundir' },
+      { id: 'silbar', name: 'Silbar', mpCost: 1, dmg: 0, desc: 'Puede dormir al enemigo' },
     ],
 
     equipment: { arma: 'Regla escolar', armadura: 'Bata', accesorio: 'Anillo del Club' },

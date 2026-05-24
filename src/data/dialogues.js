@@ -154,6 +154,22 @@ export const DIALOGUES = {
       'No le digas a Manolo, que me mata.',
     ],
   },
+
+  peluche: {
+    default: [
+      '(Es tu peluche. Te mira fijamente.)',
+      '(...)',
+      '(... te ha dicho algo. Estás seguro.)',
+    ],
+  },
+
+  fantasma: {
+    default: [
+      '... yo... estuve aquí...',
+      '... me olvidaron...',
+      '(la silueta se desvanece al hablar)',
+    ],
+  },
 };
 
 // Resuelve líneas. Busca específico por storyId, luego default. Si no hay

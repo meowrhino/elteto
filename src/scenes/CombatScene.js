@@ -226,10 +226,81 @@ export class CombatScene extends Phaser.Scene {
   // ============================================================ acciones
   executeRoot(id) {
     audio.playSfx('confirm');
+    // Check status del jugador: si está dormido o confundido, se procesa
+    // antes de cualquier acción.
+    if (this.tickPlayerStatus()) return;
     if (id === 'attack') this.doAttack();
     else if (id === 'skills') this.enterState('SKILLS');
     else if (id === 'items') this.enterState('ITEMS');
     else if (id === 'talk') this.doTalk();
+  }
+
+  // ============================================================ status effects
+  // status.kind ∈ { 'dormido', 'confundido' }
+  // status.turns: cuántos turnos quedan.
+  //
+  // tickPlayerStatus() y tickEnemyStatus() se llaman al inicio del turno
+  // correspondiente. Si interceptan la acción, devuelven true y la lógica
+  // normal se salta.
+
+  tickPlayerStatus() {
+    const s = this.registry.get('stats');
+    const st = s.status;
+    if (!st) return false;
+
+    if (st.kind === 'dormido') {
+      st.turns--;
+      if (st.turns <= 0) s.status = null;
+      this.registry.set('stats', s);
+      this.enterState('MSG', 'Zzz... estás dormido. Pierdes el turno.');
+      return true;
+    }
+    if (st.kind === 'confundido') {
+      st.turns--;
+      if (st.turns <= 0) s.status = null;
+      // 50% se ataca a sí mismo
+      if (Math.random() < 0.5) {
+        const dmg = Math.max(1, s.atk);
+        s.hp = Math.max(0, s.hp - dmg);
+        this.registry.set('stats', s);
+        this.flashPlayer();
+        this.spawnDamagePopup(dmg, { x: 30, y: 30 }, '#dd66ff');
+        this.enterState('MSG', `¡Confuso! Te golpeas a ti mismo. ${dmg} de daño.`);
+        return true;
+      }
+      this.registry.set('stats', s);
+      this.enterState('MSG', '¡Estás confundido! Por suerte aciertas...');
+      return false; // sigue su acción normal
+    }
+    return false;
+  }
+
+  tickEnemyStatus() {
+    const cfg = this.enemyCfg;
+    if (!cfg._status) return false;
+    const st = cfg._status;
+    if (st.kind === 'dormido') {
+      st.turns--;
+      if (st.turns <= 0) cfg._status = null;
+      this.enterState('ENEMY', `${cfg.name} duerme. Pierde el turno.`);
+      return true;
+    }
+    if (st.kind === 'confundido') {
+      st.turns--;
+      if (st.turns <= 0) cfg._status = null;
+      if (Math.random() < 0.5) {
+        this.enemyHp = Math.max(0, this.enemyHp - 2);
+        this.flashEnemy();
+        this.spawnDamagePopup(2, this.enemySprite, '#dd66ff');
+        this.enterState('ENEMY', `${cfg.name} se golpea a sí mismo.`);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  applyEnemyStatus(kind, turns) {
+    this.enemyCfg._status = { kind, turns };
   }
 
   doAttack() {
@@ -252,9 +323,26 @@ export class CombatScene extends Phaser.Scene {
     s.mp -= skill.mpCost;
     this.enemyHp -= skill.dmg;
     this.registry.set('stats', s);
-    this.flashEnemy();
-    this.spawnDamagePopup(skill.dmg, this.enemySprite, '#ff6644');
-    this.enterState('MSG', `${skill.name}! ${skill.dmg} de daño.`);
+    if (skill.dmg > 0) {
+      this.flashEnemy();
+      this.spawnDamagePopup(skill.dmg, this.enemySprite, '#ff6644');
+    }
+    // Status effects en habilidades específicas
+    let extra = '';
+    if (skill.id === 'silbar') {
+      // 60% prob de dormir al enemigo
+      if (Math.random() < 0.6) {
+        this.applyEnemyStatus('dormido', 2);
+        extra = ' ¡Se ha dormido!';
+      }
+    } else if (skill.id === 'bola_fuego') {
+      // 25% prob de confundir
+      if (Math.random() < 0.25) {
+        this.applyEnemyStatus('confundido', 3);
+        extra = ' ¡Confuso por el fuego!';
+      }
+    }
+    this.enterState('MSG', `${skill.name}! ${skill.dmg} de daño.${extra}`);
   }
 
   useItem(it) {
@@ -335,6 +423,8 @@ export class CombatScene extends Phaser.Scene {
   }
 
   enemyTurn() {
+    // Check status del enemigo antes de su acción
+    if (this.tickEnemyStatus()) return;
     const s = this.registry.get('stats');
     const dmg = Math.max(1, this.enemyCfg.atk - s.def + Math.floor(Math.random() * 3) - 1);
     s.hp = Math.max(0, s.hp - dmg);

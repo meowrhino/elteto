@@ -222,6 +222,23 @@ export const CHARACTERS = {
     items: { hair_top: 'afro_curly', eyes: 'default', mouth: 'default' },
     colors: { hair: 0xff44aa, skin: 0xeec8aa, shirt: 0x000000, pants: 0x223344 },
   },
+
+  // ============ ENTIDADES NO HUMANAS ============
+
+  peluche: {
+    name: 'Peluche',
+    lifespanDefault: 999, // no muere
+    items: { hair_top: 'short_normal', eyes: 'default', mouth: 'default' },
+    colors: { hair: 0xaa6633, skin: 0xddaa66, shirt: 0xff88aa, pants: 0xaa4488 },
+  },
+
+  fantasma: {
+    name: '???',
+    lifespanDefault: 30,
+    alpha: 0.55,                    // translúcido
+    items: { hair_top: 'long_straight', eyes: 'default', mouth: 'default' },
+    colors: { hair: 0xeeeeee, skin: 0xccccdd, shirt: 0xaaaabb, pants: 0x888899 },
+  },
 };
 
 /**
@@ -239,6 +256,7 @@ export function toSpec(id) {
 
 export function nameOf(id) { return CHARACTERS[id]?.name || id; }
 export function lifespanOf(id) { return CHARACTERS[id]?.lifespanDefault ?? 120; }
+export function alphaOf(id) { return CHARACTERS[id]?.alpha ?? 1; }
 export function portraitOf(id) { return CHARACTERS[id]?.portrait || null; }
 
 export const ALL_CHARACTER_IDS = Object.keys(CHARACTERS);

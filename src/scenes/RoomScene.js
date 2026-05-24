@@ -2,7 +2,7 @@ import { ensureSprite, SPRITE_W, SPRITE_H } from '../characters.js';
 import { bus } from '../events.js';
 import { linesFor } from '../data/dialogues.js';
 import { getChapter } from '../story.js';
-import { toSpec, lifespanOf } from '../data/characters.js';
+import { toSpec, lifespanOf, alphaOf } from '../data/characters.js';
 import { audio } from '../audio.js';
 import { DECOR_CATALOG } from '../decor-defs.js';
 
@@ -597,25 +597,8 @@ export class RoomScene extends Phaser.Scene {
 
     if (data.decor) {
       for (const d of data.decor) {
-        this.addDecor(d.x, d.y, d.tex);
-        // Halo cálido bajo lámparas (translúcido, debajo del decor)
-        if (d.tex === 'lamp') {
-          this.add.ellipse(d.x + 6, d.y + 16, 28, 12, 0xffe066, 0.18)
-            .setDepth(-30);
-        }
-        // Aguja del reloj con tick-tock animado (60° por minuto simulados)
-        if (d.tex === 'clock') {
-          const hand = this.add.rectangle(d.x + 7, d.y + 7, 1, 4, 0x222222)
-            .setOrigin(0.5, 1)
-            .setDepth(1);
-          this.tweens.add({
-            targets: hand,
-            angle: 360,
-            duration: 60000,           // una vuelta por minuto
-            repeat: -1,
-            ease: 'Linear',
-          });
-        }
+        const sprite = this.addDecor(d.x, d.y, d.tex);
+        this.applyDecorBehavior(d, sprite);
       }
     }
 
@@ -631,13 +614,151 @@ export class RoomScene extends Phaser.Scene {
 
     if (data.npcs) {
       for (const n of data.npcs) {
-        this.addNpc(n.x, n.y, {
+        const npc = this.addNpc(n.x, n.y, {
           id: n.id,
           name: n.name,
           sprite: typeof n.sprite === 'string' ? toSpec(n.sprite) : n.sprite,
           lifespan: lifespanOf(n.sprite || n.id),
         });
+        if (npc) {
+          const a = alphaOf(n.sprite || n.id);
+          if (a !== 1) npc.setAlpha(a);
+        }
       }
+    }
+
+    if (data.ambient) this.spawnAmbient(data.ambient);
+  }
+
+  // Animaciones sutiles + decoraciones reactivas por tipo de decor.
+  applyDecorBehavior(d, sprite) {
+    // Halo cálido bajo lámparas + leve titileo
+    if (d.tex === 'lamp') {
+      const halo = this.add.ellipse(d.x + 6, d.y + 16, 28, 12, 0xffe066, 0.18)
+        .setDepth(-30);
+      this.tweens.add({
+        targets: halo,
+        alpha: { from: 0.14, to: 0.22 },
+        duration: 1800,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      });
+    }
+
+    // Aguja del reloj rotando (una vuelta por minuto)
+    if (d.tex === 'clock') {
+      const hand = this.add.rectangle(d.x + 7, d.y + 7, 1, 4, 0x222222)
+        .setOrigin(0.5, 1)
+        .setDepth(1);
+      this.tweens.add({
+        targets: hand,
+        angle: 360,
+        duration: 60000,
+        repeat: -1,
+        ease: 'Linear',
+      });
+    }
+
+    // Caldera: llama parpadeante (otro rect superpuesto que cambia altura)
+    if (d.tex === 'boiler') {
+      const flame = this.add.rectangle(d.x + 10, d.y + 21, 4, 4, 0xffe066)
+        .setOrigin(0.5, 1)
+        .setDepth(1);
+      this.tweens.add({
+        targets: flame,
+        scaleY: { from: 0.8, to: 1.2 },
+        scaleX: { from: 0.9, to: 1.1 },
+        alpha: { from: 0.8, to: 1 },
+        duration: 240,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      });
+    }
+
+    // Soda machine: zumbido visual (offset Y -1 alternando)
+    if (d.tex === 'soda_machine') {
+      this.tweens.add({
+        targets: sprite,
+        y: d.y - 0.5,
+        duration: 90,
+        yoyo: true,
+        repeat: -1,
+      });
+    }
+
+    // Árbol: una hoja amarilla cae periódicamente
+    if (d.tex === 'tree') {
+      const dropLeaf = () => {
+        const leaf = this.add.rectangle(d.x + 4 + Math.random() * 8, d.y + 6, 2, 2, 0xffcc44)
+          .setDepth(0);
+        this.tweens.add({
+          targets: leaf,
+          y: d.y + 16,
+          x: leaf.x + (Math.random() * 6 - 3),
+          alpha: { from: 1, to: 0 },
+          duration: 2200,
+          ease: 'Sine.easeIn',
+          onComplete: () => leaf.destroy(),
+        });
+      };
+      // Una hoja cada 3-6 segundos
+      this.time.addEvent({
+        delay: 3000 + Math.random() * 3000,
+        callback: dropLeaf,
+        loop: true,
+      });
+    }
+
+    // Pizarra: pequeño polvo de tiza que cae aleatoriamente (sutil)
+    // Lo dejamos solo para chalkboard_big, no para la chica.
+    if (d.tex === 'chalkboard_big') {
+      this.time.addEvent({
+        delay: 5000 + Math.random() * 5000,
+        loop: true,
+        callback: () => {
+          const dust = this.add.rectangle(
+            d.x + 4 + Math.random() * 70,
+            d.y + 38,
+            1, 1, 0xeeeeee,
+          ).setDepth(0);
+          this.tweens.add({
+            targets: dust,
+            y: dust.y + 12,
+            alpha: { from: 1, to: 0 },
+            duration: 1500,
+            onComplete: () => dust.destroy(),
+          });
+        },
+      });
+    }
+  }
+
+  // Partículas ambientales que aportan vida a una sala.
+  // ambient = { dust?: true, pollen?: true }
+  spawnAmbient(ambient) {
+    if (ambient.dust) this.spawnDust(0xccbb88, 0.35);
+    if (ambient.pollen) this.spawnDust(0xffd166, 0.5);
+  }
+
+  spawnDust(color, alpha) {
+    // 18 motas flotantes, posición y velocidad aleatoria.
+    for (let i = 0; i < 18; i++) {
+      const x = Math.random() * this.worldWidth;
+      const y = 20 + Math.random() * 100;
+      const dot = this.add.rectangle(x, y, 1, 1, color, alpha).setDepth(-20);
+      this.tweens.add({
+        targets: dot,
+        y: y + 8 + Math.random() * 12,
+        x: x + (Math.random() * 12 - 6),
+        alpha: { from: alpha, to: alpha * 0.3 },
+        duration: 4000 + Math.random() * 4000,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+        delay: Math.random() * 2000,
+      });
     }
   }
 }

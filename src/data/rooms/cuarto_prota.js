@@ -48,5 +48,7 @@ export const ROOM_CUARTO_PROTA = {
     { x: 8, y: 136, target: 'Pasillo', spawnX: 536, spawnY: 144, label: 'salir' },
   ],
 
-  npcs: [],
+  npcs: [
+    { x: 230, y: 138, id: 'peluche', name: 'Peluche', sprite: 'peluche' },
+  ],
 };
