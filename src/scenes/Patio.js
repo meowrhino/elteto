@@ -80,6 +80,8 @@ export class Patio extends RoomScene {
 
     // Puerta de vuelta al aula
     this.addDoor(8, 136, 'Aula', 432, 144, 'aula');
+    // Puerta al pasillo (acceso al resto del cole)
+    this.addDoor(624, 136, 'Pasillo', 24, 144, 'pasillo');
 
     // Pablo (NPC o enemigo según capítulo)
     this.addPablo();

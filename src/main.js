@@ -6,9 +6,33 @@ import { DialogueScene } from './scenes/DialogueScene.js';
 import { ForumScene } from './scenes/ForumScene.js';
 import { MenuScene } from './scenes/MenuScene.js';
 import { CombatScene } from './scenes/CombatScene.js';
+import { makeRoomClass } from './scenes/DataRoom.js';
+import { ROOM_PASILLO } from './data/rooms/pasillo.js';
+import { ROOM_BANOS } from './data/rooms/banos.js';
+import { ROOM_COMEDOR } from './data/rooms/comedor.js';
+import { ROOM_GIMNASIO } from './data/rooms/gimnasio.js';
+import { ROOM_AULA_MUSICA } from './data/rooms/aula_musica.js';
+import { ROOM_SALON_ACTOS } from './data/rooms/salon_actos.js';
+import { ROOM_AZOTEA } from './data/rooms/azotea.js';
+import { ROOM_SOTANO } from './data/rooms/sotano.js';
+import { ROOM_CUARTO_PROTA } from './data/rooms/cuarto_prota.js';
+import { ROOM_SUENO_PABLO } from './data/rooms/sueno_pablo.js';
+import { ROOM_ASTRAL } from './data/rooms/astral.js';
 import { setupSaveUI } from './save.js';
 import { defaultState, applyState } from './state.js';
 import { EventBus } from './events.js';
+
+const Pasillo     = makeRoomClass('Pasillo',     ROOM_PASILLO);
+const Banos       = makeRoomClass('Banos',       ROOM_BANOS);
+const Comedor     = makeRoomClass('Comedor',     ROOM_COMEDOR);
+const Gimnasio    = makeRoomClass('Gimnasio',    ROOM_GIMNASIO);
+const AulaMusica  = makeRoomClass('AulaMusica',  ROOM_AULA_MUSICA);
+const SalonActos  = makeRoomClass('SalonActos',  ROOM_SALON_ACTOS);
+const Azotea      = makeRoomClass('Azotea',      ROOM_AZOTEA);
+const Sotano      = makeRoomClass('Sotano',      ROOM_SOTANO);
+const CuartoProta = makeRoomClass('CuartoProta', ROOM_CUARTO_PROTA);
+const SuenoPablo  = makeRoomClass('SuenoPablo',  ROOM_SUENO_PABLO);
+const Astral      = makeRoomClass('Astral',      ROOM_ASTRAL);
 // La pixel font (Press Start 2P) se carga vía <link> en index.html.
 // Si tarda en estar lista el primer frame usa monospace y al siguiente
 // se aplica Press Start 2P. Para evitar el flash usamos font-display: swap
@@ -45,7 +69,14 @@ const game = new Phaser.Game({
     default: 'arcade',
     arcade: { gravity: { y: 600 }, debug: false },
   },
-  scene: [BootScene, Aula, Biblioteca, Patio, CombatScene, DialogueScene, ForumScene, MenuScene],
+  scene: [
+    BootScene,
+    Aula, Biblioteca, Patio,
+    Pasillo, Banos, Comedor, Gimnasio, AulaMusica, SalonActos,
+    Azotea, Sotano, CuartoProta, SuenoPablo, Astral,
+    CombatScene,
+    DialogueScene, ForumScene, MenuScene,
+  ],
 });
 
 applyState(game.registry, defaultState());
