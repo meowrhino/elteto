@@ -67,7 +67,7 @@ export class DialogueScene extends Phaser.Scene {
       this.boxX + BOX_PAD_X,
       this.boxY + 2,
       '',
-      { fontFamily: 'monospace', fontSize: '8px', color: '#fff' }
+      { fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color: '#fff' }
     ).setOrigin(0, 0);
 
     // === Retrato (oculto si el speaker no tiene) ===
@@ -82,7 +82,7 @@ export class DialogueScene extends Phaser.Scene {
 
     // === Texto del diálogo (su posición/anchura se recalcula en showCurrent) ===
     this.lineText = this.add.text(0, 0, '', {
-      fontFamily: 'monospace', fontSize: '8px', color: '#fff',
+      fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color: '#fff',
       lineSpacing: 2,
     }).setOrigin(0, 0);
 
@@ -91,7 +91,7 @@ export class DialogueScene extends Phaser.Scene {
       this.boxX + this.boxW - BOX_PAD_X,
       this.boxY + this.boxH - 10,
       '[E] ▶',
-      { fontFamily: 'monospace', fontSize: '8px', color: '#aaa' }
+      { fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color: '#aaa' }
     ).setOrigin(1, 0);
 
     this.showCurrent();

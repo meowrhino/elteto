@@ -121,7 +121,7 @@ export class RoomScene extends Phaser.Scene {
 
   setupHints() {
     this.hintText = this.add.text(0, 0, '', {
-      fontFamily: 'monospace', fontSize: '8px', color: '#fff',
+      fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color: '#fff',
       backgroundColor: '#000', padding: { x: 2, y: 1 }, align: 'center',
     }).setDepth(100).setVisible(false);
   }
@@ -540,7 +540,7 @@ export class RoomScene extends Phaser.Scene {
   // ============================================================ visión / lifespan
   buildLifespanLabels() {
     const mkText = () => this.add.text(0, 0, '', {
-      fontFamily: 'monospace', fontSize: '7px', color: '#fff',
+      fontFamily: '"Press Start 2P", monospace', fontSize: '7px', color: '#fff',
       backgroundColor: '#000', padding: { x: 1, y: 0 },
     }).setDepth(50).setVisible(false);
 

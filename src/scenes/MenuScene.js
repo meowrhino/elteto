@@ -30,14 +30,14 @@ export class MenuScene extends Phaser.Scene {
       const tw = (W - 16) / this.tabs.length;
       const x = 8 + i * tw + tw / 2;
       return this.add.text(x, 14, label, {
-        fontFamily: 'monospace', fontSize: '8px', color: '#aaa',
+        fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color: '#aaa',
       }).setOrigin(0.5, 0.5);
     });
     this.tabUnderline = this.add.rectangle(0, 22, 60, 1, 0xffd166).setOrigin(0.5, 0);
 
     // Texto genérico para Inventario/Habilidades/Equipo
     this.content = this.add.text(14, 32, '', {
-      fontFamily: 'monospace', fontSize: '8px', color: '#fff',
+      fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color: '#fff',
       lineSpacing: 2, wordWrap: { width: W - 28 },
     });
 
@@ -48,17 +48,17 @@ export class MenuScene extends Phaser.Scene {
     this.charAvatarFrame = this.add.rectangle(40, 72, 56, 72)
       .setStrokeStyle(1, 0x666688).setVisible(false);
     this.charInfo = this.add.text(80, 40, '', {
-      fontFamily: 'monospace', fontSize: '8px', color: '#fff', lineSpacing: 3,
+      fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color: '#fff', lineSpacing: 3,
     }).setVisible(false);
     this.charArrows = this.add.text(20, 110, '', {
-      fontFamily: 'monospace', fontSize: '7px', color: '#888',
+      fontFamily: '"Press Start 2P", monospace', fontSize: '7px', color: '#888',
     }).setVisible(false);
 
     this.flashText = this.add.text(W / 2, H - 22, '', {
-      fontFamily: 'monospace', fontSize: '8px', color: '#ffd166',
+      fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color: '#ffd166',
     }).setOrigin(0.5, 0.5);
     this.footer = this.add.text(W / 2, H - 10, '', {
-      fontFamily: 'monospace', fontSize: '7px', color: '#888',
+      fontFamily: '"Press Start 2P", monospace', fontSize: '7px', color: '#888',
     }).setOrigin(0.5, 0.5);
 
     this.cursors = this.input.keyboard.createCursorKeys();

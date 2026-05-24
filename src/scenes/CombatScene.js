@@ -70,17 +70,17 @@ export class CombatScene extends Phaser.Scene {
   buildHud() {
     const W = this.scale.width;
     this.enemyName = this.add.text(W / 2, 8, this.enemyCfg.name, {
-      fontFamily: 'monospace', fontSize: '8px', color: '#ffaaaa',
+      fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color: '#ffaaaa',
     }).setOrigin(0.5, 0);
     this.enemyHpText = this.add.text(W / 2, 18, '', {
-      fontFamily: 'monospace', fontSize: '8px', color: '#fff',
+      fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color: '#fff',
     }).setOrigin(0.5, 0);
 
     this.playerHpText = this.add.text(8, 8, '', {
-      fontFamily: 'monospace', fontSize: '8px', color: '#fff',
+      fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color: '#fff',
     });
     this.playerMpText = this.add.text(8, 18, '', {
-      fontFamily: 'monospace', fontSize: '8px', color: '#aaccff',
+      fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color: '#aaccff',
     });
   }
 
@@ -89,7 +89,7 @@ export class CombatScene extends Phaser.Scene {
     this.msgBox = this.add.rectangle(W / 2, 100, W - 8, 18, 0x000000, 0.7)
       .setStrokeStyle(1, 0x444466);
     this.msgText = this.add.text(W / 2, 100, '', {
-      fontFamily: 'monospace', fontSize: '8px', color: '#fff',
+      fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color: '#fff',
       align: 'center', wordWrap: { width: W - 16 },
     }).setOrigin(0.5, 0.5);
   }
@@ -109,7 +109,7 @@ export class CombatScene extends Phaser.Scene {
     this.actionTexts = this.actions.map((a, i) => {
       const col = i % 2, row = Math.floor(i / 2);
       return this.add.text(baseX + col * 140, baseY + row * 14, a.label, {
-        fontFamily: 'monospace', fontSize: '8px', color: '#fff',
+        fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color: '#fff',
       }).setOrigin(0, 0);
     });
   }

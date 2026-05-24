@@ -9,6 +9,10 @@ import { CombatScene } from './scenes/CombatScene.js';
 import { setupSaveUI } from './save.js';
 import { defaultState, applyState } from './state.js';
 import { EventBus } from './events.js';
+// La pixel font (Press Start 2P) se carga vía <link> en index.html.
+// Si tarda en estar lista el primer frame usa monospace y al siguiente
+// se aplica Press Start 2P. Para evitar el flash usamos font-display: swap
+// y un fontFamily con fallback en src/font.js.
 
 const BASE_W = 320;
 const BASE_H = 180;
@@ -41,23 +45,14 @@ const game = new Phaser.Game({
     default: 'arcade',
     arcade: { gravity: { y: 600 }, debug: false },
   },
-  // ORDEN DE ESCENAS = ORDEN DE RENDERIZADO en Phaser.
-  // Las "salas" (Aula, Biblioteca, Patio) y CombatScene se renderizan PRIMERO.
-  // Los overlays (Dialogue, Forum, Menu) van DESPUÉS para que se dibujen ENCIMA.
-  // [bug histórico: CombatScene estaba al final y tapaba el DialogueScene
-  //  cuando se llamaba "Hablar" → el diálogo no se veía y el combate "se quedaba pillado"]
   scene: [BootScene, Aula, Biblioteca, Patio, CombatScene, DialogueScene, ForumScene, MenuScene],
 });
 
-// Estado inicial
 applyState(game.registry, defaultState());
 
-// Bus de eventos compartido
 const events = new EventBus();
 game.registry.set('events', events);
 
-// Side-effect global del primer toggle de visión: Lucas muere aunque no
-// estés en el aula al activarla.
 events.on('first-vision', () => {
   const defeated = game.registry.get('defeated') || {};
   defeated.lucas = true;
@@ -66,8 +61,6 @@ events.on('first-vision', () => {
 
 setupSaveUI(game);
 
-// Recalcular zoom al redimensionar la ventana. Solo aplicamos si el zoom
-// elegido cambia, para evitar set-size innecesarios.
 let _appliedZoom = pickZoom();
 window.addEventListener('resize', () => {
   const z = pickZoom();
@@ -77,5 +70,4 @@ window.addEventListener('resize', () => {
   }
 });
 
-// Para depuración desde la consola del navegador
 window.__game = game;

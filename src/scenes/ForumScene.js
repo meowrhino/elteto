@@ -30,13 +30,13 @@ export class ForumScene extends Phaser.Scene {
 
     // Cabecera
     this.add.text(W / 2, 10, '◆ CLUB DE LO OCULTO ◆', {
-      fontFamily: 'monospace', fontSize: '8px', color: '#ffd166',
+      fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color: '#ffd166',
     }).setOrigin(0.5, 0);
     this.add.rectangle(W / 2, 22, W - 16, 1, 0x666688);
 
     // Hint inferior
     this.hint = this.add.text(W / 2, H - 10, '[E] siguiente', {
-      fontFamily: 'monospace', fontSize: '7px', color: '#888',
+      fontFamily: '"Press Start 2P", monospace', fontSize: '7px', color: '#888',
     }).setOrigin(0.5, 0.5);
 
     // Área de chat
@@ -68,10 +68,10 @@ export class ForumScene extends Phaser.Scene {
     const baseY = last ? last.y + last.height + this.spacing : this.chatTop;
 
     const speakerText = this.add.text(8, baseY, `${msg.speaker}:`, {
-      fontFamily: 'monospace', fontSize: '8px', color,
+      fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color,
     });
     const bodyText = this.add.text(8, baseY + speakerText.height + 1, msg.text, {
-      fontFamily: 'monospace', fontSize: '8px', color: '#ffffff',
+      fontFamily: '"Press Start 2P", monospace', fontSize: '8px', color: '#ffffff',
       wordWrap: { width: W - 16 },
     });
 
