@@ -46,3 +46,6 @@ events.on('first-vision', () => {
 });
 
 setupSaveUI(game);
+
+// Para depuración desde la consola del navegador
+window.__game = game;
