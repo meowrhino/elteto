@@ -170,6 +170,58 @@ export const CHARACTERS = {
     items: { hair_top: 'long_straight', eyes: 'default', mouth: 'default' },
     colors: { hair: 0x882244, skin: 0xffd8b8, shirt: 0xff44aa, pants: 0x442266 },
   },
+
+  // ============ ADULTOS (personal del cole, nuevas salas) ============
+  // Todos usan items existentes de src/sprite-items.js.
+
+  manolo: {
+    name: 'Manolo',
+    lifespanDefault: 600,
+    items: { hair_top: 'short_normal', eyes: 'default', mouth: 'default', facial_hair: 'mustache_brown' },
+    colors: { hair: 0x666666, skin: 0xddb088, shirt: 0x336633, pants: 0x222222 },
+  },
+
+  pepa: {
+    name: 'Pepa',
+    lifespanDefault: 500,
+    items: { hair_top: 'bob', eyes: 'default', mouth: 'default' },
+    colors: { hair: 0x6a4a2a, skin: 0xeec8aa, shirt: 0xffffff, pants: 0xcccccc },
+  },
+
+  pepe: {
+    name: 'Pepe',
+    lifespanDefault: 400,
+    items: { hair_top: 'spiky', eyes: 'default', mouth: 'default' },
+    colors: { hair: 0x2a1a08, skin: 0xddb088, shirt: 0xff4444, pants: 0x222244 },
+  },
+
+  luz: {
+    name: 'Luz',
+    lifespanDefault: 350,
+    items: { hair_top: 'long_straight', eyes: 'default', mouth: 'default' },
+    colors: { hair: 0xddaa66, skin: 0xffd8b8, shirt: 0x884488, pants: 0x222222 },
+  },
+
+  galan: {
+    name: 'Galán',
+    lifespanDefault: 250,
+    items: { hair_top: 'short_normal', eyes: 'default', mouth: 'default' },
+    colors: { hair: 0xeecc88, skin: 0xffd8b8, shirt: 0xee2222, pants: 0x000000 },
+  },
+
+  sara: {
+    name: 'Sara',
+    lifespanDefault: 80,
+    items: { hair_top: 'long_straight', eyes: 'default', mouth: 'default' },
+    colors: { hair: 0x111111, skin: 0xffd8b8, shirt: 0x222222, pants: 0x444444 },
+  },
+
+  tania: {
+    name: 'Tania',
+    lifespanDefault: 70,
+    items: { hair_top: 'afro_curly', eyes: 'default', mouth: 'default' },
+    colors: { hair: 0xff44aa, skin: 0xeec8aa, shirt: 0x000000, pants: 0x223344 },
+  },
 };
 
 /**

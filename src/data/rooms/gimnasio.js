@@ -39,5 +39,7 @@ export const ROOM_GIMNASIO = {
     { x: 8, y: 136, target: 'Pasillo', spawnX: 216, spawnY: 144, label: 'pasillo' },
   ],
 
-  npcs: [],
+  npcs: [
+    { x: 320, y: 128, id: 'pepe', name: 'Pepe', sprite: 'pepe' },
+  ],
 };

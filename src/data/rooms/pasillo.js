@@ -52,5 +52,7 @@ export const ROOM_PASILLO = {
     { x: 584, y: 136, target: 'Aula',        spawnX: 40,  spawnY: 144, label: 'aula' },
   ],
 
-  npcs: [],
+  npcs: [
+    { x: 480, y: 128, id: 'manolo', name: 'Manolo', sprite: 'manolo' },
+  ],
 };

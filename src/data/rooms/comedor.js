@@ -46,5 +46,7 @@ export const ROOM_COMEDOR = {
     { x: 8, y: 136, target: 'Pasillo', spawnX: 152, spawnY: 144, label: 'pasillo' },
   ],
 
-  npcs: [],
+  npcs: [
+    { x: 440, y: 128, id: 'pepa', name: 'Pepa', sprite: 'pepa' },
+  ],
 };

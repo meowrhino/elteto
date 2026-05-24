@@ -46,5 +46,7 @@ export const ROOM_SALON_ACTOS = {
     { x: 8, y: 136, target: 'Pasillo', spawnX: 344, spawnY: 144, label: 'pasillo' },
   ],
 
-  npcs: [],
+  npcs: [
+    { x: 460, y: 128, id: 'galan', name: 'Galán', sprite: 'galan' },
+  ],
 };

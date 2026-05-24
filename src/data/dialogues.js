@@ -100,6 +100,60 @@ export const DIALOGUES = {
       'Una pena que no me haya podido follar más a tu madre.',
     ],
   },
+
+  // ============================================================ Adultos / personal del cole
+
+  manolo: {
+    default: [
+      'Cuidado con las baldosas, las acabo de fregar.',
+      'Si te ve algún profe sin permiso por aquí, yo no he visto nada.',
+    ],
+  },
+
+  pepa: {
+    default: [
+      '¿Vienes a por la merienda?',
+      'Hoy hay pasta. Mañana también. Pasado, sopa.',
+      'Comer es importante. Te lo digo yo.',
+    ],
+  },
+
+  pepe: {
+    default: [
+      '¡Veinte flexiones! Vamos, ¡vamos!',
+      'En mis tiempos esto era un campo de batalla.',
+      '... pero qué mierda digo. Tomad un bocadillo, anda.',
+    ],
+  },
+
+  luz: {
+    default: [
+      'La música es lo único que nos queda cuando todo se rompe.',
+      '¿Tocas algo? ¿No? Pues empieza ya, no es tarde.',
+    ],
+  },
+
+  galan: {
+    default: [
+      '"Ser o no ser..." ¿qué venía después?',
+      'Estoy ensayando para el festival. Si me ves, no me distraigas.',
+      'Una vez actué en una boda. Me echaron a los diez minutos.',
+    ],
+  },
+
+  sara: {
+    default: [
+      'Aquí arriba se está mejor que abajo.',
+      'No le digas a nadie que estoy aquí. Por favor.',
+    ],
+  },
+
+  tania: {
+    default: [
+      '¿Has visto las pintadas? Las hago yo.',
+      'No le digas a Manolo, que me mata.',
+    ],
+  },
 };
 
 // Resuelve líneas. Busca específico por storyId, luego default. Si no hay

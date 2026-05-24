@@ -46,5 +46,7 @@ export const ROOM_AULA_MUSICA = {
     { x: 8, y: 136, target: 'Pasillo', spawnX: 280, spawnY: 144, label: 'pasillo' },
   ],
 
-  npcs: [],
+  npcs: [
+    { x: 180, y: 128, id: 'luz', name: 'Luz', sprite: 'luz' },
+  ],
 };

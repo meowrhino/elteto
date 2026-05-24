@@ -29,5 +29,7 @@ export const ROOM_AZOTEA = {
     { x: 8, y: 136, target: 'Pasillo', spawnX: 408, spawnY: 144, label: 'pasillo' },
   ],
 
-  npcs: [],
+  npcs: [
+    { x: 280, y: 128, id: 'sara', name: 'Sara', sprite: 'sara' },
+  ],
 };

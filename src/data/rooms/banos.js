@@ -33,5 +33,7 @@ export const ROOM_BANOS = {
     { x: 8, y: 136, target: 'Pasillo', spawnX: 88, spawnY: 144, label: 'pasillo' },
   ],
 
-  npcs: [],
+  npcs: [
+    { x: 240, y: 128, id: 'tania', name: 'Tania', sprite: 'tania' },
+  ],
 };
