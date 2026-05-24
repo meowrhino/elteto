@@ -5,7 +5,7 @@
 // Uso:
 //   node tools/export-sprites.mjs
 //
-// Para añadir sprites nuevos, edita tools/lib/sprite-catalog.mjs.
+// Para añadir sprites nuevos, edita tools/lib/sprite-catalog.js.
 
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 import { PixelCanvas } from './lib/pixel-canvas.mjs';
 import { encodePng } from './lib/png-encoder.mjs';
 import { paintSprite, SPRITE_W, SPRITE_H } from '../src/sprite-defs.js';
-import { SPRITE_CATALOG } from './lib/sprite-catalog.mjs';
+import { SPRITE_CATALOG } from './lib/sprite-catalog.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT_DIR = resolve(ROOT, 'assets/sprites');
