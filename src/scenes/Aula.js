@@ -13,11 +13,37 @@ export class Aula extends RoomScene {
   }
 
   buildRoom() {
+    // Interior: pared trasera + zócalo. Hace que la clase deje de "flotar".
+    this.buildInterior({
+      wallColor: 0x5e567a,
+      baseboardColor: 0x2a2440,
+      baseboardH: 4,
+      floorTop: 160,
+    });
+
+    // Ventana con vista al exterior (parallax suave)
+    this.addWindow({ x: 24, y: 48, w: 56, h: 40, scrollFactor: 0.55 });
+
     // Suelo continuo
     for (let x = 0; x < this.worldWidth; x += 16) this.addPlatform(x, 160);
 
-    // Decoración: pizarra al fondo + pupitres
-    this.addDecor(160, 30, 'chalkboard');
+    // Decoración: pizarra grande contra la pared
+    this.addDecor(180, 44, 'chalkboard_big');
+
+    // Reloj y póster en la pared
+    this.addDecor(296, 50, 'clock');
+    this.addDecor(412, 56, 'poster');
+
+    // Mesa de profe delante de la pizarra (a la izquierda, sin alumnos)
+    this.addDecor(112, 142, 'teacher_desk');
+
+    // Sillas (van antes que los pupitres para quedar detrás visualmente)
+    this.addDecor(123, 151, 'chair');
+    this.addDecor(203, 151, 'chair');
+    this.addDecor(283, 151, 'chair');
+    this.addDecor(363, 151, 'chair');
+
+    // Pupitres
     this.addDecor(120, 150, 'desk');
     this.addDecor(200, 150, 'desk');
     this.addDecor(280, 150, 'desk');

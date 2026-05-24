@@ -1,6 +1,16 @@
 import { ensureSprite, SPRITE_W, SPRITE_H } from '../characters.js';
 import { bus } from '../events.js';
 
+// Acepta número (0xRRGGBB) o string ('#rrggbb' / 'rrggbb') y devuelve int.
+function toInt(c) {
+  if (typeof c === 'number') return c;
+  if (typeof c === 'string') {
+    const s = c.startsWith('#') ? c.slice(1) : c;
+    return parseInt(s, 16);
+  }
+  return 0x000000;
+}
+
 // Base de cualquier sala del juego.
 // Las salas concretas extienden esta clase y definen su geometría en buildRoom().
 //
@@ -200,12 +210,198 @@ export class RoomScene extends Phaser.Scene {
     g.fillStyle(0xffffff).fillRect(5, 12, 4, 1);
     g.generateTexture('chalkboard', 32, 20); g.clear();
 
+    // Pizarra grande (para aula amueblada)
+    g.fillStyle(0x6a4a2a).fillRect(0, 0, 80, 40);
+    g.fillStyle(0x1a3a2a).fillRect(2, 2, 76, 36);
+    g.fillStyle(0xffffff).fillRect(6, 8, 12, 1);
+    g.fillStyle(0xffffff).fillRect(6, 11, 8, 1);
+    g.fillStyle(0xffffff).fillRect(20, 9, 1, 4);
+    g.fillStyle(0xffffff).fillRect(22, 8, 4, 1);
+    g.fillStyle(0xffffff).fillRect(22, 12, 4, 1);
+    g.fillStyle(0xffffff).fillRect(6, 20, 24, 1);
+    g.fillStyle(0xffffff).fillRect(6, 23, 16, 1);
+    g.fillStyle(0xffffff).fillRect(6, 26, 20, 1);
+    g.fillStyle(0xeeeeee).fillRect(40, 16, 1, 12); // tiza vertical
+    g.fillStyle(0xeeeeee).fillRect(48, 16, 1, 4);
+    g.fillStyle(0xeeeeee).fillRect(48, 24, 1, 4);
+    g.fillStyle(0xeeeeee).fillRect(48, 16, 6, 1);
+    g.fillStyle(0xeeeeee).fillRect(48, 24, 6, 1);
+    g.fillStyle(0xeeeeee).fillRect(53, 16, 1, 12);
+    // bandeja de tizas
+    g.fillStyle(0x4a3018).fillRect(0, 37, 80, 3);
+    g.fillStyle(0xffffff).fillRect(8, 38, 4, 1);
+    g.fillStyle(0xffaa44).fillRect(20, 38, 3, 1);
+    g.generateTexture('chalkboard_big', 80, 40); g.clear();
+
     g.fillStyle(0x8b5a36).fillRect(0, 0, 14, 4);
     g.fillStyle(0x6b4226).fillRect(2, 4, 2, 6);
     g.fillStyle(0x6b4226).fillRect(10, 4, 2, 6);
-    g.generateTexture('desk', 14, 10);
+    g.generateTexture('desk', 14, 10); g.clear();
+
+    // Silla
+    g.fillStyle(0x6b4226).fillRect(0, 0, 8, 1);     // asiento
+    g.fillStyle(0x6b4226).fillRect(0, 1, 1, 4);     // respaldo
+    g.fillStyle(0x6b4226).fillRect(0, 5, 1, 4);     // pata trasera
+    g.fillStyle(0x6b4226).fillRect(7, 1, 1, 8);     // pata delantera
+    g.generateTexture('chair', 8, 9); g.clear();
+
+    // Mesa profesora (con libros y manzana encima)
+    g.fillStyle(0xaa3333).fillRect(4, 0, 4, 3);     // libro rojo
+    g.fillStyle(0x2266aa).fillRect(10, 1, 5, 2);    // libro azul
+    g.fillStyle(0x33aa33).fillRect(18, 0, 1, 1);    // hojita de la manzana
+    g.fillStyle(0xcc4444).fillRect(18, 1, 2, 2);    // manzana
+    g.fillStyle(0x8b5a36).fillRect(0, 3, 24, 5);    // tablero
+    g.fillStyle(0x6b4226).fillRect(2, 8, 2, 10);    // pata izq
+    g.fillStyle(0x6b4226).fillRect(20, 8, 2, 10);   // pata der
+    g.generateTexture('teacher_desk', 24, 18); g.clear();
+
+    // Reloj de pared
+    g.fillStyle(0x111111).fillCircle(7, 7, 7);
+    g.fillStyle(0xeeeeee).fillCircle(7, 7, 6);
+    g.fillStyle(0x111111).fillRect(7, 7, 1, -4);    // aguja minutera
+    g.fillStyle(0x111111).fillRect(7, 7, 3, 1);     // aguja horaria
+    g.fillStyle(0x111111).fillRect(7, 1, 1, 1);     // 12
+    g.fillStyle(0x111111).fillRect(13, 7, 1, 1);    // 3
+    g.fillStyle(0x111111).fillRect(7, 13, 1, 1);    // 6
+    g.fillStyle(0x111111).fillRect(1, 7, 1, 1);     // 9
+    g.generateTexture('clock', 14, 14); g.clear();
+
+    // Póster (alfabeto/mapa estilizado)
+    g.fillStyle(0xeeddaa).fillRect(0, 0, 24, 18);
+    g.fillStyle(0x884422).fillRect(0, 0, 24, 1);
+    g.fillStyle(0x884422).fillRect(0, 17, 24, 1);
+    g.fillStyle(0x884422).fillRect(0, 0, 1, 18);
+    g.fillStyle(0x884422).fillRect(23, 0, 1, 18);
+    // Letras simuladas
+    g.fillStyle(0x222222).fillRect(3, 3, 2, 2);
+    g.fillStyle(0x222222).fillRect(7, 3, 2, 2);
+    g.fillStyle(0x222222).fillRect(11, 3, 2, 2);
+    g.fillStyle(0x222222).fillRect(15, 3, 2, 2);
+    g.fillStyle(0x222222).fillRect(19, 3, 2, 2);
+    g.fillStyle(0x222222).fillRect(3, 8, 2, 2);
+    g.fillStyle(0x222222).fillRect(7, 8, 2, 2);
+    g.fillStyle(0x222222).fillRect(11, 8, 2, 2);
+    g.fillStyle(0x222222).fillRect(15, 8, 2, 2);
+    g.fillStyle(0x222222).fillRect(19, 8, 2, 2);
+    g.fillStyle(0x222222).fillRect(3, 13, 2, 2);
+    g.fillStyle(0x222222).fillRect(7, 13, 2, 2);
+    g.fillStyle(0x222222).fillRect(11, 13, 2, 2);
+    g.fillStyle(0x222222).fillRect(15, 13, 2, 2);
+    g.fillStyle(0x222222).fillRect(19, 13, 2, 2);
+    g.generateTexture('poster', 24, 18); g.clear();
 
     g.destroy();
+  }
+
+  // ============================================================ interior (B)
+  // Dibuja un "interior" de habitación: pared trasera + zócalo + opcionalmente techo.
+  // Llamar desde buildRoom() antes de añadir decor/NPCs/puertas para que quede atrás.
+  //
+  // opts:
+  //   wallColor      — color sólido de la pared (hex 0xRRGGBB o '#rgb')
+  //   floorTop       — y del borde superior del suelo (default: worldHeight - 20)
+  //   ceilingHeight  — altura del techo (rectángulo arriba). 0 = sin techo distinto.
+  //   ceilingColor   — color del techo (si ceilingHeight > 0)
+  //   baseboardColor — color del zócalo (franja oscura encima del suelo)
+  //   baseboardH     — alto del zócalo (default 4 px)
+  buildInterior(opts = {}) {
+    const W = this.worldWidth;
+    const H = this.worldHeight;
+    const wallColor      = toInt(opts.wallColor ?? 0x3b3656);
+    const floorTop       = opts.floorTop ?? (H - 20);
+    const ceilingHeight  = opts.ceilingHeight ?? 0;
+    const ceilingColor   = toInt(opts.ceilingColor ?? this.bgColor);
+    const baseboardColor = toInt(opts.baseboardColor ?? 0x221b34);
+    const baseboardH     = opts.baseboardH ?? 4;
+
+    // Techo
+    if (ceilingHeight > 0) {
+      this.add.rectangle(0, 0, W, ceilingHeight, ceilingColor)
+        .setOrigin(0, 0).setDepth(-100).setScrollFactor(1);
+    }
+
+    // Pared trasera (de debajo del techo hasta el suelo)
+    const wallTop = ceilingHeight;
+    const wallH   = floorTop - wallTop;
+    this.add.rectangle(0, wallTop, W, wallH, wallColor)
+      .setOrigin(0, 0).setDepth(-90).setScrollFactor(1);
+
+    // Zócalo
+    this.add.rectangle(0, floorTop - baseboardH, W, baseboardH, baseboardColor)
+      .setOrigin(0, 0).setDepth(-80).setScrollFactor(1);
+
+    return { wallTop, wallH, floorTop };
+  }
+
+  // ============================================================ layers / parallax (C)
+  // Capa de fondo con scrollFactor configurable. Útil para "verse a través de
+  // una ventana": el contenido se mueve más lento que la cámara, dando profundidad.
+  //
+  // opts: { x, y, w, h, color, scrollFactor=1, depth=-70 }
+  addLayer(opts) {
+    const r = this.add.rectangle(opts.x, opts.y, opts.w, opts.h, toInt(opts.color))
+      .setOrigin(0, 0)
+      .setDepth(opts.depth ?? -70)
+      .setScrollFactor(opts.scrollFactor ?? 1);
+    return r;
+  }
+
+  // Ventana con vista al exterior: cielo + colina + sol con parallax recortado al marco.
+  // El contenido es ancho (para que el parallax nunca lo deje sin cielo bajo el hueco)
+  // y se enmascara al rect interior usando una geometryMask.
+  //
+  // opts: { x, y, w=48, h=32, skyColor, hillColor, frameColor, scrollFactor=0.55 }
+  addWindow(opts) {
+    const x = opts.x;
+    const y = opts.y;
+    const w = opts.w ?? 48;
+    const h = opts.h ?? 32;
+    const skyColor   = toInt(opts.skyColor   ?? 0x88c8ff);
+    const hillColor  = toInt(opts.hillColor  ?? 0x3a7a3a);
+    const frameColor = toInt(opts.frameColor ?? 0x4a2511);
+    const sf = opts.scrollFactor ?? 0.55;
+
+    const innerX = x + 2, innerY = y + 2;
+    const innerW = w - 4, innerH = h - 4;
+
+    // Máscara geométrica del hueco interior (no se mueve respecto al marco)
+    const maskGfx = this.make.graphics();
+    maskGfx.fillStyle(0xffffff);
+    maskGfx.fillRect(innerX, innerY, innerW, innerH);
+    const mask = maskGfx.createGeometryMask();
+
+    // Cielo ancho — abarca varias veces la anchura del hueco para que el
+    // parallax nunca lo deje "vacío" bajo la máscara.
+    const skyW = innerW + this.worldWidth * 2;
+    const skyX = innerX - this.worldWidth; // centrado a la izquierda del hueco
+    const sky = this.add.rectangle(skyX, innerY, skyW, innerH, skyColor)
+      .setOrigin(0, 0).setDepth(-75).setScrollFactor(sf, 1);
+    sky.setMask(mask);
+
+    // Colinas (más cercanas, parallax algo mayor)
+    const hillH = Math.max(6, Math.floor(innerH * 0.35));
+    const hill = this.add.rectangle(skyX, innerY + innerH - hillH, skyW, hillH, hillColor)
+      .setOrigin(0, 0).setDepth(-74).setScrollFactor(Math.min(1, sf + 0.2), 1);
+    hill.setMask(mask);
+
+    // Sol — anclado al marco (sin parallax) para que siempre quede visible
+    // dentro de la ventana cuando se cruza por delante de ella.
+    this.add.circle(innerX + innerW - 8, innerY + 6, 2.5, 0xffe066)
+      .setDepth(-73).setScrollFactor(1, 1);
+
+    // Marco (sin parallax — pegado a la pared)
+    const t = 2;
+    this.add.rectangle(x, y, w, t, frameColor).setOrigin(0, 0).setDepth(-72);
+    this.add.rectangle(x, y + h - t, w, t, frameColor).setOrigin(0, 0).setDepth(-72);
+    this.add.rectangle(x, y, t, h, frameColor).setOrigin(0, 0).setDepth(-72);
+    this.add.rectangle(x + w - t, y, t, h, frameColor).setOrigin(0, 0).setDepth(-72);
+    // travesaños en cruz
+    this.add.rectangle(x + Math.floor(w / 2) - 1, y, t, h, frameColor).setOrigin(0, 0).setDepth(-72);
+    this.add.rectangle(x, y + Math.floor(h / 2) - 1, w, t, frameColor).setOrigin(0, 0).setDepth(-72);
+    // alféizar
+    this.add.rectangle(x - 2, y + h, w + 4, 2, frameColor).setOrigin(0, 0).setDepth(-71);
+
+    return { x, y, w, h };
   }
 
   // ============================================================ builders
