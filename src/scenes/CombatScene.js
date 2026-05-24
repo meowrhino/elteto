@@ -1,5 +1,6 @@
 import { ensureSprite } from '../characters.js';
 import { setChapter, CHAPTERS } from '../story.js';
+import { audio } from '../audio.js';
 
 // Combate por turnos.
 // Datos esperados: { enemy, returnTo }
@@ -224,6 +225,7 @@ export class CombatScene extends Phaser.Scene {
 
   // ============================================================ acciones
   executeRoot(id) {
+    audio.playSfx('confirm');
     if (id === 'attack') this.doAttack();
     else if (id === 'skills') this.enterState('SKILLS');
     else if (id === 'items') this.enterState('ITEMS');
@@ -232,20 +234,26 @@ export class CombatScene extends Phaser.Scene {
 
   doAttack() {
     const s = this.registry.get('stats');
-    const dmg = Math.max(1, s.atk);
+    // Variación leve para que no sea siempre el mismo daño
+    const dmg = Math.max(1, s.atk + Math.floor(Math.random() * 3) - 1);
     this.enemyHp -= dmg;
     this.flashEnemy();
+    this.spawnDamagePopup(dmg, this.enemySprite);
     this.enterState('MSG', `Golpeas a ${this.enemyCfg.name}. ${dmg} de daño.`);
   }
 
   useSkill(skill) {
     if (!skill) return;
     const s = this.registry.get('stats');
-    if (s.mp < skill.mpCost) return this.enterState('ROOT', '¡No tienes PM suficientes!');
+    if (s.mp < skill.mpCost) {
+      audio.playSfx('cancel');
+      return this.enterState('ROOT', '¡No tienes PM suficientes!');
+    }
     s.mp -= skill.mpCost;
     this.enemyHp -= skill.dmg;
     this.registry.set('stats', s);
     this.flashEnemy();
+    this.spawnDamagePopup(skill.dmg, this.enemySprite, '#ff6644');
     this.enterState('MSG', `${skill.name}! ${skill.dmg} de daño.`);
   }
 
@@ -328,20 +336,48 @@ export class CombatScene extends Phaser.Scene {
 
   enemyTurn() {
     const s = this.registry.get('stats');
-    const dmg = Math.max(1, this.enemyCfg.atk - s.def);
+    const dmg = Math.max(1, this.enemyCfg.atk - s.def + Math.floor(Math.random() * 3) - 1);
     s.hp = Math.max(0, s.hp - dmg);
     this.registry.set('stats', s);
     this.flashPlayer();
+    this.spawnDamagePopup(dmg, { x: 30, y: 30 }, '#ff8888');
     this.enterState('ENEMY', `${this.enemyCfg.name} te ataca. ${dmg} de daño.`);
   }
 
   flashEnemy() {
+    audio.playSfx('hit');
     this.tweens.add({ targets: this.enemySprite, alpha: 0.2, duration: 80, yoyo: true, repeat: 2 });
+    // Shake del sprite (offset relativo, no de cámara)
+    const baseX = this.enemySprite.x;
+    this.tweens.add({
+      targets: this.enemySprite,
+      x: baseX + 3,
+      duration: 40, yoyo: true, repeat: 4,
+      onComplete: () => this.enemySprite.x = baseX,
+    });
   }
 
   flashPlayer() {
+    audio.playSfx('hit');
     this.cameras.main.flash(120, 200, 40, 40);
     this.cameras.main.shake(120, 0.005);
+  }
+
+  // Muestra un número de daño que sube y se desvanece. Estilo Earthbound.
+  spawnDamagePopup(amount, target, color = '#ffe066') {
+    const x = target ? target.x : this.scale.width / 2;
+    const y = target ? target.y - 12 : 60;
+    const txt = this.add.text(x, y, String(amount), {
+      fontFamily: '"Press Start 2P", monospace', fontSize: '10px', color,
+      stroke: '#000', strokeThickness: 2,
+    }).setOrigin(0.5, 0.5).setDepth(100);
+    this.tweens.add({
+      targets: txt,
+      y: y - 16,
+      alpha: { from: 1, to: 0 },
+      duration: 700,
+      onComplete: () => txt.destroy(),
+    });
   }
 
   // ============================================================ desenlaces
