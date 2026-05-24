@@ -44,10 +44,10 @@ export class MenuScene extends Phaser.Scene {
     // Avatar e info para la pestaña Personaje
     const party = this.registry.get('party');
     const firstKey = ensureSprite(this, party[0].sprite);
-    this.charAvatar = this.add.image(40, 70, firstKey).setScale(3).setVisible(false);
-    this.charAvatarFrame = this.add.rectangle(40, 70, 40, 52)
+    this.charAvatar = this.add.image(40, 72, firstKey).setScale(2).setVisible(false);
+    this.charAvatarFrame = this.add.rectangle(40, 72, 56, 72)
       .setStrokeStyle(1, 0x666688).setVisible(false);
-    this.charInfo = this.add.text(72, 40, '', {
+    this.charInfo = this.add.text(80, 40, '', {
       fontFamily: 'monospace', fontSize: '8px', color: '#fff', lineSpacing: 3,
     }).setVisible(false);
     this.charArrows = this.add.text(20, 110, '', {
@@ -115,14 +115,14 @@ export class MenuScene extends Phaser.Scene {
     const portraitKey = portraitForCharId(c.id);
     if (portraitKey && this.textures.exists(portraitKey)) {
       const tex = this.textures.get(portraitKey).getSourceImage();
-      const targetSize = 54;
+      const targetSize = 64;
       const scale = targetSize / Math.max(tex.width, tex.height);
       this.charAvatar.setTexture(portraitKey);
       this.charAvatar.setScale(scale);
     } else {
       const key = ensureSprite(this, c.sprite);
       this.charAvatar.setTexture(key);
-      this.charAvatar.setScale(3);
+      this.charAvatar.setScale(2);
     }
 
     const isHero = this.charCursor === 0;

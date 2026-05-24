@@ -1,0 +1,59 @@
+{
+  "name": "Biblioteca",
+  "worldWidth": 480,
+  "worldHeight": 180,
+  "bgColor": "#1f1a2a",
+  "platforms": [
+    { "x": 0,   "y": 160, "w": 30, "h": 1, "tex": "tile" },
+    { "x": 112, "y": 112, "w": 5,  "h": 1, "tex": "tile" },
+    { "x": 320, "y": 96,  "w": 4,  "h": 1, "tex": "tile" },
+    { "x": 432, "y": 144, "w": 1,  "h": 1, "tex": "tile" }
+  ],
+  "climbs": [
+    { "x": 96,  "y": 112, "h": 3, "type": "ladder" },
+    { "x": 304, "y": 96,  "h": 4, "type": "rope" }
+  ],
+  "doors": [
+    { "x": 8, "y": 136, "target": "Aula", "spawnX": 24, "spawnY": 144, "label": "aula" }
+  ],
+  "signs": [],
+  "decor": [
+    { "x": 40,  "y": 128, "tex": "shelf" },
+    { "x": 72,  "y": 128, "tex": "shelf" },
+    { "x": 240, "y": 128, "tex": "shelf" },
+    { "x": 272, "y": 128, "tex": "shelf" },
+    { "x": 400, "y": 128, "tex": "shelf" }
+  ],
+  "npcs": [
+    {
+      "id": "martina", "name": "Martina",
+      "x": 176, "y": 128,
+      "sprite": "martina",
+      "lifespan": 220,
+      "dialogue": [
+        "¡SHHHHHH! Aquí no se grita.",
+        "Si quieres un libro, devuélvelo a tiempo.",
+        "Últimamente uno de los libros... se mueve solo.",
+        "No te acerques al estante del fondo."
+      ]
+    },
+    {
+      "id": "lector", "name": "Niño lector",
+      "x": 144, "y": 80,
+      "sprite": "lector",
+      "lifespan": 130,
+      "dialogue": [
+        "Estoy leyendo, no molestes.",
+        "...vale, ¿qué quieres?",
+        "Si vas al fondo, ten cuidado."
+      ]
+    }
+  ],
+  "enemies": [
+    {
+      "id": "libro_poseido",
+      "x": 434, "y": 132,
+      "ref": "ENEMIES.libro_poseido"
+    }
+  ]
+}

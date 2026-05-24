@@ -1,4 +1,4 @@
-import { portraitForSpeaker } from '../portraits.js';
+import { portraitForSpeaker, colorForSpeaker } from '../portraits.js';
 
 // Overlay de diálogo. Modal: pausa la escena padre mientras está abierto.
 // Datos esperados:
@@ -19,17 +19,6 @@ import { portraitForSpeaker } from '../portraits.js';
 //
 // Si el speaker no tiene retrato, el bloque de la izquierda no se dibuja
 // y el texto ocupa todo el ancho.
-
-const SPEAKER_COLORS = {
-  'Tú': '#ffd166',
-  'Bárbara': '#cc88ff',
-  'Jorge': '#88dd66',
-  'Nivea': '#88ddee',
-  'Martina': '#aa66cc',
-  'Pablo': '#ff7766',
-  'Anillo': '#eeeecc',
-  '—': '#aaaaaa',
-};
 
 // --- Constantes de layout (game space) ---
 const BOX_H = 68;
@@ -126,7 +115,7 @@ export class DialogueScene extends Phaser.Scene {
 
     // Nombre + color
     this.nameText.setText(speaker);
-    this.nameText.setColor(SPEAKER_COLORS[speaker] || '#ffffff');
+    this.nameText.setColor(colorForSpeaker(speaker));
 
     // ¿Hay retrato?
     const portraitKey = portraitForSpeaker(speaker);

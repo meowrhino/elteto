@@ -1,0 +1,65 @@
+{
+  "name": "Aula",
+  "worldWidth": 480,
+  "worldHeight": 180,
+  "bgColor": "#2a2440",
+  "platforms": [
+    { "x": 0, "y": 160, "w": 30, "h": 1, "tex": "tile" }
+  ],
+  "climbs": [],
+  "doors": [
+    { "x": 8,   "y": 136, "target": "Biblioteca", "spawnX": 440, "spawnY": 144, "label": "biblioteca" },
+    { "x": 456, "y": 136, "target": "Patio",      "spawnX": 40,  "spawnY": 144, "label": "patio" }
+  ],
+  "signs": [
+    { "x": 60, "y": 150, "text": "← → mover  ↑↓ escalar\n[E] hablar/entrar  [TAB] menú\n[-] visión" }
+  ],
+  "decor": [
+    { "x": 160, "y": 30,  "tex": "chalkboard" },
+    { "x": 120, "y": 150, "tex": "desk" },
+    { "x": 200, "y": 150, "tex": "desk" },
+    { "x": 280, "y": 150, "tex": "desk" },
+    { "x": 360, "y": 150, "tex": "desk" }
+  ],
+  "npcs": [
+    {
+      "id": "nivea", "name": "Nivea",
+      "x": 160, "y": 128,
+      "sprite": "nivea",
+      "lifespan": 220,
+      "scripted": true,
+      "scriptedNote": "Su diálogo depende del capítulo (Aula.talkToNivea)."
+    },
+    {
+      "id": "marta", "name": "Marta",
+      "x": 208, "y": 128,
+      "sprite": "marta",
+      "lifespan": 110,
+      "dialogue": [
+        "Psst... ¿qué le ha dado a Pablo?",
+        "Lleva días así. La profe está rallada."
+      ]
+    },
+    {
+      "id": "dani", "name": "Dani",
+      "x": 288, "y": 128,
+      "sprite": "dani",
+      "lifespan": 140,
+      "dialogue": [
+        "Yo de mayor quiero ser astronauta.",
+        "O futbolista. O las dos cosas a la vez."
+      ]
+    },
+    {
+      "id": "lucas", "name": "Lucas",
+      "x": 368, "y": 128,
+      "sprite": "lucas",
+      "lifespan": 4,
+      "dialogue": [
+        "Zzzz... ¿eh? ¿Ya es el recreo?",
+        "Despiértame cuando suene el timbre."
+      ]
+    }
+  ],
+  "enemies": []
+}

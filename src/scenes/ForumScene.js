@@ -1,16 +1,8 @@
+import { colorForSpeaker } from '../portraits.js';
+
 // Overlay tipo chat para "reuniones" del Club de lo Oculto.
 // Datos esperados:
 //   { parentKey, messages: [{ speaker, text, color? }], onClose? }
-
-const SPEAKER_COLORS = {
-  'Tú': '#ffd166',
-  'Bárbara': '#cc88ff',
-  'Jorge': '#88dd66',
-  'Nivea': '#88ddee',
-  'Martina': '#aa66cc',
-  'Pablo': '#ff7766',
-  'Anillo': '#eeeecc',
-};
 
 export class ForumScene extends Phaser.Scene {
   constructor() {
@@ -69,7 +61,7 @@ export class ForumScene extends Phaser.Scene {
     }
     const msg = this.messages[this.idx];
     const W = this.scale.width;
-    const color = msg.color || SPEAKER_COLORS[msg.speaker] || '#ffffff';
+    const color = msg.color || colorForSpeaker(msg.speaker);
 
     // Calcular posición Y del nuevo bloque
     const last = this.lineObjs[this.lineObjs.length - 1];

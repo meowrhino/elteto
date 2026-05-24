@@ -4,24 +4,30 @@
 
 export function defaultState() {
   return {
-    // Posición en el mundo (escena y coordenadas del player)
-    player: { x: 60, y: 140, scene: 'Aula' },
+    // Posición en el mundo (escena y coordenadas del player).
+    // y=144 con sprite 24×32 y origen (0.5, 0.5) deja los pies en y=160
+    // (sobre la plataforma de suelo).
+    player: { x: 60, y: 144, scene: 'Aula' },
 
     // Stats del protagonista (los followers no combaten todavía)
     stats: { hp: 24, hpMax: 24, mp: 12, mpMax: 12, atk: 4, def: 1 },
 
-    // Party del Club de lo Oculto
+    // Party del Club de lo Oculto.
+    // Las apariencias se basan en los retratos Picrew (perosnajes/*.png):
+    //   - Protag: capucha de dinosaurio verde, pelo castaño, jersey blanco-verde rayas
+    //   - Jorge:  pelo morado corto, mostacho, chupa de cuero negra
+    //   - Bárbara: bob blanco arriba, morado abajo, top de rayas, chaqueta negra
     party: [
       {
         id: 'protag',
         name: 'Tú',
-        sprite: { hair: 0xd4b384, skin: 0xf8d0aa, shirt: 0x1a1a1a, pants: 0x222244, hairStyle: 'curly' },
+        sprite: { hair: 0x6a4a2a, skin: 0xf8d0aa, shirt: 0xe8e0d0, pants: 0x335533, hairStyle: 'dino_hood_prota' },
         lifespan: 180,
       },
       {
         id: 'jorge',
         name: 'Jorge',
-        sprite: { hair: 0x6a3a2a, skin: 0xf0c8a8, shirt: 0xa8b870, pants: 0x442200, hairStyle: 'dino_hood' },
+        sprite: { hair: 0x4a2a78, skin: 0xf0c8a8, shirt: 0x1a1a1a, pants: 0x222222, hairStyle: 'punk_mustache' },
         lifespan: 140,
       },
       {

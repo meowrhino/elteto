@@ -18,7 +18,10 @@ export class CombatScene extends Phaser.Scene {
     this.enemyCfg = data.enemy;
     this.enemyHp = data.enemy.hp;
     this.enemyHpMax = data.enemy.hp;
-    this.state = 'ROOT'; // ROOT | SKILLS | ITEMS | MSG | ENEMY | END
+    // DIALOG = bloqueado mientras hay un DialogueScene encima.
+    // Ningún branch de update() lo procesa, así que ninguna tecla dispara
+    // nada hasta que la dialog se cierre y vuelva con enterState(...).
+    this.state = 'ROOT'; // ROOT | SKILLS | ITEMS | MSG | ENEMY | END | DIALOG
     this.endResult = null;
     this.cursor = 0;
     this.message = '';
@@ -35,9 +38,11 @@ export class CombatScene extends Phaser.Scene {
     this.add.rectangle(W / 2, 84, W, 4, 0x444466);
     this.add.rectangle(W / 2, H - 60, W - 8, 1, 0x888888);
 
-    // Sprite del enemigo (centrado, x3)
+    // Sprite del enemigo (centrado). Las texturas estáticas (book_enemy etc.)
+    // son pequeñas y se escalan a x3; los charSprite ya son 24×32 y x2 basta.
     const tex = this.resolveEnemyTexture();
-    this.enemySprite = this.add.image(W / 2, 56, tex).setOrigin(0.5, 0.5).setScale(3);
+    const scale = this.enemyCfg.charSprite ? 2 : 3;
+    this.enemySprite = this.add.image(W / 2, 50, tex).setOrigin(0.5, 0.5).setScale(scale);
     this.tweens.add({
       targets: this.enemySprite, y: '+=2',
       duration: 800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
@@ -267,10 +272,9 @@ export class CombatScene extends Phaser.Scene {
   doTalk() {
     if (this.enemyCfg.special === 'pablo') return this.doPabloTalk();
     // Diálogo simple (libro, otros enemigos)
-    this.scene.launch('DialogueScene', {
+    this.launchDialog({
       speaker: this.enemyCfg.name,
       lines: this.enemyCfg.dialogue || ['...'],
-      pauseKey: 'CombatScene',
       onClose: () => this.enterState('MSG', `${this.enemyCfg.name} te observa, callado.`),
     });
   }
@@ -279,8 +283,7 @@ export class CombatScene extends Phaser.Scene {
   doPabloTalk() {
     this.pabloTalkCount++;
     if (this.pabloTalkCount === 1) {
-      this.scene.launch('DialogueScene', {
-        pauseKey: 'CombatScene',
+      this.launchDialog({
         lines: [
           { speaker: 'Pablo', text: 'me voy a follar a tu madre' },
           { speaker: 'Tú', text: '¿¿¿qué has dicho???' },
@@ -291,8 +294,7 @@ export class CombatScene extends Phaser.Scene {
       });
     } else {
       // Segunda vez: el Anillo del Club absorbe el malestar
-      this.scene.launch('DialogueScene', {
-        pauseKey: 'CombatScene',
+      this.launchDialog({
         lines: [
           { speaker: 'Tú', text: '... lo que sabes.' },
           { speaker: 'Anillo', text: '*el Anillo del Club brilla*' },
@@ -302,6 +304,26 @@ export class CombatScene extends Phaser.Scene {
         onClose: () => this.victoryPeaceful(),
       });
     }
+  }
+
+  // Centraliza el lanzamiento de DialogueScene desde el combate.
+  // Marca CombatScene como ocupada (state='DIALOG') ANTES de hacer launch para
+  // que ningún update() residual procese teclas durante la transición a la
+  // dialog (entre el launch y el pause que ocurre en DialogueScene.create()).
+  // Oculta la UI de acciones para evitar pintar el menú "fantasma" detrás del
+  // cuadro de diálogo.
+  launchDialog({ speaker, lines, onClose }) {
+    if (this.state === 'DIALOG') return; // protección contra doble launch
+    this.state = 'DIALOG';
+    this.actionTexts.forEach(t => t.setVisible(false));
+    this.msgText.setText('');
+    const cb = typeof onClose === 'function' ? onClose : null;
+    this.scene.launch('DialogueScene', {
+      speaker,
+      lines,
+      pauseKey: 'CombatScene',
+      onClose: () => { if (cb) cb(); },
+    });
   }
 
   enemyTurn() {

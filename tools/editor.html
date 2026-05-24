@@ -1,0 +1,926 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>elteto · editor</title>
+<style>
+  :root {
+    --bg: #0a0a14;
+    --panel: #14141e;
+    --panel-2: #1a1a26;
+    --border: #2a2a3a;
+    --text: #eee;
+    --muted: #888;
+    --accent: #ffd166;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--text); font: 13px ui-monospace, Menlo, monospace; }
+  header { display: flex; align-items: center; gap: 16px; padding: 12px 20px; border-bottom: 1px solid var(--border); }
+  header h1 { font-size: 14px; margin: 0; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+  .tab-bar { display: flex; gap: 4px; margin-left: auto; }
+  .tab-bar button { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 6px 12px; cursor: pointer; font: inherit; }
+  .tab-bar button.active { color: var(--accent); border-color: var(--accent); }
+  main { display: flex; gap: 20px; padding: 20px; align-items: flex-start; }
+  .panel { background: var(--panel); border: 1px solid var(--border); padding: 14px; }
+  .panel h2 { margin: 0 0 12px; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; }
+
+  /* Sprite tab */
+  #sprite-tab { display: flex; gap: 20px; flex: 1; flex-wrap: wrap; }
+  .preview-stack { display: flex; gap: 12px; align-items: flex-start; }
+  .preview-stack canvas { background: #222; image-rendering: pixelated; image-rendering: crisp-edges; border: 1px solid var(--border); display: block; }
+  .controls { display: grid; grid-template-columns: 1fr auto; gap: 8px 10px; align-items: center; min-width: 260px; }
+  .controls label { font-size: 11px; color: var(--muted); }
+  .controls input[type=color] { width: 60px; height: 26px; border: 1px solid var(--border); background: transparent; padding: 0; cursor: pointer; }
+  .controls select, .controls input[type=text] { background: var(--panel-2); border: 1px solid var(--border); color: var(--text); padding: 4px 6px; font: inherit; }
+  .actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .actions button, .actions select { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); padding: 6px 10px; font: inherit; cursor: pointer; }
+  .actions button:hover { background: #232336; }
+  .actions button.primary { color: var(--accent); border-color: var(--accent); }
+  .spec-json { background: #000; border: 1px solid var(--border); padding: 8px; font-size: 11px; color: var(--muted); white-space: pre; overflow-x: auto; max-width: 360px; }
+  .library { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 6px; max-width: 360px; }
+  .library .slot { background: #111; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 4px; cursor: pointer; }
+  .library .slot canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
+  .library .slot:hover { border-color: var(--accent); }
+  .library .slot .label { font-size: 9px; color: var(--muted); margin-top: 2px; word-break: break-all; text-align: center; }
+
+  /* Room tab */
+  #room-tab { display: none; gap: 20px; flex: 1; align-items: flex-start; }
+  #room-tab.active { display: flex; }
+  .world-wrap { background: #000; border: 1px solid var(--border); overflow: auto; max-height: 70vh; }
+  .world-wrap canvas { image-rendering: pixelated; image-rendering: crisp-edges; display: block; cursor: crosshair; }
+  .room-side { display: flex; flex-direction: column; gap: 12px; min-width: 260px; }
+  .palette { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+  .palette button { background: var(--panel-2); border: 1px solid var(--border); color: var(--text); padding: 6px 4px; font: 11px ui-monospace, monospace; cursor: pointer; min-height: 38px; }
+  .palette button.active { border-color: var(--accent); color: var(--accent); }
+  .props { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; font-size: 11px; align-items: center; }
+  .props input, .props textarea, .props select { background: var(--panel-2); border: 1px solid var(--border); color: var(--text); padding: 4px 6px; font: inherit; }
+  .props textarea { min-height: 60px; font-family: ui-monospace, monospace; resize: vertical; }
+  .hint { font-size: 10px; color: var(--muted); }
+  .danger { color: #ff7766; }
+</style>
+</head>
+<body>
+<header>
+  <h1>elteto · editor</h1>
+  <div class="tab-bar">
+    <button id="tab-sprite" class="active">SPRITES</button>
+    <button id="tab-room">HABITACIONES</button>
+  </div>
+</header>
+
+<main id="sprite-tab">
+  <div class="panel">
+    <h2>preview</h2>
+    <div class="preview-stack">
+      <div>
+        <div class="hint" style="text-align:center">×8</div>
+        <canvas id="sp-big" width="192" height="256"></canvas>
+      </div>
+      <div>
+        <div class="hint" style="text-align:center">×4</div>
+        <canvas id="sp-mid" width="96" height="128"></canvas>
+      </div>
+      <div>
+        <div class="hint" style="text-align:center">1:1</div>
+        <canvas id="sp-small" width="24" height="32"></canvas>
+      </div>
+    </div>
+    <div class="actions">
+      <button id="sp-save-png" class="primary">Guardar PNG</button>
+      <button id="sp-save-lib">Añadir a biblioteca</button>
+      <button id="sp-export-lib">Exportar biblioteca (JSON)</button>
+      <button id="sp-import-lib">Importar biblioteca</button>
+      <input type="file" id="sp-import-input" accept="application/json" hidden>
+    </div>
+    <div class="hint" style="margin-top:10px">El PNG se guarda como <code>&lt;id&gt;.png</code> (24×32). La biblioteca queda en localStorage; exporta el JSON para versionarla.</div>
+  </div>
+
+  <div class="panel">
+    <h2>parámetros</h2>
+    <div class="controls">
+      <label for="sp-id">ID</label>
+      <input type="text" id="sp-id" value="nuevo" />
+
+      <label for="sp-style">Estilo de pelo</label>
+      <select id="sp-style"></select>
+
+      <label for="sp-hair">Pelo</label>
+      <input type="color" id="sp-hair" value="#6a4a2a" />
+
+      <label for="sp-skin">Piel</label>
+      <input type="color" id="sp-skin" value="#f8d0aa" />
+
+      <label for="sp-shirt">Camiseta</label>
+      <input type="color" id="sp-shirt" value="#e8e0d0" />
+
+      <label for="sp-pants">Pantalón</label>
+      <input type="color" id="sp-pants" value="#335533" />
+    </div>
+    <div class="actions">
+      <select id="sp-load-catalog"><option value="">— cargar del catálogo —</option></select>
+    </div>
+    <h2 style="margin-top:18px">spec</h2>
+    <pre id="sp-spec" class="spec-json"></pre>
+  </div>
+
+  <div class="panel">
+    <h2>biblioteca</h2>
+    <div id="sp-library" class="library"></div>
+    <div class="hint" style="margin-top:10px">Click = cargar · Shift+click = borrar</div>
+  </div>
+</main>
+
+<main id="room-tab">
+  <div class="panel" style="flex:1">
+    <h2 id="room-title">habitación: <span id="room-name">nueva</span></h2>
+    <div class="world-wrap">
+      <canvas id="world"></canvas>
+    </div>
+    <div class="hint" style="margin-top:8px">Click: colocar · Shift+click: borrar · Arrastra para mover el seleccionado</div>
+  </div>
+
+  <div class="room-side">
+    <div class="panel">
+      <h2>paleta</h2>
+      <div class="palette" id="room-palette"></div>
+    </div>
+
+    <div class="panel">
+      <h2>props del elemento</h2>
+      <div id="props-empty" class="hint">(selecciona un elemento)</div>
+      <div id="props-form" style="display:none">
+        <div class="props" id="props-grid"></div>
+        <div class="actions" style="margin-top:8px">
+          <button id="props-delete" class="danger">Borrar elemento</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>habitación</h2>
+      <div class="props">
+        <label>Nombre</label><input type="text" id="room-name-input" value="NuevaSala" />
+        <label>Ancho (px)</label><input type="number" id="room-w" value="480" min="160" step="16" />
+        <label>Alto (px)</label><input type="number" id="room-h" value="180" min="180" step="16" />
+        <label>BG</label><input type="color" id="room-bg" value="#2a2440" />
+        <label>Zoom</label><input type="range" id="room-zoom" min="1" max="6" step="1" value="3" />
+      </div>
+      <div class="actions">
+        <button id="room-export" class="primary">Exportar JSON</button>
+        <button id="room-import">Importar JSON</button>
+        <input type="file" id="room-import-input" accept="application/json" hidden>
+      </div>
+      <div class="actions">
+        <select id="room-load-existing">
+          <option value="">— cargar sala existente —</option>
+          <option value="aula">Aula</option>
+          <option value="biblioteca">Biblioteca</option>
+          <option value="patio">Patio</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import { paintSprite, DRAWERS, HAIR_STYLES, SPRITE_W, SPRITE_H } from '../src/sprite-defs.js';
+import { SPRITE_CATALOG } from './lib/sprite-catalog.mjs';
+
+// ============================================================
+// ADAPTERS
+// ============================================================
+
+// Adapter Canvas2D que cumple la interfaz mínima g.fillStyle(int).fillRect(...)
+function canvasAdapter(ctx) {
+  return {
+    _ctx: ctx,
+    fillStyle(color) {
+      this._ctx.fillStyle = '#' + (color >>> 0).toString(16).padStart(6, '0');
+      return this;
+    },
+    fillRect(x, y, w, h) {
+      this._ctx.fillRect(x, y, w, h);
+      return this;
+    },
+  };
+}
+
+// ============================================================
+// SPRITE TAB
+// ============================================================
+
+const styleSelect = document.getElementById('sp-style');
+HAIR_STYLES.forEach(s => {
+  const o = document.createElement('option'); o.value = s; o.textContent = s; styleSelect.appendChild(o);
+});
+
+const loadCatalog = document.getElementById('sp-load-catalog');
+SPRITE_CATALOG.forEach(({ id }) => {
+  const o = document.createElement('option'); o.value = id; o.textContent = id;
+  loadCatalog.appendChild(o);
+});
+
+const ids = {
+  id: document.getElementById('sp-id'),
+  style: styleSelect,
+  hair: document.getElementById('sp-hair'),
+  skin: document.getElementById('sp-skin'),
+  shirt: document.getElementById('sp-shirt'),
+  pants: document.getElementById('sp-pants'),
+  big: document.getElementById('sp-big'),
+  mid: document.getElementById('sp-mid'),
+  small: document.getElementById('sp-small'),
+  spec: document.getElementById('sp-spec'),
+};
+
+function hexToInt(hex) { return parseInt(hex.slice(1), 16); }
+function intToHex(i) { return '#' + (i >>> 0).toString(16).padStart(6, '0'); }
+
+function currentSpec() {
+  return {
+    hairStyle: ids.style.value,
+    hair: hexToInt(ids.hair.value),
+    skin: hexToInt(ids.skin.value),
+    shirt: hexToInt(ids.shirt.value),
+    pants: hexToInt(ids.pants.value),
+  };
+}
+
+function renderSprite() {
+  const spec = currentSpec();
+  for (const c of [ids.big, ids.mid, ids.small]) {
+    const ctx = c.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, c.width, c.height);
+    const scale = c.width / SPRITE_W;
+    ctx.save();
+    ctx.scale(scale, scale);
+    paintSprite(canvasAdapter(ctx), spec);
+    ctx.restore();
+  }
+  ids.spec.textContent = JSON.stringify(spec, null, 2);
+}
+
+for (const k of ['style', 'hair', 'skin', 'shirt', 'pants']) {
+  ids[k].addEventListener('input', renderSprite);
+}
+
+function loadSpec(id, spec) {
+  ids.id.value = id;
+  ids.style.value = spec.hairStyle;
+  ids.hair.value = intToHex(spec.hair);
+  ids.skin.value = intToHex(spec.skin);
+  ids.shirt.value = intToHex(spec.shirt);
+  ids.pants.value = intToHex(spec.pants);
+  renderSprite();
+}
+
+loadCatalog.addEventListener('change', (e) => {
+  const id = e.target.value;
+  if (!id) return;
+  const entry = SPRITE_CATALOG.find(x => x.id === id);
+  if (entry) loadSpec(entry.id, entry.spec);
+  e.target.value = '';
+});
+
+// Render a 24×32 PNG dataURL del spec actual
+function renderToPng() {
+  const c = document.createElement('canvas');
+  c.width = SPRITE_W; c.height = SPRITE_H;
+  const ctx = c.getContext('2d');
+  paintSprite(canvasAdapter(ctx), currentSpec());
+  return c.toDataURL('image/png');
+}
+
+document.getElementById('sp-save-png').addEventListener('click', () => {
+  const a = document.createElement('a');
+  a.href = renderToPng();
+  a.download = `${ids.id.value || 'sprite'}.png`;
+  a.click();
+});
+
+// Biblioteca en localStorage
+const LIB_KEY = 'elteto_sprite_library';
+function loadLib() {
+  try { return JSON.parse(localStorage.getItem(LIB_KEY) || '{}'); }
+  catch { return {}; }
+}
+function saveLib(lib) { localStorage.setItem(LIB_KEY, JSON.stringify(lib)); }
+
+function renderLibrary() {
+  const lib = loadLib();
+  const container = document.getElementById('sp-library');
+  container.innerHTML = '';
+  const ids2 = Object.keys(lib).sort();
+  if (ids2.length === 0) {
+    container.innerHTML = '<div class="hint">(vacía)</div>';
+    return;
+  }
+  for (const id of ids2) {
+    const spec = lib[id];
+    const slot = document.createElement('div');
+    slot.className = 'slot';
+    const cv = document.createElement('canvas');
+    cv.width = 48; cv.height = 64;
+    const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false;
+    ctx.scale(2, 2);
+    paintSprite(canvasAdapter(ctx), spec);
+    slot.appendChild(cv);
+    const label = document.createElement('div'); label.className = 'label'; label.textContent = id;
+    slot.appendChild(label);
+    slot.addEventListener('click', (e) => {
+      if (e.shiftKey) {
+        if (confirm(`Borrar "${id}" de la biblioteca?`)) {
+          const lib2 = loadLib(); delete lib2[id]; saveLib(lib2); renderLibrary();
+        }
+        return;
+      }
+      loadSpec(id, spec);
+    });
+    container.appendChild(slot);
+  }
+}
+
+document.getElementById('sp-save-lib').addEventListener('click', () => {
+  const id = (ids.id.value || '').trim();
+  if (!id) { alert('Pon un ID antes.'); return; }
+  const lib = loadLib();
+  if (lib[id] && !confirm(`"${id}" ya existe. Sobrescribir?`)) return;
+  lib[id] = currentSpec();
+  saveLib(lib);
+  renderLibrary();
+});
+
+document.getElementById('sp-export-lib').addEventListener('click', () => {
+  const lib = loadLib();
+  const blob = new Blob([JSON.stringify(lib, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `elteto-sprites-${Date.now()}.json`;
+  a.click();
+});
+
+document.getElementById('sp-import-lib').addEventListener('click', () => {
+  document.getElementById('sp-import-input').click();
+});
+document.getElementById('sp-import-input').addEventListener('change', async (e) => {
+  const file = e.target.files[0]; if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    if (typeof data !== 'object' || data === null) throw new Error();
+    const lib = loadLib();
+    Object.assign(lib, data);
+    saveLib(lib);
+    renderLibrary();
+  } catch { alert('JSON inválido'); }
+  e.target.value = '';
+});
+
+// Init sprite tab
+renderSprite();
+renderLibrary();
+
+// ============================================================
+// ROOM TAB
+// ============================================================
+
+// Texturas estáticas del juego, redibujadas aquí (igual de pequeñas que las
+// del juego: si en src/scenes/RoomScene.makeStaticTextures cambian, hay que
+// reflejarlo aquí). Cada función pinta sobre un Canvas2D a coordenadas 1:1.
+const TILES = {
+  tile: { w: 16, h: 16, draw: (ctx) => {
+    ctx.fillStyle = '#6b4226'; ctx.fillRect(0,0,16,16);
+    ctx.fillStyle = '#8b5a36'; ctx.fillRect(0,0,16,3);
+  }},
+  grass: { w: 16, h: 16, draw: (ctx) => {
+    ctx.fillStyle = '#4a3018'; ctx.fillRect(0,0,16,16);
+    ctx.fillStyle = '#4caf50'; ctx.fillRect(0,0,16,4);
+    ctx.fillStyle = '#66bb6a'; ctx.fillRect(2,0,2,2); ctx.fillRect(10,1,2,2);
+  }},
+  ladder: { w: 16, h: 16, draw: (ctx) => {
+    ctx.fillStyle = '#c88a3a';
+    ctx.fillRect(3,0,2,16); ctx.fillRect(11,0,2,16);
+    ctx.fillRect(2,2,12,2); ctx.fillRect(2,8,12,2); ctx.fillRect(2,14,12,2);
+  }},
+  rope: { w: 16, h: 16, draw: (ctx) => {
+    ctx.fillStyle = '#b88a3a'; ctx.fillRect(7,0,2,16);
+    ctx.fillStyle = '#a07020'; ctx.fillRect(7,4,2,1); ctx.fillRect(7,11,2,1);
+  }},
+  lattice: { w: 16, h: 16, draw: (ctx) => {
+    ctx.fillStyle = '#888';
+    for (let i = 0; i <= 16; i += 4) {
+      ctx.fillRect(0, i, 16, 1);
+      ctx.fillRect(i, 0, 1, 16);
+    }
+  }},
+  door: { w: 16, h: 24, draw: (ctx) => {
+    ctx.fillStyle = '#4a2511'; ctx.fillRect(0,0,16,24);
+    ctx.fillStyle = '#2a1408'; ctx.fillRect(2,2,12,20);
+    ctx.fillStyle = '#ffd166'; ctx.fillRect(11,12,2,2);
+  }},
+  sign: { w: 8, h: 10, draw: (ctx) => {
+    ctx.fillStyle = '#eee'; ctx.fillRect(0,0,8,6);
+    ctx.fillStyle = '#4a2511'; ctx.fillRect(3,6,2,4);
+  }},
+  chalkboard: { w: 32, h: 20, draw: (ctx) => {
+    ctx.fillStyle = '#6a4a2a'; ctx.fillRect(0,0,32,20);
+    ctx.fillStyle = '#1a3a2a'; ctx.fillRect(2,2,28,16);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(5,6,1,1); ctx.fillRect(5,8,6,1); ctx.fillRect(5,12,4,1);
+  }},
+  desk: { w: 14, h: 10, draw: (ctx) => {
+    ctx.fillStyle = '#8b5a36'; ctx.fillRect(0,0,14,4);
+    ctx.fillStyle = '#6b4226'; ctx.fillRect(2,4,2,6); ctx.fillRect(10,4,2,6);
+  }},
+  shelf: { w: 16, h: 32, draw: (ctx) => {
+    ctx.fillStyle = '#3a1f0a'; ctx.fillRect(0,0,16,32);
+    const palette = ['#4a8aaa', '#aa4a4a', '#4aaa4a', '#aaaa4a', '#aa4aaa'];
+    ctx.fillStyle = '#b88a3a';
+    ctx.fillRect(1,1,14,6); ctx.fillRect(1,9,14,6); ctx.fillRect(1,17,14,6);
+    const layout = [
+      [[2,2,palette[0]],[5,2,palette[1]],[8,2,palette[2]],[11,2,palette[3]]],
+      [[2,10,palette[1]],[5,10,palette[2]],[8,10,palette[0]],[11,10,palette[4]]],
+      [[2,18,palette[2]],[5,18,palette[4]],[8,18,palette[3]],[11,18,palette[1]]],
+    ];
+    for (const row of layout) for (const [x,y,c] of row) { ctx.fillStyle = c; ctx.fillRect(x,y,2,5); }
+  }},
+  ball: { w: 6, h: 6, draw: (ctx) => {
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(3,3,3,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#222';
+    ctx.fillRect(2,0,2,1); ctx.fillRect(2,5,2,1); ctx.fillRect(0,2,1,2); ctx.fillRect(5,2,1,2);
+  }},
+};
+
+// Tool: lo que vamos a colocar al hacer click
+const TOOLS = [
+  { id: 'select',     label: 'Selección' },
+  { id: 'platform',   label: 'Suelo (tile)',  tex: 'tile' },
+  { id: 'platform_g', label: 'Hierba',        tex: 'grass' },
+  { id: 'climb_l',    label: 'Escalera',      tex: 'ladder' },
+  { id: 'climb_r',    label: 'Cuerda',        tex: 'rope' },
+  { id: 'climb_x',    label: 'Celosía',       tex: 'lattice' },
+  { id: 'door',       label: 'Puerta' },
+  { id: 'sign',       label: 'Cartel' },
+  { id: 'decor_cb',   label: 'Pizarra',       tex: 'chalkboard' },
+  { id: 'decor_desk', label: 'Pupitre',       tex: 'desk' },
+  { id: 'decor_sh',   label: 'Estantería',    tex: 'shelf' },
+  { id: 'decor_ball', label: 'Pelota',        tex: 'ball' },
+  { id: 'npc',        label: 'NPC' },
+];
+
+// Estado de la sala
+const room = {
+  name: 'NuevaSala',
+  worldWidth: 480,
+  worldHeight: 180,
+  bgColor: '#2a2440',
+  platforms: [],   // {x,y,w,h,tex}
+  climbs: [],      // {x,y,h,type}
+  doors: [],       // {x,y,target,spawnX,spawnY,label}
+  signs: [],       // {x,y,text}
+  decor: [],       // {x,y,tex}
+  npcs: [],        // {id,name,x,y,sprite,lifespan,dialogue?}
+  enemies: [],     // {id,x,y,ref}
+};
+let activeTool = 'select';
+let selected = null; // { kind, index } | null
+let zoom = 3;
+
+// Pinta sprite en canvas (búsqueda en catálogo + biblioteca)
+function specForSpriteId(id) {
+  const c = SPRITE_CATALOG.find(x => x.id === id);
+  if (c) return c.spec;
+  const lib = loadLib();
+  return lib[id] || null;
+}
+
+const worldCanvas = document.getElementById('world');
+const wctx = worldCanvas.getContext('2d');
+
+function redrawWorld() {
+  worldCanvas.width = room.worldWidth * zoom;
+  worldCanvas.height = room.worldHeight * zoom;
+  wctx.imageSmoothingEnabled = false;
+  wctx.save();
+  wctx.scale(zoom, zoom);
+
+  // Fondo
+  wctx.fillStyle = room.bgColor;
+  wctx.fillRect(0, 0, room.worldWidth, room.worldHeight);
+
+  // Grid sutil cada 16 px
+  wctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  wctx.lineWidth = 1 / zoom;
+  for (let x = 0; x <= room.worldWidth; x += 16) {
+    wctx.beginPath(); wctx.moveTo(x, 0); wctx.lineTo(x, room.worldHeight); wctx.stroke();
+  }
+  for (let y = 0; y <= room.worldHeight; y += 16) {
+    wctx.beginPath(); wctx.moveTo(0, y); wctx.lineTo(room.worldWidth, y); wctx.stroke();
+  }
+
+  // Platforms
+  for (const p of room.platforms) {
+    const tex = TILES[p.tex] || TILES.tile;
+    for (let i = 0; i < p.w; i++) {
+      for (let j = 0; j < p.h; j++) {
+        wctx.save();
+        wctx.translate(p.x + i * tex.w, p.y + j * tex.h);
+        tex.draw(wctx);
+        wctx.restore();
+      }
+    }
+  }
+  // Climbs
+  for (const c of room.climbs) {
+    const tex = TILES[c.type] || TILES.ladder;
+    for (let j = 0; j < c.h; j++) {
+      wctx.save();
+      wctx.translate(c.x, c.y + j * tex.h);
+      tex.draw(wctx);
+      wctx.restore();
+    }
+  }
+  // Decor
+  for (const d of room.decor) {
+    const tex = TILES[d.tex] || TILES.desk;
+    wctx.save(); wctx.translate(d.x, d.y); tex.draw(wctx); wctx.restore();
+  }
+  // Doors
+  for (const d of room.doors) {
+    wctx.save(); wctx.translate(d.x, d.y); TILES.door.draw(wctx); wctx.restore();
+  }
+  // Signs
+  for (const s of room.signs) {
+    wctx.save(); wctx.translate(s.x, s.y); TILES.sign.draw(wctx); wctx.restore();
+  }
+  // NPCs
+  for (const n of room.npcs) {
+    const spec = specForSpriteId(n.sprite);
+    if (spec) {
+      wctx.save();
+      wctx.translate(n.x, n.y);
+      paintSprite(canvasAdapter(wctx), spec);
+      wctx.restore();
+    } else {
+      wctx.fillStyle = '#ff00ff';
+      wctx.fillRect(n.x, n.y, SPRITE_W, SPRITE_H);
+    }
+  }
+  // Enemies (placeholder)
+  for (const e of room.enemies) {
+    wctx.fillStyle = '#aa4444';
+    wctx.fillRect(e.x, e.y, 16, 16);
+  }
+
+  // Selección
+  if (selected) {
+    const r = bboxOf(selected);
+    if (r) {
+      wctx.strokeStyle = '#ffd166';
+      wctx.lineWidth = 1 / zoom;
+      wctx.strokeRect(r.x - 0.5, r.y - 0.5, r.w + 1, r.h + 1);
+    }
+  }
+
+  wctx.restore();
+}
+
+function bboxOf(sel) {
+  const arr = room[sel.kind];
+  if (!arr) return null;
+  const it = arr[sel.index];
+  if (!it) return null;
+  if (sel.kind === 'platforms') {
+    const tex = TILES[it.tex] || TILES.tile;
+    return { x: it.x, y: it.y, w: it.w * tex.w, h: it.h * tex.h };
+  }
+  if (sel.kind === 'climbs') {
+    const tex = TILES[it.type] || TILES.ladder;
+    return { x: it.x, y: it.y, w: tex.w, h: it.h * tex.h };
+  }
+  if (sel.kind === 'doors') return { x: it.x, y: it.y, w: 16, h: 24 };
+  if (sel.kind === 'signs') return { x: it.x, y: it.y, w: 8, h: 10 };
+  if (sel.kind === 'decor') {
+    const tex = TILES[it.tex] || TILES.desk;
+    return { x: it.x, y: it.y, w: tex.w, h: tex.h };
+  }
+  if (sel.kind === 'npcs') return { x: it.x, y: it.y, w: SPRITE_W, h: SPRITE_H };
+  if (sel.kind === 'enemies') return { x: it.x, y: it.y, w: 16, h: 16 };
+  return null;
+}
+
+function hitTest(px, py) {
+  // Buscar de "encima" a "debajo" — sprites/decor primero, suelo último
+  const order = ['npcs', 'enemies', 'doors', 'signs', 'decor', 'climbs', 'platforms'];
+  for (const kind of order) {
+    const arr = room[kind];
+    for (let i = arr.length - 1; i >= 0; i--) {
+      const sel = { kind, index: i };
+      const r = bboxOf(sel);
+      if (!r) continue;
+      if (px >= r.x && px < r.x + r.w && py >= r.y && py < r.y + r.h) return sel;
+    }
+  }
+  return null;
+}
+
+// Paleta
+const paletteEl = document.getElementById('room-palette');
+TOOLS.forEach(t => {
+  const b = document.createElement('button');
+  b.textContent = t.label;
+  b.dataset.tool = t.id;
+  if (t.id === activeTool) b.classList.add('active');
+  b.addEventListener('click', () => {
+    activeTool = t.id;
+    paletteEl.querySelectorAll('button').forEach(x => x.classList.toggle('active', x.dataset.tool === t.id));
+    selected = null;
+    refreshProps();
+    redrawWorld();
+  });
+  paletteEl.appendChild(b);
+});
+
+function placeAt(px, py) {
+  // snapear a 16 px (excepto sprites: snap a 8)
+  const snap16 = (v) => Math.floor(v / 16) * 16;
+  const snap8  = (v) => Math.floor(v / 8) * 8;
+  switch (activeTool) {
+    case 'platform':   room.platforms.push({ x: snap16(px), y: snap16(py), w: 1, h: 1, tex: 'tile' }); return { kind:'platforms', index: room.platforms.length-1 };
+    case 'platform_g': room.platforms.push({ x: snap16(px), y: snap16(py), w: 1, h: 1, tex: 'grass' }); return { kind:'platforms', index: room.platforms.length-1 };
+    case 'climb_l':    room.climbs.push({ x: snap16(px), y: snap16(py), h: 1, type: 'ladder' }); return { kind:'climbs', index: room.climbs.length-1 };
+    case 'climb_r':    room.climbs.push({ x: snap16(px), y: snap16(py), h: 1, type: 'rope' }); return { kind:'climbs', index: room.climbs.length-1 };
+    case 'climb_x':    room.climbs.push({ x: snap16(px), y: snap16(py), h: 1, type: 'lattice' }); return { kind:'climbs', index: room.climbs.length-1 };
+    case 'door':       room.doors.push({ x: snap8(px), y: snap8(py), target: 'Aula', spawnX: 24, spawnY: 144, label: 'puerta' }); return { kind:'doors', index: room.doors.length-1 };
+    case 'sign':       room.signs.push({ x: snap8(px), y: snap8(py), text: 'cartel' }); return { kind:'signs', index: room.signs.length-1 };
+    case 'decor_cb':   room.decor.push({ x: snap8(px), y: snap8(py), tex: 'chalkboard' }); return { kind:'decor', index: room.decor.length-1 };
+    case 'decor_desk': room.decor.push({ x: snap8(px), y: snap8(py), tex: 'desk' }); return { kind:'decor', index: room.decor.length-1 };
+    case 'decor_sh':   room.decor.push({ x: snap8(px), y: snap8(py), tex: 'shelf' }); return { kind:'decor', index: room.decor.length-1 };
+    case 'decor_ball': room.decor.push({ x: snap8(px), y: snap8(py), tex: 'ball' }); return { kind:'decor', index: room.decor.length-1 };
+    case 'npc':
+      const cat = SPRITE_CATALOG[0];
+      room.npcs.push({ id: 'nuevo', name: 'NPC', x: snap8(px), y: snap8(py), sprite: cat.id, lifespan: 120, dialogue: ['...'] });
+      return { kind:'npcs', index: room.npcs.length-1 };
+  }
+  return null;
+}
+
+// Eventos en el canvas
+let dragging = null; // { kind, index, offX, offY }
+worldCanvas.addEventListener('mousedown', (e) => {
+  const rect = worldCanvas.getBoundingClientRect();
+  const px = Math.floor((e.clientX - rect.left) / zoom);
+  const py = Math.floor((e.clientY - rect.top) / zoom);
+
+  if (e.shiftKey) {
+    const h = hitTest(px, py);
+    if (h) {
+      room[h.kind].splice(h.index, 1);
+      selected = null; refreshProps(); redrawWorld();
+    }
+    return;
+  }
+
+  if (activeTool === 'select') {
+    selected = hitTest(px, py);
+    if (selected) {
+      const r = bboxOf(selected);
+      dragging = { ...selected, offX: px - r.x, offY: py - r.y };
+    }
+    refreshProps();
+    redrawWorld();
+    return;
+  }
+
+  selected = placeAt(px, py);
+  refreshProps();
+  redrawWorld();
+});
+worldCanvas.addEventListener('mousemove', (e) => {
+  if (!dragging) return;
+  const rect = worldCanvas.getBoundingClientRect();
+  const px = Math.floor((e.clientX - rect.left) / zoom);
+  const py = Math.floor((e.clientY - rect.top) / zoom);
+  const it = room[dragging.kind][dragging.index];
+  if (!it) return;
+  it.x = Math.max(0, px - dragging.offX);
+  it.y = Math.max(0, py - dragging.offY);
+  refreshProps();
+  redrawWorld();
+});
+window.addEventListener('mouseup', () => { dragging = null; });
+
+// Props del elemento seleccionado
+function refreshProps() {
+  const form = document.getElementById('props-form');
+  const empty = document.getElementById('props-empty');
+  const grid = document.getElementById('props-grid');
+  if (!selected) {
+    form.style.display = 'none';
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+  form.style.display = '';
+  grid.innerHTML = '';
+  const it = room[selected.kind][selected.index];
+  if (!it) { selected = null; refreshProps(); return; }
+
+  const addRow = (label, input) => {
+    const l = document.createElement('label'); l.textContent = label;
+    grid.appendChild(l); grid.appendChild(input);
+  };
+  const numInput = (key) => {
+    const i = document.createElement('input'); i.type = 'number'; i.value = it[key] ?? 0;
+    i.addEventListener('input', () => { it[key] = parseInt(i.value, 10) || 0; redrawWorld(); });
+    return i;
+  };
+  const txtInput = (key) => {
+    const i = document.createElement('input'); i.type = 'text'; i.value = it[key] ?? '';
+    i.addEventListener('input', () => { it[key] = i.value; redrawWorld(); });
+    return i;
+  };
+  const txtArea = (key) => {
+    const t = document.createElement('textarea'); t.value = (it[key] || []).join('\n');
+    t.addEventListener('input', () => { it[key] = t.value.split('\n').filter(s => s.length); });
+    return t;
+  };
+  const spriteSelect = () => {
+    const s = document.createElement('select');
+    const all = new Set([...SPRITE_CATALOG.map(x=>x.id), ...Object.keys(loadLib())]);
+    for (const id of all) {
+      const o = document.createElement('option'); o.value = id; o.textContent = id;
+      if (id === it.sprite) o.selected = true;
+      s.appendChild(o);
+    }
+    s.addEventListener('change', () => { it.sprite = s.value; redrawWorld(); });
+    return s;
+  };
+  const texSelect = (options) => {
+    const s = document.createElement('select');
+    for (const id of options) {
+      const o = document.createElement('option'); o.value = id; o.textContent = id;
+      if (id === it.tex) o.selected = true;
+      s.appendChild(o);
+    }
+    s.addEventListener('change', () => { it.tex = s.value; redrawWorld(); });
+    return s;
+  };
+  const typeSelect = () => {
+    const s = document.createElement('select');
+    for (const id of ['ladder','rope','lattice']) {
+      const o = document.createElement('option'); o.value = id; o.textContent = id;
+      if (id === it.type) o.selected = true;
+      s.appendChild(o);
+    }
+    s.addEventListener('change', () => { it.type = s.value; redrawWorld(); });
+    return s;
+  };
+
+  addRow('x', numInput('x'));
+  addRow('y', numInput('y'));
+
+  if (selected.kind === 'platforms') {
+    addRow('w (tiles)', numInput('w'));
+    addRow('h (tiles)', numInput('h'));
+    addRow('tex', texSelect(['tile','grass']));
+  } else if (selected.kind === 'climbs') {
+    addRow('h (tiles)', numInput('h'));
+    addRow('type', typeSelect());
+  } else if (selected.kind === 'doors') {
+    addRow('target', txtInput('target'));
+    addRow('spawnX', numInput('spawnX'));
+    addRow('spawnY', numInput('spawnY'));
+    addRow('label', txtInput('label'));
+  } else if (selected.kind === 'signs') {
+    addRow('texto', (() => {
+      const t = document.createElement('textarea'); t.value = it.text || '';
+      t.addEventListener('input', () => { it.text = t.value; });
+      return t;
+    })());
+  } else if (selected.kind === 'decor') {
+    addRow('tex', texSelect(['chalkboard','desk','shelf','ball']));
+  } else if (selected.kind === 'npcs') {
+    addRow('id', txtInput('id'));
+    addRow('name', txtInput('name'));
+    addRow('sprite', spriteSelect());
+    addRow('lifespan', numInput('lifespan'));
+    addRow('dialogue', txtArea('dialogue'));
+  } else if (selected.kind === 'enemies') {
+    addRow('id', txtInput('id'));
+    addRow('ref', txtInput('ref'));
+  }
+}
+
+document.getElementById('props-delete').addEventListener('click', () => {
+  if (!selected) return;
+  room[selected.kind].splice(selected.index, 1);
+  selected = null;
+  refreshProps();
+  redrawWorld();
+});
+
+// Habitación: props globales
+const roomNameInput = document.getElementById('room-name-input');
+roomNameInput.addEventListener('input', () => {
+  room.name = roomNameInput.value;
+  document.getElementById('room-name').textContent = room.name;
+});
+document.getElementById('room-w').addEventListener('input', (e) => {
+  room.worldWidth = Math.max(160, parseInt(e.target.value, 10) || 320); redrawWorld();
+});
+document.getElementById('room-h').addEventListener('input', (e) => {
+  room.worldHeight = Math.max(180, parseInt(e.target.value, 10) || 180); redrawWorld();
+});
+document.getElementById('room-bg').addEventListener('input', (e) => {
+  room.bgColor = e.target.value; redrawWorld();
+});
+document.getElementById('room-zoom').addEventListener('input', (e) => {
+  zoom = parseInt(e.target.value, 10) || 3; redrawWorld();
+});
+
+// Import / Export
+document.getElementById('room-export').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(room, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${room.name.toLowerCase()}.json`;
+  a.click();
+});
+document.getElementById('room-import').addEventListener('click', () => {
+  document.getElementById('room-import-input').click();
+});
+document.getElementById('room-import-input').addEventListener('change', async (e) => {
+  const file = e.target.files[0]; if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    loadRoom(data);
+  } catch { alert('JSON inválido'); }
+  e.target.value = '';
+});
+
+async function loadExisting(name) {
+  try {
+    const resp = await fetch(`../assets/rooms/${name}.json`);
+    if (!resp.ok) throw new Error('no encontrado');
+    loadRoom(await resp.json());
+  } catch (err) {
+    alert('No se puede cargar la sala. ¿Estás sirviendo el proyecto por HTTP?');
+  }
+}
+
+function loadRoom(data) {
+  // Mezcla con defaults para tolerar campos opcionales
+  room.name = data.name || 'sala';
+  room.worldWidth = data.worldWidth || 480;
+  room.worldHeight = data.worldHeight || 180;
+  room.bgColor = data.bgColor || '#2a2440';
+  room.platforms = data.platforms || [];
+  room.climbs = data.climbs || [];
+  room.doors = data.doors || [];
+  room.signs = data.signs || [];
+  room.decor = data.decor || [];
+  room.npcs = data.npcs || [];
+  room.enemies = data.enemies || [];
+  // Reflejar en UI
+  roomNameInput.value = room.name;
+  document.getElementById('room-name').textContent = room.name;
+  document.getElementById('room-w').value = room.worldWidth;
+  document.getElementById('room-h').value = room.worldHeight;
+  document.getElementById('room-bg').value = room.bgColor;
+  selected = null;
+  refreshProps();
+  redrawWorld();
+}
+
+document.getElementById('room-load-existing').addEventListener('change', (e) => {
+  if (e.target.value) { loadExisting(e.target.value); e.target.value = ''; }
+});
+
+// Init
+redrawWorld();
+refreshProps();
+
+// ============================================================
+// TABS
+// ============================================================
+
+const spriteTab = document.getElementById('sprite-tab');
+const roomTab = document.getElementById('room-tab');
+document.getElementById('tab-sprite').addEventListener('click', () => {
+  document.getElementById('tab-sprite').classList.add('active');
+  document.getElementById('tab-room').classList.remove('active');
+  spriteTab.style.display = 'flex';
+  roomTab.classList.remove('active');
+});
+document.getElementById('tab-room').addEventListener('click', () => {
+  document.getElementById('tab-room').classList.add('active');
+  document.getElementById('tab-sprite').classList.remove('active');
+  spriteTab.style.display = 'none';
+  roomTab.classList.add('active');
+  redrawWorld();
+});
+
+</script>
+</body>
+</html>

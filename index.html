@@ -6,21 +6,36 @@
   <style>
     html, body {
       margin: 0;
-      height: 100%;
+      min-height: 100%;
       background: #0a0a14;
-      overflow: hidden;
       font-family: ui-monospace, Menlo, monospace;
       color: #eee;
     }
-    #game { display: grid; place-items: center; height: 100%; }
-    canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 0 32px;
+      gap: 12px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 14px;
+      letter-spacing: 2px;
+      color: #888;
+      text-transform: uppercase;
+    }
+    #game {
+      /* La ventana del juego es el canvas (320×180 × zoom). El marco se ajusta. */
+      border: 1px solid #2a2a3a;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+      line-height: 0;
+      background: #000;
+    }
+    canvas { image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
     #ui {
-      position: fixed;
-      top: 8px;
-      left: 8px;
       display: flex;
       gap: 6px;
-      z-index: 10;
     }
     button {
       padding: 6px 10px;
@@ -32,15 +47,22 @@
       font-size: 12px;
     }
     button:hover { background: #2a2a3a; }
+    .hint {
+      font-size: 10px;
+      color: #555;
+      letter-spacing: 1px;
+    }
   </style>
 </head>
 <body>
+  <h1>elteto</h1>
+  <div id="game"></div>
   <div id="ui">
     <button id="btn-save">Guardar partida</button>
     <button id="btn-load">Cargar partida</button>
     <input type="file" id="file-input" accept="application/json" hidden>
   </div>
-  <div id="game"></div>
+  <div class="hint">← → mover · ↑↓ escalar · [E] hablar · [TAB] menú · [-] visión · [SPACE] confirmar</div>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
   <script type="module" src="src/main.js"></script>
 </body>

@@ -35,7 +35,8 @@ export class RoomScene extends Phaser.Scene {
     this.decor = this.add.group();
 
     this.labels = [];
-    this.trail = [];
+    // trail se inicializa en spawnPartyAndFollowers() — pre-rellenado para
+    // que los followers no salten al spawn en el primer frame.
 
     this.buildRoom();
     this.spawnPartyAndFollowers();
@@ -59,14 +60,32 @@ export class RoomScene extends Phaser.Scene {
     // y bordes sea más permisivo
     this.player.body.setSize(SPRITE_W - 4, SPRITE_H - 2);
     this.player.body.setOffset(2, 1);
+    this.player.setDepth(10); // por encima de los followers
     this.physics.add.collider(this.player, this.platforms);
 
-    // Followers — sin físicas, posicionados desde el trail del player
+    // Followers — sin físicas, posicionados desde el trail del player.
+    // Se spawn DESPLAZADOS a la izquierda para que sean visibles ya en frame 0
+    // (si nacieran sobre el player, el último insertado lo tapa hasta que el
+    // trail se llene y se separen).
     this.followers = [];
+    this.trail = [];
+    const FOLLOWER_GAP = 14;
+    const FOLLOWER_LAG = 20; // frames de lag entre cada follower
     for (let i = 1; i < party.length; i++) {
       const k = ensureSprite(this, party[i].sprite);
-      const f = this.add.sprite(playerState.x, playerState.y, k);
+      const offset = i * FOLLOWER_GAP;
+      const f = this.add.sprite(playerState.x - offset, playerState.y, k);
+      f.setDepth(10 - i); // detrás del player y entre sí
       this.followers.push(f);
+    }
+    // Pre-llenar el trail simulando que el player ha caminado hacia la derecha
+    // hasta llegar al spawn. Así trail[length-lag] coincide con la posición
+    // donde nace cada follower y no hay "salto" hacia el player en frame 1.
+    const PREFILL = (party.length) * FOLLOWER_LAG;
+    const RATE = FOLLOWER_GAP / FOLLOWER_LAG; // px por frame
+    for (let t = 0; t < PREFILL; t++) {
+      const age = PREFILL - t; // frames hacia atrás
+      this.trail.push({ x: playerState.x - age * RATE, y: playerState.y });
     }
   }
 

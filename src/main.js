@@ -12,7 +12,7 @@ import { EventBus } from './events.js';
 
 const BASE_W = 320;
 const BASE_H = 180;
-const ZOOM = 4;
+const ZOOM = 3;
 
 const game = new Phaser.Game({
   type: Phaser.AUTO,
@@ -26,8 +26,12 @@ const game = new Phaser.Game({
     default: 'arcade',
     arcade: { gravity: { y: 600 }, debug: false },
   },
-  // BootScene precarga los retratos antes de entrar al juego
-  scene: [BootScene, Aula, Biblioteca, Patio, DialogueScene, ForumScene, MenuScene, CombatScene],
+  // ORDEN DE ESCENAS = ORDEN DE RENDERIZADO en Phaser.
+  // Las "salas" (Aula, Biblioteca, Patio) y CombatScene se renderizan PRIMERO.
+  // Los overlays (Dialogue, Forum, Menu) van DESPUÉS para que se dibujen ENCIMA.
+  // [bug histórico: CombatScene estaba al final y tapaba el DialogueScene
+  //  cuando se llamaba "Hablar" → el diálogo no se veía y el combate "se quedaba pillado"]
+  scene: [BootScene, Aula, Biblioteca, Patio, CombatScene, DialogueScene, ForumScene, MenuScene],
 });
 
 // Estado inicial

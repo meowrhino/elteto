@@ -32,11 +32,14 @@ O abre `index.html` con la extensión **Live Server** de VS Code.
 src/
 ├── main.js              ← arranque: Phaser config + estado + bus
 ├── state.js             ← estado por defecto (player, party, inventory, flags)
-├── characters.js        ← factory de sprites 16×24 (estilos por personaje)
+├── characters.js        ← factory de sprites 24×32 (estilos por personaje)
+├── enemies.js           ← configs de enemigos (Pablo, libro poseído)
 ├── events.js            ← EventBus pub/sub compartido
 ├── story.js             ← capítulos / progresión
+├── portraits.js         ← retratos Picrew + colores por speaker
 ├── save.js              ← guardar y cargar partida (JSON descargable)
 └── scenes/
+    ├── BootScene.js     ← precarga de retratos antes de cualquier sala
     ├── RoomScene.js     ← base de cualquier sala (input, físicas, NPCs, visión)
     ├── Aula.js          ← clase: profesora, alumnos, Lucas
     ├── Biblioteca.js    ← libro poseído, bibliotecaria, lector
@@ -47,14 +50,19 @@ src/
     └── CombatScene.js   ← combate por turnos (con mecánica especial para Pablo)
 ```
 
+> **Orden de escenas importa** — los overlays (Dialogue/Forum/Menu) deben ir DESPUÉS de las salas y CombatScene en `main.js`. Si CombatScene queda al final, se renderiza encima del DialogueScene y los diálogos en combate son invisibles.
+
 ## Personajes
 
-- **Tú (Protagonista)** — un protagonista vacío que intenta tomar las decisiones correctas. Cabello rubio rizado, suéter negro.
-- **Jorge** — miembro del Club. Tiene tourette, sus aportaciones tienden al absurdo. Capucha de dinosaurio verde.
-- **Bárbara** — miembro del Club. El cerebro. Pelo bob blanco arriba / morado abajo, hoodie negro.
-- **Pablo** — el bully. Lleva días repitiendo la misma frase. Pelo morado corto, mostacho, chupa de cuero (próximamente).
-- **Nivea (profesora)** — está rallada con Pablo. Pelirroja con gafas, jersey verde.
-- **Martina (bibliotecaria), niño lector, Lucas, Marta, Dani, Sofía, Iván, Clara** — secundarios.
+(Apariencia basada en los retratos Picrew de `perosnajes/`.)
+
+- **Tú (Protagonista)** — un protagonista vacío que intenta tomar las decisiones correctas. Capucha de dinosaurio verde con cuernos amarillos, pelo castaño, jersey blanco con rayas verdes, pecas.
+- **Jorge** — miembro del Club. Tiene tourette, sus aportaciones tienden al absurdo. Pelo morado corto, mostacho, chupa de cuero negra con parches, pendientes de aro.
+- **Bárbara** — miembro del Club. El cerebro. Pelo bob blanco arriba / morado abajo, top de rayas y chaqueta negra abierta.
+- **Pablo** — el bully. Lleva días repitiendo la misma frase. Gorro blanco, pelo morado/teal, máscara negra, camiseta blanca "NUGGTS".
+- **Nivea (profesora)** — está rallada con Pablo. Pelirroja con gafas redondas, chaleco verde sobre camisa de rayas.
+- **Martina (bibliotecaria)** — pelo súper rizado rubio (afro), jersey negro, pendientes de aro.
+- **Niño lector, Lucas, Marta, Dani, Sofía, Iván, Clara** — secundarios.
 
 ## Capítulo 1: "El bully está roto"
 

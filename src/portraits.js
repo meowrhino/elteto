@@ -55,3 +55,21 @@ export function portraitForCharId(id) {
 export function portraitForSpeaker(name) {
   return BY_SPEAKER[name] || null;
 }
+
+// Color del nombre por speaker, compartido por DialogueScene y ForumScene.
+export const SPEAKER_COLORS = {
+  'Tú': '#ffd166',
+  'Bárbara': '#cc88ff',
+  'Jorge': '#88dd66',
+  'Nivea': '#88ddee',
+  'Profesora': '#88ddee',
+  'Martina': '#aa66cc',
+  'Bibliotecaria': '#aa66cc',
+  'Pablo': '#ff7766',
+  'Anillo': '#eeeecc',
+  '—': '#aaaaaa',
+};
+
+export function colorForSpeaker(name) {
+  return SPEAKER_COLORS[name] || '#ffffff';
+}

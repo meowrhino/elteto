@@ -1,0 +1,61 @@
+{
+  "name": "Patio",
+  "worldWidth": 640,
+  "worldHeight": 180,
+  "bgColor": "#5588cc",
+  "platforms": [
+    { "x": 0,   "y": 160, "w": 40, "h": 1, "tex": "grass" },
+    { "x": 496, "y": 128, "w": 5,  "h": 1, "tex": "tile" }
+  ],
+  "climbs": [
+    { "x": 480, "y": 128, "h": 2, "type": "lattice" }
+  ],
+  "doors": [
+    { "x": 8, "y": 136, "target": "Aula", "spawnX": 432, "spawnY": 144, "label": "aula" }
+  ],
+  "signs": [],
+  "decor": [
+    { "x": 312, "y": 154, "tex": "ball" }
+  ],
+  "npcs": [
+    {
+      "id": "pablo_npc", "name": "Pablo",
+      "x": 120, "y": 128,
+      "sprite": "pablo",
+      "lifespan": 100,
+      "scripted": true,
+      "scriptedNote": "Aparece como NPC, NPC con cutscene, o enemigo según el capítulo (Patio.addPablo)."
+    },
+    {
+      "id": "ivan", "name": "Iván",
+      "x": 256, "y": 128,
+      "sprite": "ivan",
+      "lifespan": 110,
+      "dialogue": [
+        "Yo soy el portero.",
+        "Bueno, nadie me lo ha dicho pero..."
+      ]
+    },
+    {
+      "id": "sofia", "name": "Sofía",
+      "x": 360, "y": 128,
+      "sprite": "sofia",
+      "lifespan": 150,
+      "dialogue": [
+        "¡Gol! Otro gol mío.",
+        "Te juego un 1v1. Perderás."
+      ]
+    },
+    {
+      "id": "clara", "name": "Clara",
+      "x": 560, "y": 96,
+      "sprite": "clara",
+      "lifespan": 90,
+      "dialogue": [
+        "Desde aquí arriba se ve todo el patio.",
+        "Pablo está raro, ¿no?"
+      ]
+    }
+  ],
+  "enemies": []
+}

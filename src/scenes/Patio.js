@@ -1,5 +1,6 @@
 import { RoomScene } from './RoomScene.js';
 import { getChapter, setChapter, CHAPTERS } from '../story.js';
+import { ENEMIES, PABLO_SPRITE } from '../enemies.js';
 
 // El patio. Aquí está Pablo.
 //
@@ -18,10 +19,8 @@ export class Patio extends RoomScene {
     this.bgColor = '#5588cc';
   }
 
-  // Spec única del sprite de Pablo para reutilizar (NPC y enemigo)
-  get pabloSprite() {
-    return { hair: 0x4a2a78, skin: 0xc89878, shirt: 0xeeeae0, pants: 0x222244, hairStyle: 'beanie_mask' };
-  }
+  // Spec única del sprite de Pablo (importada de enemies.js)
+  get pabloSprite() { return PABLO_SPRITE; }
 
   buildRoom() {
     // Suelo de hierba
@@ -35,13 +34,13 @@ export class Patio extends RoomScene {
     this.addDecor(312, 154, 'ball');
 
     // Puerta de vuelta al aula
-    this.addDoor(8, 136, 'Aula', 432, 140, 'aula');
+    this.addDoor(8, 136, 'Aula', 432, 144, 'aula');
 
     // Pablo (NPC o enemigo según capítulo)
     this.addPablo();
 
     // Niños jugando
-    this.addNpc(256, 136, {
+    this.addNpc(256, 128, {
       id: 'ivan', name: 'Iván',
       sprite: { hair: 0x222222, skin: 0xeec8aa, shirt: 0x44aaee, pants: 0x222222 },
       lifespan: 110,
@@ -51,7 +50,7 @@ export class Patio extends RoomScene {
       ],
     });
 
-    this.addNpc(360, 136, {
+    this.addNpc(360, 128, {
       id: 'sofia', name: 'Sofía',
       sprite: { hair: 0xccaa22, skin: 0xeec8aa, shirt: 0xddee44, pants: 0x884422, hairStyle: 'long' },
       lifespan: 150,
@@ -61,7 +60,7 @@ export class Patio extends RoomScene {
       ],
     });
 
-    this.addNpc(560, 104, {
+    this.addNpc(560, 96, {
       id: 'clara', name: 'Clara',
       sprite: { hair: 0x882244, skin: 0xffd8b8, shirt: 0xff44aa, pants: 0x442266, hairStyle: 'long' },
       lifespan: 90,
@@ -77,7 +76,7 @@ export class Patio extends RoomScene {
 
     if (chap === CHAPTERS.INVESTIGATING) {
       // NPC con cutscene previa al combate
-      this.addNpc(120, 136, {
+      this.addNpc(120, 128, {
         id: 'pablo_intro', name: 'Pablo',
         sprite: this.pabloSprite,
         lifespan: 80,
@@ -85,16 +84,10 @@ export class Patio extends RoomScene {
       });
     } else if (chap === CHAPTERS.FIGHTING) {
       // Tras la cutscene (o tras perder), contacto = combate
-      this.addEnemy(120, 136, {
-        id: 'pablo', name: 'Pablo',
-        hp: 16, atk: 3,
-        charSprite: this.pabloSprite,
-        special: 'pablo',
-        dialogue: ['me voy a follar a tu madre'],
-      });
+      this.addEnemy(120, 128, ENEMIES.pablo);
     } else if (chap === CHAPTERS.INTRO) {
       // Antes de hablar con Nivea, Pablo es un NPC inofensivo
-      this.addNpc(120, 136, {
+      this.addNpc(120, 128, {
         id: 'pablo_npc', name: 'Pablo',
         sprite: this.pabloSprite,
         lifespan: 100,
@@ -127,13 +120,7 @@ export class Patio extends RoomScene {
     this.registry.set('player', state);
 
     this.scene.start('CombatScene', {
-      enemy: {
-        id: 'pablo', name: 'Pablo',
-        hp: 16, atk: 3,
-        charSprite: this.pabloSprite,
-        special: 'pablo',
-        dialogue: ['me voy a follar a tu madre'],
-      },
+      enemy: ENEMIES.pablo,
       returnTo: 'Patio',
     });
   }

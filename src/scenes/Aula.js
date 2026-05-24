@@ -23,23 +23,23 @@ export class Aula extends RoomScene {
     this.addDecor(360, 150, 'desk');
 
     // Puertas
-    this.addDoor(8, 136, 'Biblioteca', 440, 140, 'biblioteca');
-    this.addDoor(456, 136, 'Patio', 40, 140, 'patio');
+    this.addDoor(8, 136, 'Biblioteca', 440, 144, 'biblioteca');
+    this.addDoor(456, 136, 'Patio', 40, 144, 'patio');
 
     // Cartel con controles
     this.addSign(60, 150, '← → mover  ↑↓ escalar\n[E] hablar/entrar  [TAB] menú\n[-] visión');
 
     // ===== Profesora =====
     // Su diálogo cambia según el capítulo; usamos onTalk para evitar dialogue cacheado.
-    this.addNpc(160, 136, {
+    this.addNpc(160, 128, {
       id: 'nivea', name: 'Nivea',
-      sprite: { hair: 0xc4582a, skin: 0xf8d8b8, shirt: 0x556633, pants: 0x554422, hairStyle: 'ginger_glasses' },
+      sprite: { hair: 0xc4582a, skin: 0xf8d8b8, shirt: 0xeed8b8, pants: 0x554422, hairStyle: 'ginger_glasses' },
       lifespan: 220,
       onTalk: (scene) => scene.talkToNivea(),
     });
 
     // ===== Alumnos secundarios =====
-    this.addNpc(208, 136, {
+    this.addNpc(208, 128, {
       id: 'marta', name: 'Marta',
       sprite: { hair: 0xc26a1f, skin: 0xffd8b8, shirt: 0xee88aa, pants: 0x442266, hairStyle: 'long' },
       lifespan: 110,
@@ -49,7 +49,7 @@ export class Aula extends RoomScene {
       ],
     });
 
-    this.addNpc(288, 136, {
+    this.addNpc(288, 128, {
       id: 'dani', name: 'Dani',
       sprite: { hair: 0x553322, skin: 0xeec8aa, shirt: 0x88cc66, pants: 0x442200, hairStyle: 'spiky' },
       lifespan: 140,
@@ -59,7 +59,7 @@ export class Aula extends RoomScene {
       ],
     });
 
-    this.addNpc(368, 136, {
+    this.addNpc(368, 128, {
       id: 'lucas', name: 'Lucas',
       sprite: { hair: 0xaa8844, skin: 0xeec8aa, shirt: 0xddaa44, pants: 0x223344 },
       lifespan: 4, // muy bajo: la pista de que algo no va bien

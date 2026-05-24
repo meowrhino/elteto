@@ -1,4 +1,5 @@
 import { RoomScene } from './RoomScene.js';
+import { ENEMIES } from '../enemies.js';
 
 // Biblioteca: dos pisos, bibliotecaria, niño lector y un libro poseído.
 // Side-quest opcional respecto al hilo principal de Pablo.
@@ -29,12 +30,13 @@ export class Biblioteca extends RoomScene {
     this.addClimb(304, 96, 4, 'rope');
 
     // Puerta de vuelta al aula
-    this.addDoor(8, 136, 'Aula', 24, 140, 'aula');
+    this.addDoor(8, 136, 'Aula', 24, 144, 'aula');
 
     // ===== NPCs =====
-    this.addNpc(176, 136, {
+    this.addNpc(176, 128, {
       id: 'martina', name: 'Martina',
-      sprite: { hair: 0x4a2a4a, skin: 0xffd8b8, shirt: 0xaa66cc, pants: 0x333344, hairStyle: 'long' },
+      // Pelo súper rizado rubio + jersey negro (estilo afro)
+      sprite: { hair: 0xc8a878, skin: 0xffd8b8, shirt: 0x1a1a1a, pants: 0x222222, hairStyle: 'curly_afro' },
       lifespan: 220,
       dialogue: [
         '¡SHHHHHH! Aquí no se grita.',
@@ -44,7 +46,7 @@ export class Biblioteca extends RoomScene {
       ],
     });
 
-    this.addNpc(144, 88, {
+    this.addNpc(144, 80, {
       id: 'lector', name: 'Niño lector',
       sprite: { hair: 0x222244, skin: 0xeec8aa, shirt: 0x66aacc, pants: 0x224422 },
       lifespan: 130,
@@ -57,16 +59,6 @@ export class Biblioteca extends RoomScene {
 
     // Pedestal + libro poseído al final
     this.addPlatform(432, 144, 1, 1);
-    this.addEnemy(434, 132, {
-      id: 'libro_poseido',
-      name: 'Libro Poseído',
-      hp: 18, atk: 4,
-      texture: 'book_enemy',
-      dialogue: [
-        'GRRRRGHH... páginas... rojas...',
-        'Estuve encerrado mil años en este estante.',
-        '¡VOY A DEVORAR TU MOCHILA!',
-      ],
-    });
+    this.addEnemy(434, 132, ENEMIES.libro_poseido);
   }
 }

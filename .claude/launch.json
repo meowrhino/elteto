@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "elteto",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8765"],
+      "runtimeExecutable": "/opt/homebrew/bin/node",
+      "runtimeArgs": ["/Users/meowrhino/.npm/_npx/e5196fa6dc3cecbc/node_modules/http-server/bin/http-server", "-p", "8765", "-c-1", "--silent"],
       "port": 8765
     }
   ]
