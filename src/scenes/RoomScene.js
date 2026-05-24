@@ -78,11 +78,18 @@ export class RoomScene extends Phaser.Scene {
     this.player.setDepth(10); // por encima de los followers
     this.physics.add.collider(this.player, this.platforms);
 
+    // Sombra del player (sigue su posición en update)
+    this.playerShadow = this.add.ellipse(
+      this.player.x, this.player.y + SPRITE_H / 2 - 1,
+      SPRITE_W - 4, 4, 0x000000, 0.35,
+    ).setDepth(0);
+
     // Followers — sin físicas, posicionados desde el trail del player.
     // Se spawn DESPLAZADOS a la izquierda para que sean visibles ya en frame 0
     // (si nacieran sobre el player, el último insertado lo tapa hasta que el
     // trail se llene y se separen).
     this.followers = [];
+    this.followerShadows = [];
     this.trail = [];
     const FOLLOWER_GAP = 14;
     const FOLLOWER_LAG = 20; // frames de lag entre cada follower
@@ -92,6 +99,10 @@ export class RoomScene extends Phaser.Scene {
       const f = this.add.sprite(playerState.x - offset, playerState.y, k);
       f.setDepth(10 - i); // detrás del player y entre sí
       this.followers.push(f);
+      // Sombra
+      const sh = this.add.ellipse(f.x, f.y + SPRITE_H / 2 - 1,
+        SPRITE_W - 4, 4, 0x000000, 0.35).setDepth(0);
+      this.followerShadows.push(sh);
     }
     // Pre-llenar el trail simulando que el player ha caminado hacia la derecha
     // hasta llegar al spawn. Así trail[length-lag] coincide con la posición
@@ -299,6 +310,9 @@ export class RoomScene extends Phaser.Scene {
     npc.setData('dialogue', opts.dialogue);
     npc.setData('onTalk', opts.onTalk || null);
     npc.setData('lifespan', opts.lifespan ?? Math.floor(60 + Math.random() * 90));
+    // Sombra elíptica bajo los pies del NPC (suaviza la sensación flotante)
+    this.add.ellipse(x + SPRITE_W / 2, y + SPRITE_H - 1, SPRITE_W - 4, 4, 0x000000, 0.35)
+      .setDepth(-1);
     return npc;
   }
 
@@ -506,7 +520,15 @@ export class RoomScene extends Phaser.Scene {
       const pos = this.trail[idx];
       f.x = Phaser.Math.Linear(f.x, pos.x, 0.35);
       f.y = Phaser.Math.Linear(f.y, pos.y, 0.35);
+      // Sombra del follower
+      const sh = this.followerShadows[i];
+      if (sh) { sh.x = f.x; sh.y = f.y + SPRITE_H / 2 - 1; }
     });
+    // Sombra del player
+    if (this.playerShadow) {
+      this.playerShadow.x = this.player.x;
+      this.playerShadow.y = this.player.y + SPRITE_H / 2 - 1;
+    }
   }
 
   persistPlayerPosition() {
@@ -574,7 +596,27 @@ export class RoomScene extends Phaser.Scene {
     }
 
     if (data.decor) {
-      for (const d of data.decor) this.addDecor(d.x, d.y, d.tex);
+      for (const d of data.decor) {
+        this.addDecor(d.x, d.y, d.tex);
+        // Halo cálido bajo lámparas (translúcido, debajo del decor)
+        if (d.tex === 'lamp') {
+          this.add.ellipse(d.x + 6, d.y + 16, 28, 12, 0xffe066, 0.18)
+            .setDepth(-30);
+        }
+        // Aguja del reloj con tick-tock animado (60° por minuto simulados)
+        if (d.tex === 'clock') {
+          const hand = this.add.rectangle(d.x + 7, d.y + 7, 1, 4, 0x222222)
+            .setOrigin(0.5, 1)
+            .setDepth(1);
+          this.tweens.add({
+            targets: hand,
+            angle: 360,
+            duration: 60000,           // una vuelta por minuto
+            repeat: -1,
+            ease: 'Linear',
+          });
+        }
+      }
     }
 
     if (data.doors) {
