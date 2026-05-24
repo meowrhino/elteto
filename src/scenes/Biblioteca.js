@@ -13,22 +13,52 @@ export class Biblioteca extends RoomScene {
   }
 
   buildRoom() {
+    // Interior: pared más cálida que el aula (tono ámbar polvoriento)
+    this.buildInterior({
+      wallColor: 0x4a3a52,
+      baseboardColor: 0x1f1a2a,
+      baseboardH: 4,
+      floorTop: 160,
+    });
+
+    // Mapa colgado y lámpara — atmósfera de biblioteca
+    this.addDecor(160, 40, 'map');
+    this.addDecor(204, 24, 'lamp');
+    this.addDecor(60, 24, 'lamp');
+    this.addDecor(380, 24, 'lamp');
+
+    // Suelo continuo
     for (let x = 0; x < this.worldWidth; x += 16) this.addPlatform(x, 160);
 
-    // Decoración: estanterías repartidas
+    // Estanterías altas al fondo (decor de pared, contra la pared trasera)
+    this.addDecor(28, 76, 'shelf_tall');
+    this.addDecor(108, 76, 'shelf_tall');
+    this.addDecor(188, 76, 'shelf_tall');
+    this.addDecor(268, 76, 'shelf_tall');
+    this.addDecor(348, 76, 'shelf_tall');
+    this.addDecor(428, 76, 'shelf_tall');
+
+    // Estanterías bajas (existentes, en primer plano)
     this.addDecor(40, 128, 'shelf');
     this.addDecor(72, 128, 'shelf');
     this.addDecor(240, 128, 'shelf');
     this.addDecor(272, 128, 'shelf');
     this.addDecor(400, 128, 'shelf');
 
-    // Altillo accesible por escalera
+    // Mesa de lectura central con libro
+    this.addDecor(180, 146, 'reading_table');
+    this.addDecor(178, 151, 'chair');
+    this.addDecor(202, 151, 'chair');
+
+    // Altillo accesible por escalera a ambos lados
     this.addPlatform(112, 112, 5);
     this.addClimb(96, 112, 3, 'ladder');
+    this.addClimb(192, 112, 3, 'ladder');
 
-    // Otra zona alta por cuerda (al lado, fuera de la plataforma)
+    // Otra zona alta por cuerda (escalable por ambos extremos)
     this.addPlatform(320, 96, 4);
     this.addClimb(304, 96, 4, 'rope');
+    this.addClimb(384, 96, 4, 'rope');
 
     // Puerta de vuelta al aula
     this.addDoor(8, 136, 'Aula', 24, 144, 'aula');

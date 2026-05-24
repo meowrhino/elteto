@@ -23,13 +23,57 @@ export class Patio extends RoomScene {
   // Spec única del sprite de Pablo (importada de enemies.js)
   get pabloSprite() { return PABLO_SPRITE; }
 
+  // Fondo del patio: montañas + nubes con parallax.
+  // Las montañas se extienden a ambos lados del mundo porque su parallax
+  // (sf=0.4) las desplaza más de 100px cuando la cámara se mueve.
+  buildPatioBackground() {
+    // Capa de cielo más claro: cubre toda la franja vertical hasta el suelo,
+    // así no aparece una línea brusca al chocar con el bgColor.
+    this.add.rectangle(-this.worldWidth, 0, this.worldWidth * 3, 160, 0x77aadd)
+      .setOrigin(0, 0).setDepth(-100).setScrollFactor(0.3, 1);
+
+    // Montañas (lejanas)
+    const mtnY = 110;
+    for (let x = -this.worldWidth; x < this.worldWidth * 2; x += 32) {
+      this.add.image(x, mtnY, 'mountain')
+        .setOrigin(0, 0).setDepth(-90).setScrollFactor(0.4, 1);
+    }
+
+    // Nubes (parallax medio)
+    const cloudPositions = [
+      { x: 40, y: 30, sf: 0.55 },
+      { x: 180, y: 50, sf: 0.6 },
+      { x: 340, y: 22, sf: 0.65 },
+      { x: 500, y: 44, sf: 0.55 },
+      { x: 600, y: 30, sf: 0.6 },
+    ];
+    for (const c of cloudPositions) {
+      this.add.image(c.x, c.y, 'cloud')
+        .setOrigin(0, 0).setDepth(-80).setScrollFactor(c.sf, 1);
+    }
+  }
+
   buildRoom() {
+    // Fondo: montañas lejanas con parallax fuerte
+    this.buildPatioBackground();
+
     // Suelo de hierba
     for (let x = 0; x < this.worldWidth; x += 16) this.addPlatform(x, 160, 1, 1, 'grass');
 
-    // Muro/tobogán al fondo con celosía
+    // Vallado pegado al fondo (entre montañas y suelo, detrás de los NPCs)
+    for (let x = 0; x < this.worldWidth; x += 32) {
+      const f = this.add.image(x, 142, 'fence').setOrigin(0, 0).setDepth(-50).setScrollFactor(1, 1);
+    }
+
+    // Árboles y papelera (props de patio)
+    this.addDecor(56, 140, 'tree');
+    this.addDecor(440, 140, 'tree');
+    this.addDecor(36, 150, 'bin');
+
+    // Muro/tobogán al fondo con celosía a ambos lados (no quedar atrapado arriba)
     this.addPlatform(496, 128, 5);
     this.addClimb(480, 128, 2, 'lattice');
+    this.addClimb(576, 128, 2, 'lattice');
 
     // Pelota como decoración
     this.addDecor(312, 154, 'ball');

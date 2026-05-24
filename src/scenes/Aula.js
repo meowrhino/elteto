@@ -13,13 +13,23 @@ export class Aula extends RoomScene {
   }
 
   buildRoom() {
-    // Interior: pared trasera + zócalo. Hace que la clase deje de "flotar".
+    // Interior: pared trasera + zócalo + techo. Hace que la clase deje de "flotar".
     this.buildInterior({
       wallColor: 0x5e567a,
       baseboardColor: 0x2a2440,
       baseboardH: 4,
       floorTop: 160,
+      ceilingHeight: 14,
+      ceilingColor: 0x3a3548,
     });
+
+    // Lambrín: banda más oscura en la mitad inferior de la pared.
+    // Tono entre la pared y el zócalo, para romper el plano de pared sin estridencias.
+    this.add.rectangle(0, 116, this.worldWidth, 40, 0x4a4566)
+      .setOrigin(0, 0).setDepth(-85).setScrollFactor(1);
+    // Riel de madera que separa lambrín de pared
+    this.add.rectangle(0, 114, this.worldWidth, 2, 0x6b4226)
+      .setOrigin(0, 0).setDepth(-84).setScrollFactor(1);
 
     // Ventana con vista al exterior (parallax suave)
     this.addWindow({ x: 24, y: 48, w: 56, h: 40, scrollFactor: 0.55 });
@@ -53,8 +63,8 @@ export class Aula extends RoomScene {
     this.addDoor(8, 136, 'Biblioteca', 440, 144, 'biblioteca');
     this.addDoor(456, 136, 'Patio', 40, 144, 'patio');
 
-    // Cartel con controles
-    this.addSign(60, 150, '← → mover  ↑↓ escalar\n[E] hablar/entrar  [TAB] menú\n[-] visión');
+    // Cartel con controles (compacto — el listado completo ya está bajo el canvas)
+    this.addSign(60, 150, '[E] hablar/entrar');
 
     // ===== Profesora =====
     // Su diálogo cambia según el capítulo; usamos onTalk para evitar dialogue cacheado.

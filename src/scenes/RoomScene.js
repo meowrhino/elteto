@@ -290,10 +290,86 @@ export class RoomScene extends Phaser.Scene {
     g.fillStyle(0x222222).fillRect(19, 13, 2, 2);
     g.generateTexture('poster', 24, 18); g.clear();
 
+    // Lámpara colgante (biblioteca)
+    g.fillStyle(0x222222).fillRect(5, 0, 2, 6);       // cable
+    g.fillStyle(0xaa8844).fillRect(2, 6, 8, 2);       // soporte
+    g.fillStyle(0xffe066).fillRect(1, 8, 10, 5);      // pantalla amarilla
+    g.fillStyle(0xddaa33).fillRect(2, 13, 8, 1);      // borde inferior
+    g.generateTexture('lamp', 12, 14); g.clear();
+
+    // Mapa (de pared, para biblio)
+    g.fillStyle(0x6b4226).fillRect(0, 0, 28, 1);       // listón superior
+    g.fillStyle(0x6b4226).fillRect(0, 19, 28, 1);      // listón inferior
+    g.fillStyle(0xeed8a0).fillRect(0, 1, 28, 18);      // papel
+    g.fillStyle(0x5588cc).fillRect(0, 1, 28, 18);      // mar azul (sobrescribe)
+    g.fillStyle(0xeed8a0).fillRect(2, 3, 8, 5);        // tierra 1
+    g.fillStyle(0xeed8a0).fillRect(12, 4, 5, 6);
+    g.fillStyle(0xeed8a0).fillRect(18, 6, 8, 8);
+    g.fillStyle(0xeed8a0).fillRect(3, 11, 6, 5);
+    g.fillStyle(0xcc4444).fillRect(15, 8, 1, 1);       // pin rojo
+    g.generateTexture('map', 28, 20); g.clear();
+
+    // Mesa de lectura (biblio, larga, con libro)
+    g.fillStyle(0xaa3333).fillRect(8, 0, 5, 2);        // libro encima
+    g.fillStyle(0xeeeeee).fillRect(9, 1, 3, 1);        // páginas
+    g.fillStyle(0x8b5a36).fillRect(0, 2, 28, 4);       // tablero
+    g.fillStyle(0x6b4226).fillRect(2, 6, 2, 8);        // pata izq
+    g.fillStyle(0x6b4226).fillRect(24, 6, 2, 8);       // pata der
+    g.generateTexture('reading_table', 28, 14); g.clear();
+
+    // Estantería alta (variante grande, sin perder la 'shelf' existente)
+    g.fillStyle(0x3a1f0a).fillRect(0, 0, 20, 48);
+    for (let row = 0; row < 4; row++) {
+      const yy = 2 + row * 12;
+      g.fillStyle(0xb88a3a).fillRect(1, yy, 18, 8);
+      // libros con tonos variados
+      const cols = [0x4a8aaa, 0xaa4a4a, 0x4aaa4a, 0xaaaa4a, 0xaa4aaa, 0x88cc44];
+      for (let i = 0; i < 6; i++) {
+        const cx = 2 + i * 3;
+        g.fillStyle(cols[(i + row) % cols.length]).fillRect(cx, yy + 1, 2, 6);
+      }
+    }
+    g.generateTexture('shelf_tall', 20, 48); g.clear();
+
+    // Nube
+    g.fillStyle(0xffffff).fillRect(2, 1, 12, 4);
+    g.fillStyle(0xffffff).fillRect(0, 2, 16, 2);
+    g.fillStyle(0xffffff).fillRect(3, 0, 8, 1);
+    g.generateTexture('cloud', 16, 5); g.clear();
+
+    // Silueta de montaña (para parallax lejano del patio)
+    g.fillStyle(0x3a3a5a).fillRect(0, 8, 32, 6);
+    g.fillStyle(0x3a3a5a).fillRect(4, 5, 8, 8);
+    g.fillStyle(0x3a3a5a).fillRect(14, 2, 10, 11);
+    g.fillStyle(0x3a3a5a).fillRect(22, 6, 8, 8);
+    g.generateTexture('mountain', 32, 14); g.clear();
+
+    // Árbol (patio)
+    g.fillStyle(0x4a2511).fillRect(7, 12, 2, 8);       // tronco
+    g.fillStyle(0x2a6a2a).fillRect(2, 4, 12, 8);       // copa
+    g.fillStyle(0x2a6a2a).fillRect(4, 2, 8, 4);
+    g.fillStyle(0x3aaa3a).fillRect(3, 5, 2, 2);        // toques de luz
+    g.fillStyle(0x3aaa3a).fillRect(10, 6, 2, 2);
+    g.generateTexture('tree', 16, 20); g.clear();
+
+    // Vallado bajo (patio, atrás del juego)
+    g.fillStyle(0x8b6a36).fillRect(0, 0, 32, 1);       // listón superior
+    g.fillStyle(0x8b6a36).fillRect(0, 5, 32, 1);       // listón inferior
+    for (let i = 0; i < 4; i++) {
+      g.fillStyle(0x8b6a36).fillRect(2 + i * 8, 0, 2, 10);
+    }
+    g.generateTexture('fence', 32, 10); g.clear();
+
+    // Papelera (patio)
+    g.fillStyle(0x555555).fillRect(0, 1, 8, 9);
+    g.fillStyle(0x333333).fillRect(0, 0, 8, 2);        // borde superior
+    g.fillStyle(0x777777).fillRect(1, 3, 1, 6);        // brillo
+    g.generateTexture('bin', 8, 10); g.clear();
+
     g.destroy();
   }
 
-  // ============================================================ interior (B)
+  // ============================================================ interior
   // Dibuja un "interior" de habitación: pared trasera + zócalo + opcionalmente techo.
   // Llamar desde buildRoom() antes de añadir decor/NPCs/puertas para que quede atrás.
   //
@@ -333,19 +409,7 @@ export class RoomScene extends Phaser.Scene {
     return { wallTop, wallH, floorTop };
   }
 
-  // ============================================================ layers / parallax (C)
-  // Capa de fondo con scrollFactor configurable. Útil para "verse a través de
-  // una ventana": el contenido se mueve más lento que la cámara, dando profundidad.
-  //
-  // opts: { x, y, w, h, color, scrollFactor=1, depth=-70 }
-  addLayer(opts) {
-    const r = this.add.rectangle(opts.x, opts.y, opts.w, opts.h, toInt(opts.color))
-      .setOrigin(0, 0)
-      .setDepth(opts.depth ?? -70)
-      .setScrollFactor(opts.scrollFactor ?? 1);
-    return r;
-  }
-
+  // ============================================================ ventana con parallax
   // Ventana con vista al exterior: cielo + colina + sol con parallax recortado al marco.
   // El contenido es ancho (para que el parallax nunca lo deje sin cielo bajo el hueco)
   // y se enmascara al rect interior usando una geometryMask.
