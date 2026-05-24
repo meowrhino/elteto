@@ -1,5 +1,5 @@
 // Tabla central de retratos Picrew. Mapea ids/speakers a claves de textura
-// y a sus ficheros en disco. La carpeta del repo se llama "perosnajes" (sic).
+// y a sus ficheros en disco.
 //
 // Crédito de los retratos: Picrew - Image Maker by Nuggts
 //   https://picrew.me/ja/image_maker/1868017
@@ -15,12 +15,12 @@ export const PORTRAIT_KEYS = {
 
 // Fichero por clave de textura
 export const PORTRAIT_FILES = {
-  [PORTRAIT_KEYS.protag]: 'perosnajes/prota.png',
-  [PORTRAIT_KEYS.jorge]: 'perosnajes/jorge.png',
-  [PORTRAIT_KEYS.barbara]: 'perosnajes/barbara.png',
-  [PORTRAIT_KEYS.pablo]: 'perosnajes/pablo.png',
-  [PORTRAIT_KEYS.nivea]: 'perosnajes/nivea (profesora).png',
-  [PORTRAIT_KEYS.martina]: 'perosnajes/martina (bibliotecaria).png',
+  [PORTRAIT_KEYS.protag]: 'personajes/prota.png',
+  [PORTRAIT_KEYS.jorge]: 'personajes/jorge.png',
+  [PORTRAIT_KEYS.barbara]: 'personajes/barbara.png',
+  [PORTRAIT_KEYS.pablo]: 'personajes/pablo.png',
+  [PORTRAIT_KEYS.nivea]: 'personajes/nivea (profesora).png',
+  [PORTRAIT_KEYS.martina]: 'personajes/martina (bibliotecaria).png',
 };
 
 // id interno del personaje (party/NPC) -> retrato

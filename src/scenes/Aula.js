@@ -63,9 +63,6 @@ export class Aula extends RoomScene {
     this.addDoor(8, 136, 'Biblioteca', 440, 144, 'biblioteca');
     this.addDoor(456, 136, 'Patio', 40, 144, 'patio');
 
-    // Cartel con controles (compacto — el listado completo ya está bajo el canvas)
-    this.addSign(60, 150, '[E] hablar/entrar');
-
     // ===== Profesora =====
     // Su diálogo cambia según el capítulo; usamos onTalk para evitar dialogue cacheado.
     this.addNpc(160, 128, {
