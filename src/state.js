@@ -42,8 +42,9 @@ export function defaultState() {
     // Enemigos derrotados (id -> true)
     defeated: {},
 
-    // Flags varios: chapter (progresión), sepia (vista activa), etc.
-    flags: { chapter: 'intro' },
+    // Flags varios: storyId (ID del nodo del story-graph), sepia (vista activa), etc.
+    // El formato legacy `chapter: 'intro'` sigue soportado vía LEGACY_MAP en story.js.
+    flags: { storyId: 'act1.ch1.intro' },
   };
 }
 
