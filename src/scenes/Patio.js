@@ -23,6 +23,47 @@ export class Patio extends RoomScene {
   // Spec única del sprite de Pablo (importada de enemies.js)
   get pabloSprite() { return PABLO_SPRITE; }
 
+  // Chuta la pelota: trayectoria parabólica corta, rebota un par de veces,
+  // vuelve a un sitio aleatorio cercano.
+  kickBall(ball) {
+    if (!ball || ball._kicking) return;
+    ball._kicking = true;
+    const originX = 312;
+    const originY = 154;
+    const direction = Math.random() < 0.5 ? -1 : 1;
+    const targetX = ball.x + direction * (60 + Math.random() * 80);
+    const peakY = ball.y - (30 + Math.random() * 20);
+
+    const stages = 18;
+    let step = 0;
+    this.time.addEvent({
+      delay: 22,
+      repeat: stages - 1,
+      callback: () => {
+        const t = (++step) / stages;
+        ball.x = (1 - t) * ball.x + t * targetX;
+        ball.y = (1 - t) * (1 - t) * originY + 2 * (1 - t) * t * peakY + t * t * 154;
+        if (step === stages) {
+          // Pequeño rebote
+          this.tweens.add({
+            targets: ball, y: ball.y - 4,
+            duration: 120, yoyo: true, repeat: 1,
+            onComplete: () => {
+              ball._kicking = false;
+              this.time.delayedCall(600, () => {
+                // Vuelve suavemente
+                this.tweens.add({
+                  targets: ball, x: originX, y: originY,
+                  duration: 800, ease: 'Sine.easeInOut',
+                });
+              });
+            },
+          });
+        }
+      },
+    });
+  }
+
   // Fondo del patio: montañas + nubes con parallax.
   // Las montañas se extienden a ambos lados del mundo porque su parallax
   // (sf=0.4) las desplaza más de 100px cuando la cámara se mueve.
@@ -75,8 +116,15 @@ export class Patio extends RoomScene {
     this.addClimb(480, 128, 2, 'lattice');
     this.addClimb(576, 128, 2, 'lattice');
 
-    // Pelota como decoración
-    this.addDecor(312, 154, 'ball');
+    // Pelota como decoración + NPC invisible para interacción (chutar)
+    const ball = this.addDecor(312, 154, 'ball');
+    const kicker = this.addNpc(304, 136, {
+      id: 'pelota_patio', name: 'Pelota',
+      sprite: toSpec('peluche'),
+      lifespan: 999,
+      onTalk: (scene) => scene.kickBall(ball),
+    });
+    if (kicker) kicker.setAlpha(0);
 
     // Puerta de vuelta al aula
     this.addDoor(8, 136, 'Aula', 432, 144, 'aula');

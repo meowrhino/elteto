@@ -68,6 +68,26 @@ export const SPEAKER_COLORS = {
   'Pablo': '#ff7766',
   'Anillo': '#eeeecc',
   '—': '#aaaaaa',
+  // Alumnos
+  'Marta': '#ff99cc',
+  'Dani': '#66ccff',
+  'Lucas': '#888899',
+  'Niño lector': '#ccccff',
+  'Iván': '#aaee88',
+  'Sofía': '#ffee44',
+  'Clara': '#ff66aa',
+  // Adultos del cole
+  'Manolo': '#88aa66',
+  'Pepa': '#ffffcc',
+  'Pepe': '#ff6644',
+  'Luz': '#ee88ee',
+  'Galán': '#ff8888',
+  'Sara': '#666666',
+  'Tania': '#ff44aa',
+  // Misteriosos
+  'Peluche': '#ffaaaa',
+  '???': '#ccccdd',
+  'Cama': '#aaaacc',
 };
 
 export function colorForSpeaker(name) {

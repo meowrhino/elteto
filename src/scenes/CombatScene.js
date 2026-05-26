@@ -360,6 +360,12 @@ export class CombatScene extends Phaser.Scene {
     this.registry.set('stats', s);
     this.flashEnemy();
     this.spawnDamagePopup(skill.dmg, this.enemySprite, '#ff6644');
+    // Partículas de skill (color según skill)
+    if (skill.id === 'bola_fuego') {
+      this.spawnHitParticles(this.enemySprite.x, this.enemySprite.y, 0xff6622, 16);
+    } else if (skill.id === 'silbar') {
+      this.spawnHitParticles(this.enemySprite.x, this.enemySprite.y, 0x88ccff, 6);
+    }
     let extra = '';
     if (skill.id === 'silbar') {
       if (Math.random() < 0.6) {
@@ -491,7 +497,6 @@ export class CombatScene extends Phaser.Scene {
   flashEnemy() {
     audio.playSfx('hit');
     this.tweens.add({ targets: this.enemySprite, alpha: 0.2, duration: 80, yoyo: true, repeat: 2 });
-    // Shake del sprite (offset relativo, no de cámara)
     const baseX = this.enemySprite.x;
     this.tweens.add({
       targets: this.enemySprite,
@@ -499,12 +504,35 @@ export class CombatScene extends Phaser.Scene {
       duration: 40, yoyo: true, repeat: 4,
       onComplete: () => this.enemySprite.x = baseX,
     });
+    // Partículas de impacto (8 estrellitas blancas que salen radialmente)
+    this.spawnHitParticles(this.enemySprite.x, this.enemySprite.y, 0xffffff);
   }
 
   flashPlayer() {
     audio.playSfx('hit');
     this.cameras.main.flash(120, 200, 40, 40);
     this.cameras.main.shake(120, 0.005);
+  }
+
+  // Partículas radiales de impacto: N puntitos que salen disparados del
+  // centro y se desvanecen. Color personalizable según el tipo de golpe.
+  spawnHitParticles(x, y, color = 0xffffff, count = 8) {
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i) / count + Math.random() * 0.3;
+      const speed = 8 + Math.random() * 8;
+      const p = this.add.rectangle(x, y, 2, 2, color).setDepth(99);
+      this.tweens.add({
+        targets: p,
+        x: x + Math.cos(angle) * speed * 2.4,
+        y: y + Math.sin(angle) * speed * 2.4,
+        alpha: { from: 1, to: 0 },
+        scaleX: { from: 1, to: 0.2 },
+        scaleY: { from: 1, to: 0.2 },
+        duration: 380,
+        ease: 'Cubic.easeOut',
+        onComplete: () => p.destroy(),
+      });
+    }
   }
 
   // Muestra un número de daño que sube y se desvanece. Estilo Earthbound.
