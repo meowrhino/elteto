@@ -184,6 +184,12 @@ export class DialogueScene extends Phaser.Scene {
 
   startTypewriter(speaker) {
     if (this._typeTimer) this._typeTimer.remove(false);
+    // Guarda: con fullText vacío Phaser interpretaría repeat:-1 como infinito.
+    if (!this.fullText) {
+      this.typing = false;
+      this.nextArrow.setVisible(true);
+      return;
+    }
     const voice = voiceFor(speaker);
     this._typeTimer = this.time.addEvent({
       delay: TYPE_MS,

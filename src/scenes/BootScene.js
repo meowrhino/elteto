@@ -1,5 +1,6 @@
 import { PORTRAIT_FILES } from '../portraits.js';
 import { DECOR_CATALOG } from '../decor-defs.js';
+import { whenPixelFontReady } from '../font.js';
 
 // Escena de arranque: precarga los retratos PNG, los decor PNG y salta a
 // la sala inicial.
@@ -39,6 +40,11 @@ export class BootScene extends Phaser.Scene {
 
     const playerState = this.registry.get('player') || { scene: 'Aula' };
     const targetScene = playerState.scene || 'Aula';
-    this.time.delayedCall(0, () => this.scene.start(targetScene));
+    // Esperamos a Press Start 2P antes de arrancar la sala: si no, el primer
+    // frame de textos se rastriza con la fuente fallback y Phaser cachea esa
+    // textura — el texto se queda en monospace hasta tocar setText.
+    whenPixelFontReady().then(() => {
+      this.time.delayedCall(0, () => this.scene.start(targetScene));
+    });
   }
 }
