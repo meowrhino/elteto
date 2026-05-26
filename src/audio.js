@@ -133,38 +133,68 @@ export class AudioBus {
   }
 
   // ============================================================ BGM
-  // Por ahora la BGM es un drone simple. Cuando se quiera meter archivos
-  // basta con reemplazar este método y conservar la API.
+  // BGM con varias "capas": drone grave + pad medio + opcional LFO + ruido.
+  // Cuando se quiera meter archivos CC0 reales, basta con sustituir este
+  // método (BGM_PRESETS define qué se reproduce por sala).
   playBgm(preset = 'aula') {
+    if (this.currentBgm === preset) return; // ya está sonando
     const ctx = this.ensureContext();
     if (!ctx) return;
     this.stopBgm();
+    this.currentBgm = preset;
     const gain = this.gainOf('bgm');
     if (gain === 0) return;
 
-    const presets = {
-      aula:      { freq: 120, detune: -8, type: 'sine' },
-      biblioteca:{ freq: 80,  detune: -5, type: 'triangle' },
-      patio:     { freq: 200, detune: 4,  type: 'sine' },
-    };
-    const p = presets[preset] || presets.aula;
+    const cfg = BGM_PRESETS[preset] || BGM_PRESETS.aula;
+    const master = ctx.createGain();
+    master.gain.value = gain * 0.06; // baja el nivel general
+    master.connect(ctx.destination);
 
-    const osc1 = ctx.createOscillator();
-    const osc2 = ctx.createOscillator();
-    const g = ctx.createGain();
-    osc1.type = p.type;
-    osc2.type = p.type;
-    osc1.frequency.value = p.freq;
-    osc2.frequency.value = p.freq;
-    osc2.detune.value = p.detune;
-    osc1.connect(g);
-    osc2.connect(g);
-    g.connect(ctx.destination);
-    g.gain.value = gain * 0.05; // drone bajo, no estridente
-    osc1.start();
-    osc2.start();
-    this.bgmNode = g;
-    this.bgmOsc = [osc1, osc2];
+    const nodes = [];
+    const oscs = [];
+
+    // Drone grave (bajo)
+    if (cfg.bass) {
+      const o = ctx.createOscillator();
+      o.type = cfg.bass.type || 'sine';
+      o.frequency.value = cfg.bass.freq;
+      const g = ctx.createGain();
+      g.gain.value = cfg.bass.gain ?? 0.7;
+      o.connect(g).connect(master);
+      o.start();
+      oscs.push(o); nodes.push(g);
+    }
+
+    // Pad medio (otro oscilador con detune)
+    if (cfg.pad) {
+      for (let i = 0; i < (cfg.pad.voices || 2); i++) {
+        const o = ctx.createOscillator();
+        o.type = cfg.pad.type || 'triangle';
+        o.frequency.value = cfg.pad.freq;
+        o.detune.value = (i - 0.5) * (cfg.pad.detune ?? 6);
+        const g = ctx.createGain();
+        g.gain.value = (cfg.pad.gain ?? 0.4) / (cfg.pad.voices || 2);
+        o.connect(g).connect(master);
+        o.start();
+        oscs.push(o); nodes.push(g);
+      }
+    }
+
+    // LFO opcional: modula el volumen del master sutilmente para que respire
+    if (cfg.lfo) {
+      const lfo = ctx.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = cfg.lfo.rate ?? 0.2;
+      const lfoGain = ctx.createGain();
+      lfoGain.gain.value = (cfg.lfo.depth ?? 0.02) * gain;
+      lfo.connect(lfoGain).connect(master.gain);
+      lfo.start();
+      oscs.push(lfo); nodes.push(lfoGain);
+    }
+
+    this.bgmNode = master;
+    this.bgmOsc = oscs;
+    this.bgmNodes = nodes;
   }
 
   stopBgm() {
@@ -173,8 +203,90 @@ export class AudioBus {
       this.bgmOsc = null;
     }
     if (this.bgmNode) { try { this.bgmNode.disconnect(); } catch {} ; this.bgmNode = null; }
+    if (this.bgmNodes) {
+      for (const n of this.bgmNodes) { try { n.disconnect(); } catch {} }
+      this.bgmNodes = null;
+    }
+    this.currentBgm = null;
   }
 }
+
+// Presets de BGM por sala. Cada preset combina bass + pad + lfo. El
+// resultado son drones más ricos que el drone único anterior, sin ser
+// música de verdad. Cuando se sustituyan por archivos CC0, basta con
+// reemplazar playBgm() conservando la API (playBgm(preset)).
+export const BGM_PRESETS = {
+  aula: {
+    bass: { freq: 110, type: 'sine', gain: 0.6 },
+    pad:  { freq: 220, type: 'triangle', voices: 2, detune: 10, gain: 0.4 },
+    lfo:  { rate: 0.18, depth: 0.015 },
+  },
+  biblioteca: {
+    bass: { freq: 73, type: 'sine', gain: 0.7 },
+    pad:  { freq: 174, type: 'triangle', voices: 3, detune: 14, gain: 0.35 },
+    lfo:  { rate: 0.12, depth: 0.018 },
+  },
+  patio: {
+    bass: { freq: 196, type: 'triangle', gain: 0.4 },
+    pad:  { freq: 392, type: 'sine', voices: 2, detune: 5, gain: 0.3 },
+    lfo:  { rate: 0.4, depth: 0.025 },
+  },
+  pasillo: {
+    bass: { freq: 87, type: 'sine', gain: 0.6 },
+    pad:  { freq: 220, type: 'sine', voices: 2, detune: 7, gain: 0.3 },
+    lfo:  { rate: 0.15, depth: 0.012 },
+  },
+  comedor: {
+    bass: { freq: 130, type: 'triangle', gain: 0.5 },
+    pad:  { freq: 261, type: 'triangle', voices: 2, detune: 8, gain: 0.35 },
+    lfo:  { rate: 0.22, depth: 0.018 },
+  },
+  gimnasio: {
+    bass: { freq: 165, type: 'sawtooth', gain: 0.35 },
+    pad:  { freq: 330, type: 'square', voices: 2, detune: 12, gain: 0.25 },
+    lfo:  { rate: 0.35, depth: 0.03 },
+  },
+  aula_musica: {
+    bass: { freq: 98, type: 'sine', gain: 0.6 },
+    pad:  { freq: 196, type: 'triangle', voices: 3, detune: 16, gain: 0.4 },
+    lfo:  { rate: 0.2, depth: 0.02 },
+  },
+  salon_actos: {
+    bass: { freq: 65, type: 'sine', gain: 0.8 },
+    pad:  { freq: 196, type: 'sawtooth', voices: 2, detune: 18, gain: 0.3 },
+    lfo:  { rate: 0.1, depth: 0.025 },
+  },
+  azotea: {
+    bass: { freq: 220, type: 'sine', gain: 0.4 },
+    pad:  { freq: 440, type: 'sine', voices: 2, detune: 4, gain: 0.25 },
+    lfo:  { rate: 0.5, depth: 0.02 },
+  },
+  sotano: {
+    bass: { freq: 55, type: 'sine', gain: 0.9 },
+    pad:  { freq: 110, type: 'sine', voices: 2, detune: 20, gain: 0.4 },
+    lfo:  { rate: 0.08, depth: 0.03 },
+  },
+  cuarto_prota: {
+    bass: { freq: 87, type: 'sine', gain: 0.55 },
+    pad:  { freq: 261, type: 'triangle', voices: 2, detune: 8, gain: 0.4 },
+    lfo:  { rate: 0.15, depth: 0.018 },
+  },
+  sueno_pablo: {
+    bass: { freq: 41, type: 'sine', gain: 1.0 },
+    pad:  { freq: 87, type: 'sawtooth', voices: 3, detune: 30, gain: 0.35 },
+    lfo:  { rate: 0.06, depth: 0.05 },
+  },
+  astral: {
+    bass: { freq: 261, type: 'sine', gain: 0.3 },
+    pad:  { freq: 523, type: 'sine', voices: 3, detune: 10, gain: 0.3 },
+    lfo:  { rate: 0.6, depth: 0.04 },
+  },
+  combat: {
+    bass: { freq: 73, type: 'sawtooth', gain: 0.5 },
+    pad:  { freq: 220, type: 'square', voices: 2, detune: 14, gain: 0.25 },
+    lfo:  { rate: 1.5, depth: 0.04 },
+  },
+};
 
 // Instancia singleton del bus de audio.
 export const audio = new AudioBus();

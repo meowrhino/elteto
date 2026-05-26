@@ -1,6 +1,7 @@
 import { RoomScene } from './RoomScene.js';
 import { toSpec, lifespanOf } from '../data/characters.js';
 import { ROOM_CUARTO_PROTA } from '../data/rooms/cuarto_prota.js';
+import { unlockAchievement } from './AchievementToast.js';
 
 // Cuarto del protagonista. Lo separamos del factory makeRoomClass porque
 // añade un NPC "Cama" con onTalk para dormir/avanzar el día.
@@ -32,6 +33,7 @@ export class CuartoProta extends RoomScene {
     const wasNight = flags.timeOfDay === 'night';
     flags.timeOfDay = wasNight ? 'day' : 'night';
     this.registry.set('flags', flags);
+    if (!wasNight) unlockAchievement(this, 'night_first');
 
     // Restaurar stats
     const stats = this.registry.get('stats');

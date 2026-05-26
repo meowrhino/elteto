@@ -1,6 +1,7 @@
 import { ensureSprite } from '../characters.js';
 import { setChapter, CHAPTERS } from '../story.js';
 import { audio } from '../audio.js';
+import { unlockAchievement } from './AchievementToast.js';
 
 // Combate por turnos.
 // Datos esperados: { enemy, returnTo }
@@ -34,6 +35,7 @@ export class CombatScene extends Phaser.Scene {
     const W = this.scale.width;
     const H = this.scale.height;
     this.cameras.main.setBackgroundColor('#101018');
+    audio.playBgm('combat');
 
     // Suelo + horizonte
     this.add.rectangle(W / 2, 84, W, 4, 0x444466);
@@ -557,7 +559,10 @@ export class CombatScene extends Phaser.Scene {
     const defeated = this.registry.get('defeated') || {};
     defeated[this.enemyCfg.id] = true;
     this.registry.set('defeated', defeated);
-    if (this.enemyCfg.id === 'pablo') setChapter(this.registry, CHAPTERS.PABLO_DONE);
+    if (this.enemyCfg.id === 'pablo') {
+      setChapter(this.registry, CHAPTERS.PABLO_DONE);
+      unlockAchievement(this, 'pablo_done');
+    }
     this.enterState('END', `¡Has derrotado a ${this.enemyCfg.name}!`);
     this.endResult = 'win';
   }
@@ -567,6 +572,8 @@ export class CombatScene extends Phaser.Scene {
     defeated[this.enemyCfg.id] = true;
     this.registry.set('defeated', defeated);
     setChapter(this.registry, CHAPTERS.PABLO_DONE);
+    unlockAchievement(this, 'pablo_done');
+    unlockAchievement(this, 'peace_pablo');
     this.enterState('END', 'Pablo está libre. Vuelve al aula.');
     this.endResult = 'peace';
   }

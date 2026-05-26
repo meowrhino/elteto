@@ -2,9 +2,11 @@ import { ensureSprite, SPRITE_W, SPRITE_H } from '../characters.js';
 import { bus } from '../events.js';
 import { linesFor } from '../data/dialogues.js';
 import { getChapter } from '../story.js';
+import { passesStoryFilter } from '../data/story-graph.js';
 import { toSpec, lifespanOf, alphaOf } from '../data/characters.js';
 import { audio } from '../audio.js';
 import { DECOR_CATALOG } from '../decor-defs.js';
+import { unlockAchievement } from './AchievementToast.js';
 
 // Acepta número (0xRRGGBB) o string ('#rrggbb' / 'rrggbb') y devuelve int.
 function toInt(c) {
@@ -66,6 +68,12 @@ export class RoomScene extends Phaser.Scene {
 
     // Tinte nocturno si es de noche (azul oscuro, sutil)
     this.applyNightTint();
+
+    // BGM por sala (si está muteado, no hace nada). El preset se elige
+    // por nombre de escena en kebab-case (Pasillo → pasillo, AulaMusica → aula_musica).
+    const bgmKey = this.scene.key
+      .replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, '');
+    audio.playBgm(bgmKey);
   }
 
   applyNightTint() {
@@ -427,6 +435,7 @@ export class RoomScene extends Phaser.Scene {
     flags.sepia = !was;
     this.registry.set('flags', flags);
     this.applySepia(!was);
+    if (!was) unlockAchievement(this, 'vision_first');
     if (!was && !flags.firstVisionDone) {
       flags.firstVisionDone = true;
       this.registry.set('flags', flags);
@@ -498,6 +507,9 @@ export class RoomScene extends Phaser.Scene {
   //   3. catálogo data/dialogues.js indexado por (id, storyId) → líneas planas
   //   4. fallback ('(no responde)')
   interactWithNpc(npc) {
+    // Logro de "primer diálogo" — se dispara siempre que hablas con un NPC.
+    unlockAchievement(this, 'first_dialogue');
+
     const onTalk = npc.getData('onTalk');
     if (typeof onTalk === 'function') { onTalk(this, npc); return; }
     let lines = npc.getData('dialogue');
@@ -511,12 +523,16 @@ export class RoomScene extends Phaser.Scene {
 
   enterDoor(door) {
     audio.playSfx('door');
+    const target = door.getData('target');
+    // Logros por entrar a salas especiales
+    if (target === 'Astral') unlockAchievement(this, 'astral');
+    if (target === 'SuenoPablo') unlockAchievement(this, 'sueno_pablo');
     this.registry.set('player', {
       x: door.getData('spawnX'),
       y: door.getData('spawnY'),
-      scene: door.getData('target'),
+      scene: target,
     });
-    this.scene.start(door.getData('target'));
+    this.scene.start(target);
   }
 
   updateHint(npc, door, sign) {
@@ -621,8 +637,12 @@ export class RoomScene extends Phaser.Scene {
       this.addPlatform(x, floorY, 1, 1, floorTex);
     }
 
+    // storyId actual para filtros condicionales (onlyIn / notIn)
+    const storyId = getChapter(this.registry);
+
     if (data.decor) {
       for (const d of data.decor) {
+        if (!passesStoryFilter(storyId, d)) continue;
         const sprite = this.addDecor(d.x, d.y, d.tex);
         this.applyDecorBehavior(d, sprite);
       }
@@ -630,16 +650,21 @@ export class RoomScene extends Phaser.Scene {
 
     if (data.doors) {
       for (const d of data.doors) {
+        if (!passesStoryFilter(storyId, d)) continue;
         this.addDoor(d.x, d.y, d.target, d.spawnX, d.spawnY, d.label);
       }
     }
 
     if (data.signs) {
-      for (const s of data.signs) this.addSign(s.x, s.y, s.text);
+      for (const s of data.signs) {
+        if (!passesStoryFilter(storyId, s)) continue;
+        this.addSign(s.x, s.y, s.text);
+      }
     }
 
     if (data.npcs) {
       for (const n of data.npcs) {
+        if (!passesStoryFilter(storyId, n)) continue;
         const npc = this.addNpc(n.x, n.y, {
           id: n.id,
           name: n.name,

@@ -73,3 +73,33 @@ export const LEGACY_MAP = {
   'pablo_done': 'act1.ch1.pablo_done',
   'done': 'act1.ch1.done',
 };
+
+// Patrón sencillo de matching: 'act1.ch1.*' coincide con cualquier step
+// del capítulo 1 acto 1. 'act1.*' coincide con cualquier capítulo del
+// acto 1. Sin asterisco, comparación literal exacta.
+//
+// Útil para campos `onlyIn` / `notIn` en data/rooms/*.js, que filtran
+// NPCs, decor o puertas según el storyId actual.
+export function matchesStoryPattern(storyId, pattern) {
+  if (!pattern || !storyId) return false;
+  if (pattern === storyId) return true;
+  if (!pattern.includes('*')) return false;
+  // Convertir 'act1.ch1.*' a regex anclado
+  const re = new RegExp('^' + pattern.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$');
+  return re.test(storyId);
+}
+
+// Devuelve true si `storyId` cumple las condiciones de un item:
+//   item.onlyIn:  array de patrones; al menos uno debe matchear (whitelist)
+//   item.notIn:   array de patrones; ninguno debe matchear (blacklist)
+// Si no hay condiciones, siempre passes.
+export function passesStoryFilter(storyId, item) {
+  if (!item) return true;
+  if (item.onlyIn) {
+    if (!item.onlyIn.some(p => matchesStoryPattern(storyId, p))) return false;
+  }
+  if (item.notIn) {
+    if (item.notIn.some(p => matchesStoryPattern(storyId, p))) return false;
+  }
+  return true;
+}

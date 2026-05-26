@@ -2,6 +2,7 @@ import { RoomScene } from './RoomScene.js';
 import { ROOM_GIMNASIO } from '../data/rooms/gimnasio.js';
 import { toSpec } from '../data/characters.js';
 import { audio } from '../audio.js';
+import { unlockAchievement } from './AchievementToast.js';
 
 // Gimnasio. Tiene mini-juego de baloncesto: pulsar E sobre la pelota
 // la lanza hacia una canasta cercana.
@@ -75,8 +76,9 @@ export class Gimnasio extends RoomScene {
   resolveShot(success, originX, originY) {
     this.score++;
     if (success) {
-      // Anota: efecto + pop-up
+      // Anota: efecto + pop-up + logro
       audio.playSfx('confirm');
+      unlockAchievement(this, 'basket_anota');
       this.openDialogue('—', ['¡Canasta! +1 punto al rebote.']);
       this.flashCanvas(0x88ff88);
     } else {
