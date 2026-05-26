@@ -109,7 +109,25 @@ function bindSlider(id, channel) {
   const el = document.getElementById(id);
   if (!el) return;
   el.value = audio.volumes[channel];
-  el.addEventListener('input', () => audio.setVolume(channel, parseInt(el.value, 10)));
+  el.addEventListener('input', () => {
+    const v = parseInt(el.value, 10);
+    audio.setVolume(channel, v);
+    // Logro: primera vez que se sube el master por encima de 0
+    if (channel === 'master' && v > 0) {
+      import('./data/achievements.js').then(({ markUnlocked }) => {
+        const ach = markUnlocked(game.registry, 'music_listen');
+        if (ach) {
+          // Mostrar toast en cualquier escena activa
+          const active = game.scene.getScenes(true)[0];
+          if (active) {
+            import('./scenes/AchievementToast.js').then(({ showAchievementToast }) => {
+              showAchievementToast(active, ach);
+            });
+          }
+        }
+      });
+    }
+  });
 }
 bindSlider('vol-master', 'master');
 bindSlider('vol-bgm', 'bgm');

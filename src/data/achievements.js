@@ -21,6 +21,15 @@ export const ACHIEVEMENTS = {
     id: 'meet_all',
     title: 'El censo del cole',
     desc: 'Hablaste con todos los NPCs del cole.',
+    // Lista cerrada de IDs que cuentan para este logro. Excluye Pablo
+    // (enemigo) y entidades cuya interacción es trivial (Cama).
+    requires: [
+      'nivea', 'marta', 'dani', 'lucas',         // Aula
+      'martina', 'lector',                        // Biblioteca
+      'ivan', 'sofia', 'clara',                   // Patio
+      'manolo', 'tania', 'pepa', 'pepe', 'luz', 'galan', 'sara',  // Adultos
+      'peluche', 'fantasma',                      // Misteriosos
+    ],
   },
   vision_first: {
     id: 'vision_first',
@@ -89,4 +98,24 @@ export function markUnlocked(registry, id) {
   flags.achievements = list;
   registry.set('flags', flags);
   return ACHIEVEMENTS[id];
+}
+
+// Registra que el jugador habló con un NPC concreto. Si con eso completa
+// la lista de `meet_all`, devuelve también el logro pendiente.
+// Devuelve null si nada cambió.
+export function registerTalk(registry, npcId) {
+  if (!npcId) return null;
+  const flags = registry.get('flags') || {};
+  const talked = Array.isArray(flags.talkedTo) ? flags.talkedTo.slice() : [];
+  if (talked.includes(npcId)) return null;
+  talked.push(npcId);
+  flags.talkedTo = talked;
+  registry.set('flags', flags);
+
+  // Comprobar meet_all
+  const req = ACHIEVEMENTS.meet_all.requires;
+  if (req && req.every(r => talked.includes(r))) {
+    return markUnlocked(registry, 'meet_all');
+  }
+  return null;
 }

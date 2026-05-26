@@ -6,7 +6,8 @@ import { passesStoryFilter } from '../data/story-graph.js';
 import { toSpec, lifespanOf, alphaOf } from '../data/characters.js';
 import { audio } from '../audio.js';
 import { DECOR_CATALOG } from '../decor-defs.js';
-import { unlockAchievement } from './AchievementToast.js';
+import { unlockAchievement, showAchievementToast } from './AchievementToast.js';
+import { registerTalk } from '../data/achievements.js';
 
 // Acepta número (0xRRGGBB) o string ('#rrggbb' / 'rrggbb') y devuelve int.
 function toInt(c) {
@@ -510,11 +511,17 @@ export class RoomScene extends Phaser.Scene {
     // Logro de "primer diálogo" — se dispara siempre que hablas con un NPC.
     unlockAchievement(this, 'first_dialogue');
 
+    // Registrar al NPC en flags.talkedTo y comprobar 'meet_all'.
+    const id = npc.getData('id');
+    if (id) {
+      const meetAll = registerTalk(this.registry, id);
+      if (meetAll) showAchievementToast(this, meetAll);
+    }
+
     const onTalk = npc.getData('onTalk');
     if (typeof onTalk === 'function') { onTalk(this, npc); return; }
     let lines = npc.getData('dialogue');
     if (!lines) {
-      const id = npc.getData('id');
       if (id) lines = linesFor(id, getChapter(this.registry));
     }
     if (!lines) lines = ['(no responde)'];

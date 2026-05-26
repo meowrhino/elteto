@@ -145,12 +145,38 @@ export function setupSaveUI(game) {
     render();
 
     // Autosave global: cualquier cambio de sala o capítulo se replica
-    // al slot 'auto'. Suscrito al registry de Phaser.
+    // al slot 'auto'. Suscrito al registry de Phaser. Throttle de 1s
+    // para no spamear cuando se actualizan múltiples flags consecutivos.
+    let lastAutosave = 0;
     game.registry.events.on('changedata', (_, key) => {
       if (key === 'player' || key === 'flags') {
+        const now = Date.now();
+        if (now - lastAutosave < 800) return;
+        lastAutosave = now;
         saveToSlot(game, 'auto');
         render();
+        showAutosaveToast(game);
       }
     });
   }
+}
+
+// Toast discreto "guardado" en la esquina superior derecha de la escena
+// activa. Aparece 1s y desaparece. No pretende ser intrusivo.
+function showAutosaveToast(game) {
+  const active = game.scene.getScenes(true)[0];
+  if (!active) return;
+  const W = active.scale.width;
+  const text = active.add.text(W - 6, 4, '✓ guardado', {
+    fontFamily: '"Press Start 2P", monospace', fontSize: '7px',
+    color: '#88ff88',
+  }).setOrigin(1, 0).setDepth(9998).setScrollFactor(0).setAlpha(0);
+  active.tweens.add({
+    targets: text,
+    alpha: { from: 0, to: 1 },
+    duration: 200,
+    yoyo: true,
+    hold: 700,
+    onComplete: () => text.destroy(),
+  });
 }

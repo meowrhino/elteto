@@ -16,6 +16,14 @@ export function unlockAchievement(scene, id) {
   const ach = markUnlocked(scene.registry, id);
   if (!ach) return;
   audio.playSfx('confirm');
+  showAchievementToast(scene, ach);
+}
+
+// Variante que asume que el ach ya está desbloqueado (devuelto por
+// markUnlocked / registerTalk). Útil cuando el unlock se hace fuera de
+// aquí pero queremos enseñar el toast.
+export function showAchievementToast(scene, ach) {
+  audio.playSfx('confirm');
   showToast(scene, ach);
 }
 
